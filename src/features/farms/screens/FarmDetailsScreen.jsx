@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, Thermometer, Droplets, Activity } from 'lucide-react-native';
 import { farmService } from '../../../services/farm.service';
 import { hiveService } from '../../../services/hive.service';
 import { theme } from '../../../theme';
 import styles from './FarmDetailsScreen.styles';
+import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
+import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 
 export default function FarmDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -27,7 +28,7 @@ export default function FarmDetailsScreen() {
   if (farmLoading || hivesLoading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator color={theme.colors.primary} size="large" />
+        <ActivityIndicator color={theme.colors.primaryDark} size="large" />
       </View>
     );
   }
@@ -41,70 +42,59 @@ export default function FarmDetailsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.farmHeader}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Hero Image */}
+      <View style={styles.heroImageContainer}>
+        <Image 
+          source={{ uri: 'https://picsum.photos/seed/farmview/600/400' }} 
+          style={styles.heroImage}
+        />
+      </View>
+
+      <View style={styles.content}>
         <Text style={styles.farmName}>{farm.name}</Text>
         <Text style={styles.location}>{farm.location}</Text>
-        <View style={styles.metricsRow}>
-          <View>
-            <Text style={styles.metricLabel}>Area</Text>
-            <Text style={styles.metricValue}>{farm.area} acres</Text>
+
+        <View style={styles.metricsCard}>
+          <View style={styles.metric}>
+            <Text style={styles.metricValue}>{farm.area}</Text>
+            <Text style={styles.metricLabel}>Acres</Text>
           </View>
-          <View>
-            <Text style={styles.metricLabel}>Flora</Text>
+          <View style={styles.metric}>
             <Text style={styles.metricValue}>{farm.floralSource}</Text>
+            <Text style={styles.metricLabel}>Flora</Text>
           </View>
-          <View>
-            <Text style={styles.metricLabel}>Bee</Text>
+          <View style={styles.metric}>
             <Text style={styles.metricValue}>{farm.beeSpecies}</Text>
+            <Text style={styles.metricLabel}>Species</Text>
           </View>
         </View>
-      </View>
 
-      <View style={styles.listHeader}>
-        <Text style={styles.listTitle}>Hives ({hives?.length || 0})</Text>
-        <TouchableOpacity 
-          style={styles.addHiveButton}
-          onPress={() => router.push({ pathname: '/(app)/hives/add', params: { farmId: farm.id } })}
-        >
-          <Plus color="#ba6000" size={16} />
-          <Text style={styles.addHiveText}>Add Hive</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={hives}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Hives ({hives?.length || 0})</Text>
           <TouchableOpacity 
-            style={styles.hiveCard}
-            onPress={() => router.push(`/(app)/hives/${item.id}`)}
+            style={styles.addButton}
+            onPress={() => router.push({ pathname: '/(app)/hives/add', params: { farmId: farm.id } })}
           >
-            <View>
-              <Text style={styles.hiveId}>{item.id}</Text>
-              <View style={styles.hiveStatusContainer}>
-                <Text style={styles.hiveStatusLabel}>Status: </Text>
-                <Text style={styles.hiveStatusValue}>{item.healthStatus}</Text>
-              </View>
-            </View>
-            <View style={styles.sensorsRow}>
-              <View style={styles.sensorItem}>
-                <Thermometer size={16} color={theme.colors.status.warning} />
-                <Text style={styles.sensorValue}>{item.temperature}°C</Text>
-              </View>
-              <View style={styles.sensorItem}>
-                <Droplets size={16} color={theme.colors.status.info} />
-                <Text style={styles.sensorValue}>{item.humidity}%</Text>
-              </View>
-              <View style={styles.sensorItem}>
-                <Activity size={16} color={theme.colors.status.success} />
-                <Text style={styles.sensorValue}>{item.currentWeight}kg</Text>
-              </View>
-            </View>
+            <Text style={styles.addButtonText}>+ ADD HIVE</Text>
           </TouchableOpacity>
-        )}
-      />
-    </View>
+        </View>
+
+        <MasonryGrid 
+          data={hives || []}
+          numColumns={2}
+          renderItem={({ item, index }) => (
+            <HoneyCard
+              type="hive"
+              title={`Hive ${item.id.substring(0,6)}`}
+              subtitle={item.healthStatus}
+              height={index % 2 === 0 ? 180 : 220}
+              onPress={() => router.push(`/(app)/hives/${item.id}`)}
+              badgeText={`${item.temperature}°C | ${item.humidity}%`}
+            />
+          )}
+        />
+      </View>
+    </ScrollView>
   );
 }

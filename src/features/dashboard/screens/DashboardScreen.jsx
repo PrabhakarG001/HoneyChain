@@ -1,115 +1,130 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LogOut, LayoutDashboard, Plus, Leaf, Hexagon } from 'lucide-react-native';
+import { LogOut } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { USER_ROLES } from '../../../constants/roles';
 import { theme } from '../../../theme';
 import styles from './DashboardScreen.styles';
 
+import SearchBar from '../../../components/ui/SearchBar/SearchBar';
+import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
+import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
+import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
+
+const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
+
+const MOCK_FEED_DATA = [
+  { id: '1', type: 'farm', title: 'Varanasi Honey Farm', subtitle: '120 Hives', height: 250, isVerified: true },
+  { id: '2', type: 'honey', title: 'Wild Forest Honey', subtitle: 'HC-UP-2026-00123', height: 320, isVerified: true, badgeText: '92 Score' },
+  { id: '3', type: 'hive', title: 'Hive HV-UP-00123', subtitle: 'Healthy', height: 200, isVerified: false },
+  { id: '4', type: 'product', title: 'Pure Himalayan Honey', subtitle: 'Origin Verified', height: 280, isVerified: true },
+  { id: '5', type: 'farm', title: 'Uttarakhand Bees', subtitle: '85 Hives', height: 220, isVerified: true },
+  { id: '6', type: 'honey', title: 'Acacia Honey', subtitle: 'HC-UP-2026-00999', height: 300, isVerified: true, badgeText: '98 Score' },
+];
+
 export default function DashboardScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleLogout = async () => {
     await logout();
     router.replace('/(auth)/login');
   };
 
-  const BeekeeperDashboard = () => (
-    <View style={styles.dashboardContainer}>
-      <View style={styles.statsRow}>
-        <View style={styles.statCardHalf}>
-          <Leaf color={theme.colors.primaryDark} size={32} style={styles.statIcon} />
-          <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>My Farms</Text>
-        </View>
-        <View style={styles.statCardHalf}>
-          <Hexagon color={theme.colors.primaryDark} size={32} style={styles.statIcon} />
-          <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>Active Hives</Text>
-        </View>
-        <View style={styles.statCardFull}>
-          <Text style={styles.statValueHighlight}>0</Text>
-          <Text style={styles.statLabel}>Honey Batches</Text>
-        </View>
-      </View>
+  const handleCardPress = (item) => {
+    if (item.type === 'farm') {
+      router.push(`/farms/${item.id}`);
+    } else if (item.type === 'honey' || item.type === 'product') {
+      router.push(`/batches/${item.id}`);
+    } else if (item.type === 'hive') {
+      router.push(`/hives/${item.id}`);
+    }
+  };
 
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
-      
-      <TouchableOpacity 
-        style={styles.actionButton}
-        onPress={() => router.push('/(app)/farms')}
-      >
-        <View style={styles.actionIconContainer}>
-          <Plus color={theme.colors.white} size={20} />
-        </View>
-        <Text style={styles.actionText}>Add Farm</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.actionButton}
-        onPress={() => {}} 
-      >
-        <View style={styles.actionIconContainer}>
-          <Plus color={theme.colors.white} size={20} />
-        </View>
-        <Text style={styles.actionText}>Add Hive</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={[styles.actionButton, styles.actionButtonDark]}
-        onPress={() => {}} 
-      >
-        <View style={[styles.actionIconContainer, styles.actionIconContainerDark]}>
-          <Plus color={theme.colors.white} size={20} />
-        </View>
-        <Text style={[styles.actionText, styles.actionTextDark]}>Create Batch</Text>
-      </TouchableOpacity>
-      
-      <Text style={styles.sectionTitle}>Recent Activity</Text>
-      <View style={styles.emptyStateBox}>
-        <Text style={styles.emptyStateText}>No recent activity</Text>
-      </View>
-    </View>
-  );
-
-  const CustomerDashboard = () => (
-    <View style={styles.dashboardContainer}>
-      <View style={styles.customerCard}>
-        <View style={styles.customerIconBg}>
-          <LayoutDashboard color={theme.colors.primary} size={64} />
-        </View>
-        <Text style={styles.customerTitle}>Discover the journey behind your honey.</Text>
-        <Text style={styles.customerSubtitle}>Scan the QR code on your product to verify its authenticity and origin.</Text>
-        
-        <TouchableOpacity style={styles.scanButton} onPress={() => {}}>
-          <Text style={styles.scanButtonText}>Scan Honey QR</Text>
-        </TouchableOpacity>
-      </View>
-      
-      <Text style={styles.sectionTitle}>Recently Verified</Text>
-      <View style={styles.emptyStateBox}>
-        <Text style={styles.emptyStateText}>No verified products yet</Text>
-      </View>
-    </View>
+  const renderMasonryItem = ({ item }) => (
+    <HoneyCard
+      type={item.type}
+      title={item.title}
+      subtitle={item.subtitle}
+      height={item.height}
+      isVerified={item.isVerified}
+      badgeText={item.badgeText}
+      showFavorite
+      onPress={() => handleCardPress(item)}
+    />
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Good Morning 👋</Text>
-          <Text style={styles.userName}>{user?.name}</Text>
+          <Text style={styles.greeting}>Good Morning {user?.name?.split(' ')[0]}</Text>
+          <Text style={styles.subGreeting}>Discover your honey journey</Text>
         </View>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <LogOut color={theme.colors.status.error} size={20} />
+          <LogOut color={theme.colors.text.secondary} size={20} />
         </TouchableOpacity>
       </View>
 
-      {user?.role === USER_ROLES.BEEKEEPER ? <BeekeeperDashboard /> : <CustomerDashboard />}
-      
-      <View style={styles.bottomSpacer} />
-    </ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.searchContainer}>
+          <SearchBar 
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search farms, honey batches..."
+          />
+        </View>
+
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesContainer}
+        >
+          {CATEGORIES.map(category => (
+            <CategoryChip
+              key={category}
+              label={category}
+              isSelected={selectedCategory === category}
+              onPress={() => setSelectedCategory(category)}
+            />
+          ))}
+        </ScrollView>
+
+        {user?.role === USER_ROLES.BEEKEEPER && (
+          <View style={styles.statsCard}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>2</Text>
+              <Text style={styles.statLabel}>My Farms</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>205</Text>
+              <Text style={styles.statLabel}>Hives</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>14</Text>
+              <Text style={styles.statLabel}>Batches</Text>
+            </View>
+          </View>
+        )}
+
+        <View style={styles.feedContainer}>
+          <MasonryGrid 
+            data={MOCK_FEED_DATA.filter(i => selectedCategory === 'All' || 
+                 (selectedCategory === 'Farms' && i.type === 'farm') ||
+                 (selectedCategory === 'Honey' && (i.type === 'honey' || i.type === 'product'))
+            )}
+            renderItem={renderMasonryItem}
+            numColumns={2}
+          />
+        </View>
+        
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }

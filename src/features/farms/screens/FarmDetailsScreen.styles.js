@@ -10,116 +10,83 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
   },
-  farmHeader: {
-    backgroundColor: theme.colors.white,
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+  heroImageContainer: {
+    width: '100%',
+    height: 300,
+    backgroundColor: theme.colors.border,
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  content: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    marginTop: -32,
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   farmName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
+    ...theme.typography.h1,
+    color: theme.colors.text.primary,
+    marginBottom: 4,
   },
   location: {
+    ...theme.typography.body,
     color: theme.colors.text.secondary,
     marginBottom: theme.spacing.md,
   },
-  metricsRow: {
+  metricsCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    backgroundColor: theme.colors.white,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.lg,
+    marginBottom: theme.spacing.xl,
+    shadowColor: theme.shadows.sm.shadowColor,
+    shadowOffset: theme.shadows.sm.shadowOffset,
+    shadowOpacity: theme.shadows.sm.shadowOpacity,
+    shadowRadius: theme.shadows.sm.shadowRadius,
+    elevation: theme.shadows.sm.elevation,
   },
-  metricLabel: {
-    color: theme.colors.text.muted,
-    fontSize: 12,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+  metric: {
+    alignItems: 'center',
   },
   metricValue: {
-    fontWeight: '600',
-    color: theme.colors.charcoal,
+    ...theme.typography.subtitle,
+    color: theme.colors.text.primary,
   },
-  listHeader: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+  metricLabel: {
+    ...theme.typography.caption,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: theme.spacing.md,
   },
-  listTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
+  sectionTitle: {
+    ...theme.typography.h2,
+    color: theme.colors.text.primary,
   },
-  addHiveButton: {
+  addButton: {
     backgroundColor: theme.colors.primaryLight,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderRadius: theme.radius.full,
   },
-  addHiveText: {
-    color: '#78350f', // honey-900
-    fontWeight: 'bold',
-    marginLeft: 4,
-  },
-  listContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
-  },
-  hiveCard: {
-    backgroundColor: theme.colors.white,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.xl,
-    marginBottom: theme.spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  hiveId: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
-  },
-  hiveStatusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  hiveStatusLabel: {
-    color: theme.colors.text.secondary,
-    fontSize: 14,
-  },
-  hiveStatusValue: {
-    fontWeight: 'semibold',
-    color: theme.colors.status.success,
-  },
-  sensorsRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  sensorItem: {
-    alignItems: 'center',
-  },
-  sensorValue: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
-    marginTop: 4,
+  addButtonText: {
+    ...theme.typography.caption,
+    color: theme.colors.primaryDark,
+    fontWeight: '700',
   }
 });

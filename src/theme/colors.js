@@ -1,28 +1,28 @@
 export const colors = {
-  primary: '#ffad00',
-  primaryDark: '#ba6000',
-  primaryLight: '#fff9d6',
-  charcoal: '#1f2937',
+  primary: '#D4A373', // Premium organic honey tone
+  primaryDark: '#A67C52',
+  primaryLight: '#FAEDCD',
+  charcoal: '#2D3142',
   white: '#ffffff',
-  background: '#fefdf7', // honey-50
+  background: '#FEFAE0', // Creamy off-white
   
   text: {
-    primary: '#1f2937',
-    secondary: '#6b7280', // gray-500
-    muted: '#9ca3af', // gray-400
+    primary: '#2D3142',
+    secondary: '#8C92AC',
+    muted: '#B0B5C9',
     inverted: '#ffffff'
   },
   
-  border: '#f3f4f6', // gray-100
-  borderDark: '#e5e7eb', // gray-200
+  border: '#F2E8CF',
+  borderDark: '#E5D6B6',
   
   status: {
-    success: '#22c55e',
-    successLight: 'rgba(34, 197, 94, 0.1)',
-    warning: '#f59e0b',
-    warningLight: 'rgba(245, 158, 11, 0.1)',
-    error: '#ef4444',
-    errorLight: 'rgba(239, 68, 68, 0.1)',
-    info: '#3b82f6'
+    success: '#6B9080',
+    successLight: 'rgba(107, 144, 128, 0.15)',
+    warning: '#F6BD60',
+    warningLight: 'rgba(246, 189, 96, 0.15)',
+    error: '#E5989B',
+    errorLight: 'rgba(229, 152, 155, 0.15)',
+    info: '#84A59D'
   }
 };

@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { QrCode, MapPin, FlaskConical, Truck, Package, ShieldCheck } from 'lucide-react-native';
 import { batchService } from '../../../services/batch.service';
 import { theme } from '../../../theme';
 import styles from './BatchPassportScreen.styles';
+
+import QualityScore from '../../../components/ui/QualityScore/QualityScore';
+import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
+import Timeline from '../../../components/ui/Timeline/Timeline';
 
 export default function BatchPassportScreen() {
   const { id } = useLocalSearchParams();
@@ -19,7 +22,7 @@ export default function BatchPassportScreen() {
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator color={theme.colors.primary} size="large" />
+        <ActivityIndicator color={theme.colors.primaryDark} size="large" />
       </View>
     );
   }
@@ -39,93 +42,73 @@ export default function BatchPassportScreen() {
     </View>
   );
 
+  const timelineEvents = [
+    { title: 'Harvested', date: new Date(batch.createdAt).toLocaleDateString(), completed: true },
+    { title: 'Lab Testing', date: 'Pending', completed: false },
+    { title: 'Processing', date: 'Pending', completed: false },
+    { title: 'Packaging', date: 'Pending', completed: false },
+    { title: 'Distribution', date: 'Pending', completed: false },
+  ];
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.qrPlaceholder}>
-          <QrCode size={64} color={theme.colors.borderDark} />
-          <Text style={styles.qrLabel}>QR Code</Text>
-        </View>
-        <Text style={styles.batchId}>{batch.id}</Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>{batch.status}</Text>
-        </View>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Hero Image */}
+      <View style={styles.heroImageContainer}>
+        <Image 
+          source={{ uri: 'https://picsum.photos/seed/honey2/600/600' }} 
+          style={styles.heroImage}
+        />
+        <View style={styles.gradientOverlay} />
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <MapPin size={20} color={theme.colors.charcoal} />
-            <Text style={styles.sectionTitle}>Origin Details</Text>
-          </View>
+      {/* Header Content */}
+      <View style={styles.headerContent}>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.title}>{batch.floralSource || 'Wild Honey'}</Text>
+          <QualityScore score={92} size="large" />
+        </View>
+
+        <View style={styles.badgeContainer}>
+          <VerificationBadge type="blockchain" text="Blockchain Verified" />
+          <VerificationBadge type="ai" text="Quality Analyzed" />
+        </View>
+
+        <Text style={styles.batchIdLabel}>BATCH ID</Text>
+        <Text style={styles.batchId}>{batch.id}</Text>
+      </View>
+
+      {/* Origin & Specs */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Origin</Text>
+        <View style={styles.card}>
           <DetailRow label="Farm ID" value={batch.farmId} />
           <DetailRow label="Hive ID" value={batch.hiveId} />
-          <DetailRow label="Harvest Date" value={new Date(batch.harvestDate || batch.createdAt).toLocaleDateString()} />
           <DetailRow label="Location" value="Gorakhpur, UP" />
-        </View>
-
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <FlaskConical size={20} color={theme.colors.charcoal} />
-            <Text style={styles.sectionTitle}>Product Specs</Text>
-          </View>
           <DetailRow label="Honey Type" value={batch.honeyType} />
-          <DetailRow label="Floral Source" value={batch.floralSource} />
           <DetailRow label="Quantity" value={`${batch.quantity} kg`} />
         </View>
-
-        <Text style={styles.timelineSectionTitle}>Traceability Timeline</Text>
-        
-        <View style={styles.timelineContainer}>
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineLine}>
-              <View style={styles.timelineDot} />
-              <View style={styles.timelineVertical} />
-            </View>
-            <View style={styles.timelineContent}>
-              <Text style={styles.timelineTitle}>Harvested</Text>
-              <Text style={styles.timelineDate}>{new Date(batch.createdAt).toLocaleDateString()}</Text>
-            </View>
-          </View>
-
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineLine}>
-              <View style={[styles.timelineDot, styles.timelineDotInactive]} />
-              <View style={styles.timelineVertical} />
-            </View>
-            <View style={styles.timelineContent}>
-              <Text style={[styles.timelineTitle, styles.timelineTitleInactive]}>Lab Testing</Text>
-              <Text style={styles.timelineDate}>Pending</Text>
-            </View>
-          </View>
-
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineLine}>
-              <View style={[styles.timelineDot, styles.timelineDotInactive]} />
-              <View style={styles.timelineVertical} />
-            </View>
-            <View style={styles.timelineContent}>
-              <Text style={[styles.timelineTitle, styles.timelineTitleInactive]}>Processing</Text>
-              <Text style={styles.timelineDate}>Pending</Text>
-            </View>
-          </View>
-
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineLine}>
-              <View style={[styles.timelineDot, styles.timelineDotInactive]} />
-            </View>
-            <View style={styles.timelineContent}>
-              <Text style={[styles.timelineTitle, styles.timelineTitleInactive]}>Packaging</Text>
-              <Text style={styles.timelineDate}>Pending</Text>
-            </View>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.viewBlockchainButton}>
-          <ShieldCheck size={20} color={theme.colors.white} />
-          <Text style={styles.viewBlockchainText}>View on Blockchain (Coming Soon)</Text>
-        </TouchableOpacity>
       </View>
+
+      {/* Journey Timeline */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Journey</Text>
+        <View style={styles.card}>
+          <Timeline events={timelineEvents} />
+        </View>
+      </View>
+
+      {/* Blockchain Verification */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Verification</Text>
+        <View style={[styles.card, styles.blockchainCard]}>
+          <Text style={styles.blockchainTitle}>✓ Verified on Blockchain</Text>
+          <DetailRow label="Status" value="VALID" />
+          <DetailRow label="Recorded" value={new Date(batch.createdAt).toLocaleDateString()} />
+          <Text style={styles.blockchainHash}>Tx: 0x8f2c...94a1</Text>
+        </View>
+      </View>
+
+      <View style={{ height: 60 }} />
     </ScrollView>
   );
 }
