@@ -40,10 +40,16 @@ const deleteItem = async (key) => {
 };
 
 export const useAuthStore = create((set) => ({
-  user: null,
-  accessToken: null,
-  isAuthenticated: false,
-  isLoading: true,
+  // DEV BYPASS: Mock user so we don't have to login every time.
+  user: {
+    id: 'dev-beekeeper',
+    email: 'dev@dataminx.com',
+    name: 'Dev Beekeeper',
+    role: 'BEEKEEPER',
+  },
+  accessToken: 'dev-token-123',
+  isAuthenticated: true,
+  isLoading: false,
   
   login: async (user, token) => {
     await setItem('access_token', token);
@@ -70,6 +76,8 @@ export const useAuthStore = create((set) => ({
   },
 
   restoreSession: async () => {
+    // DEV BYPASS: Skip restoring session to keep the mock user active
+    /*
     try {
       const token = await getItem('access_token');
       const userStr = await getItem('user');
@@ -87,5 +95,6 @@ export const useAuthStore = create((set) => ({
     } catch (e) {
       set({ isLoading: false });
     }
+    */
   }
 }));
