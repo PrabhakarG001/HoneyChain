@@ -43,6 +43,10 @@ export default StyleSheet.create({
     color: theme.colors.charcoal,
     textAlign: 'center',
   },
+  qrLabel: {
+    marginTop: 8,
+    color: theme.colors.text.muted,
+  },
   statusBadge: {
     backgroundColor: theme.colors.primaryLight,
     paddingHorizontal: 12,
@@ -99,6 +103,13 @@ export default StyleSheet.create({
   },
   timelineContainer: {
     marginTop: theme.spacing.md,
+  },
+  timelineSectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.charcoal,
+    marginTop: 16,
+    marginBottom: 16,
   },
   timelineItem: {
     flexDirection: 'row',

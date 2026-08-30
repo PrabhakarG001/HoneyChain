@@ -20,12 +20,12 @@ export default function DashboardScreen() {
     <View style={styles.dashboardContainer}>
       <View style={styles.statsRow}>
         <View style={styles.statCardHalf}>
-          <Leaf color={theme.colors.primaryDark} size={32} style={{ marginBottom: 8 }} />
+          <Leaf color={theme.colors.primaryDark} size={32} style={styles.statIcon} />
           <Text style={styles.statValue}>0</Text>
           <Text style={styles.statLabel}>My Farms</Text>
         </View>
         <View style={styles.statCardHalf}>
-          <Hexagon color={theme.colors.primaryDark} size={32} style={{ marginBottom: 8 }} />
+          <Hexagon color={theme.colors.primaryDark} size={32} style={styles.statIcon} />
           <Text style={styles.statValue}>0</Text>
           <Text style={styles.statLabel}>Active Hives</Text>
         </View>

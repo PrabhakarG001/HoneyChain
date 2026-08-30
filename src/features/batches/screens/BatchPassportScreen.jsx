@@ -44,7 +44,7 @@ export default function BatchPassportScreen() {
       <View style={styles.header}>
         <View style={styles.qrPlaceholder}>
           <QrCode size={64} color={theme.colors.borderDark} />
-          <Text style={{ marginTop: 8, color: theme.colors.text.muted }}>QR Code</Text>
+          <Text style={styles.qrLabel}>QR Code</Text>
         </View>
         <Text style={styles.batchId}>{batch.id}</Text>
         <View style={styles.statusBadge}>
@@ -74,7 +74,7 @@ export default function BatchPassportScreen() {
           <DetailRow label="Quantity" value={`${batch.quantity} kg`} />
         </View>
 
-        <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.colors.charcoal, marginTop: 16, marginBottom: 16 }}>Traceability Timeline</Text>
+        <Text style={styles.timelineSectionTitle}>Traceability Timeline</Text>
         
         <View style={styles.timelineContainer}>
           <View style={styles.timelineItem}>

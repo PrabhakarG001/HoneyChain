@@ -57,6 +57,9 @@ export default StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  statIcon: {
+    marginBottom: 8,
+  },
   statCardFull: {
     backgroundColor: theme.colors.white,
     padding: theme.spacing.md,
