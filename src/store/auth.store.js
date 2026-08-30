@@ -1,5 +1,43 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+const setItem = async (key, value) => {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.error('Local storage is unavailable:', e);
+    }
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+};
+
+const getItem = async (key) => {
+  if (Platform.OS === 'web') {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.error('Local storage is unavailable:', e);
+      return null;
+    }
+  } else {
+    return await SecureStore.getItemAsync(key);
+  }
+};
+
+const deleteItem = async (key) => {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error('Local storage is unavailable:', e);
+    }
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+};
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -8,8 +46,8 @@ export const useAuthStore = create((set) => ({
   isLoading: true,
   
   login: async (user, token) => {
-    await SecureStore.setItemAsync('access_token', token);
-    await SecureStore.setItemAsync('user', JSON.stringify(user));
+    await setItem('access_token', token);
+    await setItem('user', JSON.stringify(user));
     
     set({
       user,
@@ -20,8 +58,8 @@ export const useAuthStore = create((set) => ({
   },
   
   logout: async () => {
-    await SecureStore.deleteItemAsync('access_token');
-    await SecureStore.deleteItemAsync('user');
+    await deleteItem('access_token');
+    await deleteItem('user');
     
     set({
       user: null,
@@ -33,8 +71,8 @@ export const useAuthStore = create((set) => ({
 
   restoreSession: async () => {
     try {
-      const token = await SecureStore.getItemAsync('access_token');
-      const userStr = await SecureStore.getItemAsync('user');
+      const token = await getItem('access_token');
+      const userStr = await getItem('user');
       
       if (token && userStr) {
         set({
