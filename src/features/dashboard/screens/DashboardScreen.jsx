@@ -83,15 +83,17 @@ export default function DashboardScreen() {
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          style={styles.categoriesContainer}
+          style={styles.categoriesScroll}
+          contentContainerStyle={styles.categoriesContent}
         >
           {CATEGORIES.map(category => (
-            <CategoryChip
-              key={category}
-              label={category}
-              isSelected={selectedCategory === category}
-              onPress={() => setSelectedCategory(category)}
-            />
+            <View key={category} style={styles.chipWrapper}>
+              <CategoryChip
+                label={category}
+                isSelected={selectedCategory === category}
+                onPress={() => setSelectedCategory(category)}
+              />
+            </View>
           ))}
         </ScrollView>
 
@@ -114,10 +116,15 @@ export default function DashboardScreen() {
 
         <View style={styles.feedContainer}>
           <MasonryGrid 
-            data={MOCK_FEED_DATA.filter(i => selectedCategory === 'All' || 
-                 (selectedCategory === 'Farms' && i.type === 'farm') ||
-                 (selectedCategory === 'Honey' && (i.type === 'honey' || i.type === 'product'))
-            )}
+            data={MOCK_FEED_DATA.filter(i => {
+              if (selectedCategory === 'All') return true;
+              if (selectedCategory === 'Farms') return i.type === 'farm';
+              if (selectedCategory === 'Honey') return i.type === 'honey' || i.type === 'product';
+              if (selectedCategory === 'Quality') return i.badgeText;
+              if (selectedCategory === 'Origins') return i.subtitle.includes('Origin');
+              if (selectedCategory === 'Verified') return i.isVerified;
+              return true;
+            })}
             renderItem={renderMasonryItem}
           />
         </View>

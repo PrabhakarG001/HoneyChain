@@ -37,9 +37,14 @@ export default StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
   },
-  categoriesContainer: {
-    paddingHorizontal: theme.spacing.lg,
+  categoriesScroll: {
     marginBottom: theme.spacing.lg,
+  },
+  categoriesContent: {
+    paddingHorizontal: theme.spacing.lg,
+  },
+  chipWrapper: {
+    marginRight: theme.spacing.sm,
   },
   feedContainer: {
     flex: 1,
