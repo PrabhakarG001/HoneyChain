@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Compass, ScanLine, Heart, User } from 'lucide-react-native';
+import { Home, Search, ScanLine, Bell, User } from 'lucide-react-native';
 import { theme } from '../../../src/theme';
 
 export default function TabLayout() {
@@ -8,8 +8,9 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primaryDark,
+        tabBarActiveTintColor: theme.colors.charcoal,
         tabBarInactiveTintColor: theme.colors.text.muted,
+        tabBarShowLabel: true,
         tabBarStyle: {
           backgroundColor: theme.colors.white,
           borderTopWidth: 1,
@@ -17,10 +18,16 @@ export default function TabLayout() {
           height: 60,
           paddingBottom: theme.spacing.sm,
           paddingTop: theme.spacing.xs,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
         },
         tabBarLabelStyle: {
           ...theme.typography.caption,
-          fontWeight: '600',
+          fontWeight: '700',
+          marginTop: 2,
         },
       }}
     >
@@ -28,26 +35,31 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home size={26} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <Compass size={24} color={color} />,
+          title: 'Search',
+          tabBarIcon: ({ color, focused }) => (
+            <Search size={26} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="scan"
         options={{
           title: 'Scan',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <ScanLine 
               size={28} 
               color={theme.colors.white} 
+              strokeWidth={2}
               style={{
-                backgroundColor: theme.colors.primaryDark,
+                backgroundColor: focused ? theme.colors.charcoal : theme.colors.primaryDark,
                 borderRadius: theme.radius.full,
                 padding: 4,
                 overflow: 'hidden',
@@ -60,14 +72,18 @@ export default function TabLayout() {
         name="activity"
         options={{
           title: 'Activity',
-          tabBarIcon: ({ color }) => <Heart size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Bell size={26} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <User size={26} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
     </Tabs>

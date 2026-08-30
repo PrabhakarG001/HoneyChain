@@ -62,5 +62,9 @@ export default StyleSheet.create({
     ...theme.typography.caption,
     color: theme.colors.primaryDark,
     fontWeight: '600',
+  },
+  verifiedBadgeContainer: {
+    marginTop: theme.spacing.xs,
+    alignSelf: 'flex-start',
   }
 });
