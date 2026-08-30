@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import { theme } from '../../../theme';
 import styles from './SearchScreen.styles';
 import SearchBar from '../../../components/ui/SearchBar/SearchBar';
@@ -22,63 +22,72 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <SearchBar 
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-          placeholder="Search farms, honey, batches..."
-        />
-      </View>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.header}>
+          <SearchBar 
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search farms, honey, batches..."
+          />
+        </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {!isSearching ? (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Searches</Text>
-              <View style={styles.recentContainer}>
-                {RECENT_SEARCHES.map((term, i) => (
-                  <View key={i} style={styles.recentItem}>
-                    <Text style={styles.recentText}>{term}</Text>
-                  </View>
-                ))}
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {!isSearching ? (
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Recent Searches</Text>
+                <View style={styles.recentContainer}>
+                  {RECENT_SEARCHES.map((term, i) => (
+                    <View key={i} style={styles.recentItem}>
+                      <Text style={styles.recentText}>{term}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Popular Categories</Text>
-              <View style={styles.chipGrid}>
-                {POPULAR_CATEGORIES.map((cat, i) => (
-                  <View key={i} style={styles.chipWrapper}>
-                    <CategoryChip 
-                      label={cat}
-                      isSelected={false}
-                      onPress={() => setSearchQuery(cat)}
-                    />
-                  </View>
-                ))}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Popular Categories</Text>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.chipScroll}
+                  contentContainerStyle={styles.chipScrollContent}
+                >
+                  {POPULAR_CATEGORIES.map((cat, i) => (
+                    <View key={i} style={styles.chipWrapper}>
+                      <CategoryChip 
+                        label={cat}
+                        isSelected={false}
+                        onPress={() => setSearchQuery(cat)}
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
+            </>
+          ) : (
+            <View style={styles.resultsContainer}>
+              <MasonryGrid 
+                data={MOCK_SEARCH_RESULTS}
+                renderItem={({ item }) => (
+                  <HoneyCard
+                    type={item.type}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    height={item.height}
+                    isVerified={item.isVerified}
+                  />
+                )}
+              />
             </View>
-          </>
-        ) : (
-          <View style={styles.resultsContainer}>
-            <MasonryGrid 
-              data={MOCK_SEARCH_RESULTS}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <HoneyCard
-                  type={item.type}
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  height={item.height}
-                  isVerified={item.isVerified}
-                />
-              )}
-            />
-          </View>
-        )}
-        <View style={{ height: 40 }} />
-      </ScrollView>
+          )}
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

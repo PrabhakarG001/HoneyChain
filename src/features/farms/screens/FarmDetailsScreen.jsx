@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
 import { farmService } from '../../../services/farm.service';
 import { hiveService } from '../../../services/hive.service';
 import { theme } from '../../../theme';
@@ -12,6 +14,7 @@ import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 export default function FarmDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const { data: farm, isLoading: farmLoading } = useQuery({
     queryKey: ['farm', id],
@@ -42,14 +45,31 @@ export default function FarmDetailsScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Hero Image */}
-      <View style={styles.heroImageContainer}>
-        <Image 
-          source={{ uri: 'https://picsum.photos/seed/farmview/600/400' }} 
-          style={styles.heroImage}
-        />
-      </View>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Hero Image */}
+        <View style={styles.heroImageContainer}>
+          <Image 
+            source={{ uri: 'https://picsum.photos/seed/farmview/600/400' }} 
+            style={styles.heroImage}
+          />
+        </View>
+
+        {/* Floating Back Button */}
+        <TouchableOpacity 
+          style={{
+            position: 'absolute',
+            top: insets.top + 10,
+            left: theme.spacing.md,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            borderRadius: theme.radius.full,
+            padding: 8,
+            zIndex: 10
+          }}
+          onPress={() => router.back()}
+        >
+          <ChevronLeft color={theme.colors.white} size={24} />
+        </TouchableOpacity>
 
       <View style={styles.content}>
         <Text style={styles.farmName}>{farm.name}</Text>
@@ -82,7 +102,6 @@ export default function FarmDetailsScreen() {
 
         <MasonryGrid 
           data={hives || []}
-          numColumns={2}
           renderItem={({ item, index }) => (
             <HoneyCard
               type="hive"
@@ -94,7 +113,8 @@ export default function FarmDetailsScreen() {
             />
           )}
         />
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }

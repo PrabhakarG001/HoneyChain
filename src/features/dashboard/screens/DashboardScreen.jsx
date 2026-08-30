@@ -119,7 +119,6 @@ export default function DashboardScreen() {
                  (selectedCategory === 'Honey' && (i.type === 'honey' || i.type === 'product'))
             )}
             renderItem={renderMasonryItem}
-            numColumns={2}
           />
         </View>
         

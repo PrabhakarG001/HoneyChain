@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Image } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, ScrollView, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
 import { batchService } from '../../../services/batch.service';
 import { theme } from '../../../theme';
 import styles from './BatchPassportScreen.styles';
@@ -12,6 +14,8 @@ import Timeline from '../../../components/ui/Timeline/Timeline';
 
 export default function BatchPassportScreen() {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const { data: batch, isLoading } = useQuery({
     queryKey: ['batch', id],
@@ -51,15 +55,32 @@ export default function BatchPassportScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Hero Image */}
-      <View style={styles.heroImageContainer}>
-        <Image 
-          source={{ uri: 'https://picsum.photos/seed/honey2/600/600' }} 
-          style={styles.heroImage}
-        />
-        <View style={styles.gradientOverlay} />
-      </View>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Hero Image */}
+        <View style={styles.heroImageContainer}>
+          <Image 
+            source={{ uri: 'https://picsum.photos/seed/honey2/600/600' }} 
+            style={styles.heroImage}
+          />
+          <View style={styles.gradientOverlay} />
+        </View>
+
+        {/* Floating Back Button */}
+        <TouchableOpacity 
+          style={{
+            position: 'absolute',
+            top: insets.top + 10,
+            left: theme.spacing.md,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            borderRadius: theme.radius.full,
+            padding: 8,
+            zIndex: 10
+          }}
+          onPress={() => router.back()}
+        >
+          <ChevronLeft color={theme.colors.white} size={24} />
+        </TouchableOpacity>
 
       {/* Header Content */}
       <View style={styles.headerContent}>
@@ -97,18 +118,19 @@ export default function BatchPassportScreen() {
         </View>
       </View>
 
-      {/* Blockchain Verification */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Verification</Text>
-        <View style={[styles.card, styles.blockchainCard]}>
-          <Text style={styles.blockchainTitle}>✓ Verified on Blockchain</Text>
-          <DetailRow label="Status" value="VALID" />
-          <DetailRow label="Recorded" value={new Date(batch.createdAt).toLocaleDateString()} />
-          <Text style={styles.blockchainHash}>Tx: 0x8f2c...94a1</Text>
+        {/* Blockchain Verification */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Verification</Text>
+          <View style={[styles.card, styles.blockchainCard]}>
+            <Text style={styles.blockchainTitle}>✓ Verified on Blockchain</Text>
+            <DetailRow label="Status" value="VALID" />
+            <DetailRow label="Recorded" value={new Date(batch.createdAt).toLocaleDateString()} />
+            <Text style={styles.blockchainHash}>Tx: 0x8f2c...94a1</Text>
+          </View>
         </View>
-      </View>
 
-      <View style={{ height: 60 }} />
-    </ScrollView>
+        <View style={{ height: 60 }} />
+      </ScrollView>
+    </View>
   );
 }

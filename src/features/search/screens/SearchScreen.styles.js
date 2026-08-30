@@ -34,13 +34,14 @@ export default StyleSheet.create({
     ...theme.typography.subtitle,
     color: theme.colors.text.secondary,
   },
-  chipGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -theme.spacing.sm,
+  chipScroll: {
+    marginHorizontal: -theme.spacing.lg,
+  },
+  chipScrollContent: {
+    paddingHorizontal: theme.spacing.lg,
   },
   chipWrapper: {
-    marginLeft: theme.spacing.sm,
+    marginRight: theme.spacing.sm,
     marginBottom: theme.spacing.sm,
   },
   resultsContainer: {
