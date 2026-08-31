@@ -11,6 +11,7 @@ import { useAuthStore } from '../../../store/auth.store';
 import { registerSchema } from '../schemas/auth.schema';
 import { USER_ROLES } from '../../../constants/roles';
 import styles from './RegisterScreen.styles';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -42,8 +43,9 @@ export default function RegisterScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
+          <BrandLogo style={{ marginBottom: 24, alignSelf: 'center' }} />
           <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join the HoneyChain ecosystem</Text>
+          <Text style={styles.subtitle}>Join the ApiVera ecosystem</Text>
         </View>
 
         {globalError ? (

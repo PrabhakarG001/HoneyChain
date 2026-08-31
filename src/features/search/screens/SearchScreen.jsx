@@ -5,6 +5,7 @@ import { theme } from '../../../theme';
 import styles from './SearchScreen.styles';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
@@ -26,6 +27,7 @@ export default function SearchScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.header}>
+          <BrandLogo style={{ marginBottom: 16 }} />
           <View style={styles.searchBar}>
             <Search size={20} color={theme.colors.text.secondary} />
             <TextInput

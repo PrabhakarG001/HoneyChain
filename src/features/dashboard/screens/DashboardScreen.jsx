@@ -12,6 +12,7 @@ import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
 import ActivityTimeline from '../../../components/ui/ActivityTimeline/ActivityTimeline';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
 
@@ -79,9 +80,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.compactHeader}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>ApiVera</Text>
-        </View>
+        <BrandLogo style={styles.logoContainer} />
         <TouchableOpacity style={styles.searchBarFake} onPress={openSearch} activeOpacity={0.8}>
           <Search size={18} color={theme.colors.text.secondary} />
           <Text style={styles.searchPlaceholder}>Search batches, farms...</Text>

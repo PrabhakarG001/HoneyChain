@@ -11,6 +11,7 @@ import styles from './BatchPassportScreen.styles';
 import QualityScore from '../../../components/ui/QualityScore/QualityScore';
 import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
 import HoneyJourney from '../../../components/ui/HoneyJourney/HoneyJourney';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 export default function BatchPassportScreen() {
   const { id } = useLocalSearchParams();
@@ -80,7 +81,8 @@ export default function BatchPassportScreen() {
 
         {/* Certificate Header */}
         <View style={styles.headerContent}>
-          <Text style={styles.certificateTitle}>API VERA HONEY PASSPORT</Text>
+          <BrandLogo style={{ alignSelf: 'center', marginBottom: 12 }} />
+          <Text style={styles.certificateTitle}>HONEY PASSPORT</Text>
           <View style={styles.verificationRow}>
             <VerificationBadge type="blockchain" text="VERIFIED AUTHENTIC" />
           </View>

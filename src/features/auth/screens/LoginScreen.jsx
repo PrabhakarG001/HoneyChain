@@ -10,6 +10,7 @@ import { authService } from '../../../services/auth.service';
 import { useAuthStore } from '../../../store/auth.store';
 import { loginSchema } from '../schemas/auth.schema';
 import styles from './LoginScreen.styles';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -37,8 +38,9 @@ export default function LoginScreen() {
       style={styles.container}
     >
       <View style={styles.header}>
+        <BrandLogo style={{ marginBottom: 24, alignSelf: 'center' }} />
         <Text style={styles.title}>Welcome Back 👋</Text>
-        <Text style={styles.subtitle}>Sign in to HoneyChain</Text>
+        <Text style={styles.subtitle}>Sign in to ApiVera</Text>
       </View>
 
       {globalError ? (

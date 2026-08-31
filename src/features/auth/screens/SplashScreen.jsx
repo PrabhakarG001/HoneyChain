@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import styles from './SplashScreen.styles';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -33,8 +34,11 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-        <Text style={styles.icon}>🍯</Text>
-        <Text style={styles.title}>HONEYCHAIN</Text>
+        <BrandLogo 
+          style={{ marginBottom: 16 }}
+          iconSize={48} 
+          textStyle={{ fontSize: 32, letterSpacing: -1 }} 
+        />
         <Text style={styles.subtitle}>Smart Honey Traceability</Text>
         <Text style={styles.footer}>Powered by DataMinx</Text>
       </Animated.View>

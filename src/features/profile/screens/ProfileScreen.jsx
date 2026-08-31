@@ -8,6 +8,7 @@ import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
+import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 
 const TABS = ['My Hives', 'My Honey', 'Saved', 'Quality Reports', 'QR Passports', 'Activity'];
 
@@ -25,7 +26,8 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.flex1} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerTop}>
+        <View style={[styles.headerTop, { justifyContent: 'space-between', alignItems: 'center' }]}>
+          <BrandLogo />
           <TouchableOpacity style={styles.settingsBtn}>
             <Settings color={theme.colors.charcoal} size={24} />
           </TouchableOpacity>
