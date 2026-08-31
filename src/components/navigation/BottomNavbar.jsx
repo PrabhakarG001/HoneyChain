@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Search, ScanLine, Bell, User } from 'lucide-react-native';
-import { theme } from '../../../theme';
+import { theme } from '../../theme';
 import styles from './BottomNavbar.styles';
 
 export default function BottomNavbar({ state, descriptors, navigation }) {
