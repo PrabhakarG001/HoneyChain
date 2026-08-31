@@ -22,40 +22,45 @@ export default StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.text.primary,
+    ...theme.typography.h2,
+    color: theme.colors.charcoal,
   },
   closeButton: {
     padding: 8,
     backgroundColor: theme.colors.background,
-    borderRadius: 20,
+    borderRadius: theme.radius.full,
   },
-  grid: {
+  list: {
+    flexDirection: 'column',
+    marginTop: theme.spacing.md,
+  },
+  listItem: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    marginHorizontal: -8,
-  },
-  gridItem: {
-    width: '25%', // 4 items per row
     alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 4,
+    paddingVertical: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.borderLight,
   },
   iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 20, // Squircle look
+    width: 48,
+    height: 48,
+    borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: theme.spacing.md,
+  },
+  textContainer: {
+    flex: 1,
   },
   itemTitle: {
-    fontSize: 12,
-    color: theme.colors.text.primary,
-    textAlign: 'center',
-    fontWeight: '500',
+    ...theme.typography.subtitle,
+    fontWeight: '600',
+    color: theme.colors.charcoal,
+    marginBottom: 2,
+  },
+  itemSubtitle: {
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
   }
 });

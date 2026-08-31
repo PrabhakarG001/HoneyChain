@@ -9,6 +9,15 @@ export default StyleSheet.create({
   flex1: {
     flex: 1,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+  },
+  settingsBtn: {
+    padding: theme.spacing.xs,
+  },
   header: {
     alignItems: 'center',
     paddingHorizontal: theme.spacing.xl,
@@ -24,7 +33,7 @@ export default StyleSheet.create({
   },
   name: {
     ...theme.typography.h2,
-    color: theme.colors.text.primary,
+    color: theme.colors.charcoal,
     marginBottom: theme.spacing.xs,
     textAlign: 'center',
   },
@@ -45,12 +54,12 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   statText: {
-    fontSize: 14,
+    ...theme.typography.body,
     color: theme.colors.text.secondary,
   },
   statNumber: {
     fontWeight: '700',
-    color: theme.colors.text.primary,
+    color: theme.colors.charcoal,
   },
   tabsContainer: {
     marginBottom: theme.spacing.lg,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, Image } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, Image, TouchableOpacity } from 'react-native';
+import { Settings } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { theme } from '../../../theme';
 import styles from './ProfileScreen.styles';
@@ -24,6 +25,11 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.flex1} showsVerticalScrollIndicator={false}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity style={styles.settingsBtn}>
+            <Settings color={theme.colors.charcoal} size={24} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.header}>
           <Image 
             source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 

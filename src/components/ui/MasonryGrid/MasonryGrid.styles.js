@@ -12,7 +12,7 @@ export default StyleSheet.create({
     flexDirection: 'column',
   },
   itemContainer: {
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
     paddingHorizontal: theme.spacing.xs,
   },
 });

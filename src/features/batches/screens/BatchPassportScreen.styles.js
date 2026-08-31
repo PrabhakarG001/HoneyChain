@@ -32,13 +32,18 @@ export default StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.15)',
   },
-  backBtn: {
+  headerActions: {
     position: 'absolute',
     left: theme.spacing.md,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    padding: 8,
-    borderRadius: 20,
+    right: theme.spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     zIndex: 10,
+  },
+  iconBtn: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 10,
+    borderRadius: theme.radius.full,
   },
   headerContent: {
     paddingHorizontal: theme.spacing.xl,

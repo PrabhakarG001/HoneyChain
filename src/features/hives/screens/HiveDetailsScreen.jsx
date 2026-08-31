@@ -10,6 +10,8 @@ import { theme } from '../../../theme';
 import styles from './HiveDetailsScreen.styles';
 
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
+import InsightCard from '../../../components/ui/InsightCard/InsightCard';
+import EmptyState from '../../../components/ui/EmptyState/EmptyState';
 
 export default function HiveDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -83,19 +85,19 @@ export default function HiveDetailsScreen() {
               <HumanizedStat 
                 icon={Thermometer}
                 value={`${hive.temperature}°C`}
-                description="Temperature is within the healthy range."
+                description="Temperature is within the optimal healthy range."
                 color={theme.colors.status.warning}
               />
               <HumanizedStat 
                 icon={Droplets}
                 value={`${hive.humidity}%`}
-                description="Humidity is stable today."
+                description="Humidity is stable today, suitable for nectar processing."
                 color={theme.colors.status.info}
               />
               <HumanizedStat 
                 icon={Activity}
                 value={`${hive.currentWeight} kg`}
-                description="Weight has increased steadily over the last 7 days."
+                description="Weight has increased steadily over the last 7 days indicating a strong nectar flow."
                 color={theme.colors.status.success}
               />
               
@@ -105,13 +107,21 @@ export default function HiveDetailsScreen() {
               </View>
             </View>
           ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No sensors are connected to this hive yet.</Text>
-              <TouchableOpacity style={styles.assignButton}>
-                <Text style={styles.assignButtonText}>Connect Sensor</Text>
-              </TouchableOpacity>
-            </View>
+            <EmptyState 
+              title="No Sensor Connected" 
+              message="Connect an IoT sensor to start tracking temperature, humidity, and weight automatically." 
+              actionLabel="Connect Sensor" 
+              onAction={() => {}} 
+            />
           )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>AI Insight</Text>
+          <InsightCard 
+            title="Hive Activity Pattern" 
+            insight="Foraging activity has peaked slightly earlier today compared to last week. The colony seems to be preparing for the spring bloom." 
+          />
         </View>
 
         <View style={styles.section}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
@@ -11,6 +11,7 @@ import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
+import ActivityTimeline from '../../../components/ui/ActivityTimeline/ActivityTimeline';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
 
@@ -23,11 +24,26 @@ const MOCK_FEED_DATA = [
   { id: '6', type: 'honey', title: 'Acacia Honey', subtitle: 'HC-UP-2026-00999', height: 300, isVerified: true, badgeText: '98 Score' },
 ];
 
+const MOCK_ACTIVITIES = [
+  { time: '09:42', title: 'Hive #07 sensor connected', description: 'Device synced successfully' },
+  { time: '10:15', title: 'AI detected unusual activity', description: 'Hive #12 showing low foraging' },
+  { time: '11:02', title: 'Hive inspection completed', description: 'Recorded by Farmer Ramesh' },
+  { time: '14:36', title: '18.5 kg honey harvested', description: 'Batch AV-2026-00192 created' },
+];
+
 export default function DashboardScreen() {
   const { user } = useAuthStore();
   const router = useRouter();
   
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [greeting, setGreeting] = useState('Good morning');
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 18) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
+  }, []);
 
   const handleCardPress = (item) => {
     if (item.type === 'farm') {
@@ -82,7 +98,7 @@ export default function DashboardScreen() {
         
         {/* Humanized Greeting Section */}
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingTitle}>Good morning, {user?.name?.split(' ')[0] || 'Prabhakar'}.</Text>
+          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || 'Prabhakar'}.</Text>
           <Text style={styles.greetingSubtitle}>Your hives are doing well today.</Text>
           
           <View style={styles.statsRow}>
@@ -104,9 +120,17 @@ export default function DashboardScreen() {
           />
         </View>
 
+        {/* Recent Activity Section */}
+        <View style={styles.activitySection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
+          </View>
+          <ActivityTimeline activities={MOCK_ACTIVITIES} />
+        </View>
+
         {/* Discovery Feed */}
         <View style={styles.feedHeader}>
-          <Text style={styles.feedTitle}>Discovery</Text>
+          <Text style={styles.sectionTitle}>Discovery</Text>
         </View>
 
         <ScrollView 
@@ -140,6 +164,7 @@ export default function DashboardScreen() {
             renderItem={renderMasonryItem}
           />
         </View>
+        
         
         {/* Extra padding for bottom nav */}
         <View style={{ height: 120 }} /> 

@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Bookmark } from 'lucide-react-native';
 import { batchService } from '../../../services/batch.service';
 import { theme } from '../../../theme';
 import styles from './BatchPassportScreen.styles';
 
 import QualityScore from '../../../components/ui/QualityScore/QualityScore';
 import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
-import Timeline from '../../../components/ui/Timeline/Timeline';
+import HoneyJourney from '../../../components/ui/HoneyJourney/HoneyJourney';
 
 export default function BatchPassportScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [isSaved, setIsSaved] = useState(false);
 
   const { data: batch, isLoading } = useQuery({
     queryKey: ['batch', id],
@@ -46,12 +47,6 @@ export default function BatchPassportScreen() {
     </View>
   );
 
-  const timelineEvents = [
-    { title: 'Harvested from Hive #07', date: new Date(batch.createdAt).toLocaleDateString(), completed: true },
-    { title: 'Lab Quality Verified', date: 'Pending', completed: false },
-    { title: 'Bottled & Sealed', date: 'Pending', completed: false },
-  ];
-
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
@@ -62,12 +57,24 @@ export default function BatchPassportScreen() {
             style={styles.heroImage}
           />
           <View style={styles.gradientOverlay}>
-            <TouchableOpacity 
-              style={[styles.backBtn, { top: insets.top + 10 }]}
-              onPress={() => router.back()}
-            >
-              <ChevronLeft color={theme.colors.white} size={24} />
-            </TouchableOpacity>
+            <View style={[styles.headerActions, { top: insets.top + 10 }]}>
+              <TouchableOpacity 
+                style={styles.iconBtn}
+                onPress={() => router.back()}
+              >
+                <ChevronLeft color={theme.colors.white} size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.iconBtn}
+                onPress={() => setIsSaved(!isSaved)}
+              >
+                <Bookmark 
+                  color={isSaved ? theme.colors.primary : theme.colors.white} 
+                  fill={isSaved ? theme.colors.primary : 'transparent'} 
+                  size={24} 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -75,7 +82,7 @@ export default function BatchPassportScreen() {
         <View style={styles.headerContent}>
           <Text style={styles.certificateTitle}>API VERA HONEY PASSPORT</Text>
           <View style={styles.verificationRow}>
-            <VerificationBadge type="blockchain" text="VERIFIED AUTHENTIC" size="small" />
+            <VerificationBadge type="blockchain" text="VERIFIED AUTHENTIC" />
           </View>
 
           <View style={styles.headerTopRow}>
@@ -98,7 +105,7 @@ export default function BatchPassportScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Journey</Text>
           <View style={styles.timelineContainer}>
-            <Timeline events={timelineEvents} />
+            <HoneyJourney currentStepIndex={3} />
           </View>
         </View>
 

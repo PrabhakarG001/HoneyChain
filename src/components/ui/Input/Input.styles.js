@@ -11,12 +11,21 @@ export default StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   inputWrapper: {
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.background,
     borderWidth: 1,
-    borderColor: theme.colors.borderDark,
+    borderColor: theme.colors.border,
     borderRadius: theme.radius.lg,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 14,
+  },
+  inputWrapperFocused: {
+    borderColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.white,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   inputWrapperError: {
     borderColor: theme.colors.status.error,

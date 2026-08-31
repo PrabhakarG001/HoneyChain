@@ -67,14 +67,21 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  activitySection: {
+    paddingHorizontal: theme.spacing.lg,
+    marginTop: theme.spacing.lg,
+  },
+  sectionHeader: {
+    marginBottom: theme.spacing.md,
+  },
+  sectionTitle: {
+    ...theme.typography.h3,
+    color: theme.colors.charcoal,
+  },
   feedHeader: {
     paddingHorizontal: theme.spacing.lg,
     marginTop: theme.spacing.xl,
     marginBottom: theme.spacing.sm,
-  },
-  feedTitle: {
-    ...theme.typography.h3,
-    color: theme.colors.charcoal,
   },
   categoriesScroll: {
     marginBottom: theme.spacing.md,

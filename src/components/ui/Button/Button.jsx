@@ -1,8 +1,10 @@
-import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, Animated } from 'react-native';
 import PropTypes from 'prop-types';
 import styles from './Button.styles';
 import { theme } from '../../../theme';
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export function Button({ 
   title, 
@@ -15,24 +17,44 @@ export function Button({
   ...props 
 }) {
   const isDisabled = disabled || isLoading;
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      speed: 20,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+    }).start();
+  };
   
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <AnimatedTouchableOpacity
+      activeOpacity={0.9}
       disabled={isDisabled}
       onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       style={[
         styles.container,
         styles[variant],
         styles[size],
         isDisabled && styles.disabled,
+        { transform: [{ scale }] },
         style
       ]}
       {...props}
     >
       {isLoading ? (
         <ActivityIndicator 
-          color={variant === 'outline' ? theme.colors.primary : theme.colors.white} 
+          color={variant === 'outline' ? theme.colors.primaryDark : theme.colors.white} 
         />
       ) : (
         <Text style={[
@@ -43,7 +65,7 @@ export function Button({
           {title}
         </Text>
       )}
-    </TouchableOpacity>
+    </AnimatedTouchableOpacity>
   );
 }
 

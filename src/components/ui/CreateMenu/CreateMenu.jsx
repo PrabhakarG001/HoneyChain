@@ -6,13 +6,9 @@ import { theme } from '../../../theme';
 import styles from './CreateMenu.styles';
 
 const MENU_ITEMS = [
-  { id: 'add_hive', title: 'Add Hive', icon: PlusCircle, route: '/hives/add' },
-  { id: 'record_harvest', title: 'Record Harvest', icon: Box, route: '/farms/add' }, // Using available route for now
-  { id: 'add_batch', title: 'Add Honey Batch', icon: PlusCircle, route: '/batches/create' },
-  { id: 'upload_image', title: 'Upload Image', icon: ImageIcon, route: null },
-  { id: 'quality_report', title: 'Add Quality Report', icon: FileText, route: null },
-  { id: 'qr_passport', title: 'Generate Passport', icon: QrCode, route: null },
-  { id: 'scan_qr', title: 'Scan QR', icon: ScanLine, route: null }, // Previously scan tab
+  { id: 'add_hive', title: 'Add a Hive', subtitle: 'Track a new hive in your apiary', icon: PlusCircle, route: '/hives/add' },
+  { id: 'record_harvest', title: 'Record Harvest', subtitle: 'Log a new honey extraction', icon: Box, route: '/farms/add' },
+  { id: 'add_batch', title: 'Create Honey Passport', subtitle: 'Mint a new verified batch', icon: QrCode, route: '/batches/create' },
 ];
 
 export default function CreateMenu({ isVisible, onClose }) {
@@ -74,20 +70,23 @@ export default function CreateMenu({ isVisible, onClose }) {
                 </TouchableOpacity>
               </View>
               
-              <View style={styles.grid}>
+              <View style={styles.list}>
                 {MENU_ITEMS.map((item) => {
                   const Icon = item.icon;
                   return (
                     <TouchableOpacity 
                       key={item.id} 
-                      style={styles.gridItem}
+                      style={styles.listItem}
                       onPress={() => handlePress(item.route)}
                       activeOpacity={0.7}
                     >
                       <View style={styles.iconContainer}>
-                        <Icon size={28} color={theme.colors.text.primary} strokeWidth={1.5} />
+                        <Icon size={24} color={theme.colors.charcoal} strokeWidth={1.5} />
                       </View>
-                      <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.itemTitle}>{item.title}</Text>
+                        <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
