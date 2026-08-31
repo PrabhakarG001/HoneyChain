@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Search, X, Clock, Flame } from 'lucide-react-native';
 import { theme } from '../../../theme';
 import styles from './SearchScreen.styles';
-import SearchBar from '../../../components/ui/SearchBar/SearchBar';
-import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 
-const RECENT_SEARCHES = ['Wild Forest Honey', 'HC-UP-2026-000123', 'Varanasi Farms', 'Verified Honey'];
-const POPULAR_CATEGORIES = ['🍯 Honey', '🐝 Farms', '🌿 Floral Sources', '🧪 Quality', '⛓ Verified', '📍 Origins'];
+const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
+const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
+const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 
 const MOCK_SEARCH_RESULTS = [
   { id: '1', type: 'honey', title: 'Wild Forest Honey', height: 280, isVerified: true, subtitle: 'HC-UP-2026-000123' },
@@ -17,56 +17,69 @@ const MOCK_SEARCH_RESULTS = [
 ];
 
 export default function SearchScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const isSearching = searchQuery.length > 0;
+  const [query, setQuery] = useState('');
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
+        style={styles.flex1} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.header}>
-          <SearchBar 
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search farms, honey, batches..."
-          />
+          <View style={styles.searchBar}>
+            <Search size={20} color={theme.colors.text.secondary} />
+            <TextInput
+              style={styles.input}
+              placeholder="Search ApiVera"
+              placeholderTextColor={theme.colors.text.muted}
+              value={query}
+              onChangeText={setQuery}
+              autoFocus
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery('')}>
+                <X size={20} color={theme.colors.text.secondary} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          {!isSearching ? (
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+          
+          {query.length === 0 ? (
             <>
+              {/* Recent Searches */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Recent Searches</Text>
-                <View style={styles.recentContainer}>
-                  {RECENT_SEARCHES.map((term, i) => (
-                    <View key={i} style={styles.recentItem}>
-                      <Text style={styles.recentText}>{term}</Text>
-                    </View>
-                  ))}
-                </View>
+                <Text style={styles.sectionTitle}>Recent searches</Text>
+                {RECENT_SEARCHES.map((item, index) => (
+                  <TouchableOpacity key={index} style={styles.listItem}>
+                    <Clock size={18} color={theme.colors.text.secondary} />
+                    <Text style={styles.listText}>{item}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
 
+              {/* Trending */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Popular Categories</Text>
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.chipScroll}
-                  contentContainerStyle={styles.chipScrollContent}
-                >
-                  {POPULAR_CATEGORIES.map((cat, i) => (
-                    <View key={i} style={styles.chipWrapper}>
-                      <CategoryChip 
-                        label={cat}
-                        isSelected={false}
-                        onPress={() => setSearchQuery(cat)}
-                      />
-                    </View>
+                <Text style={styles.sectionTitle}>Trending topics</Text>
+                {TRENDING_TOPICS.map((item, index) => (
+                  <TouchableOpacity key={index} style={styles.listItem}>
+                    <Flame size={18} color={theme.colors.primary} />
+                    <Text style={styles.listText}>{item}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Categories */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Categories</Text>
+                <View style={styles.chipGrid}>
+                  {CATEGORIES.map((cat, index) => (
+                    <TouchableOpacity key={index} style={styles.chip}>
+                      <Text style={styles.chipText}>{cat}</Text>
+                    </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </View>
               </View>
             </>
           ) : (
@@ -85,7 +98,8 @@ export default function SearchScreen() {
               />
             </View>
           )}
-          <View style={{ height: 40 }} />
+
+          <View style={{ height: 100 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

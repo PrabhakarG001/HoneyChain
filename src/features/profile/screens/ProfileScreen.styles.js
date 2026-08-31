@@ -4,79 +4,66 @@ import { theme } from '../../../theme';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.white,
+  },
+  flex1: {
+    flex: 1,
   },
   header: {
-    paddingHorizontal: theme.spacing.lg,
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.xl,
     paddingTop: theme.spacing.xl,
     paddingBottom: theme.spacing.lg,
   },
-  profileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: theme.radius.full,
-    marginRight: theme.spacing.md,
-  },
-  profileText: {
-    flex: 1,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: theme.spacing.md,
+    backgroundColor: theme.colors.background,
   },
   name: {
     ...theme.typography.h2,
     color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
+    textAlign: 'center',
   },
-  role: {
+  badgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.sm,
+  },
+  bio: {
     ...theme.typography.body,
     color: theme.colors.text.secondary,
-    marginBottom: 4,
-  },
-  verifiedBadge: {
-    backgroundColor: theme.colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: theme.radius.sm,
-    alignSelf: 'flex-start',
-  },
-  verifiedText: {
-    ...theme.typography.caption,
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: theme.spacing.md,
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: theme.colors.white,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.lg,
-    shadowColor: theme.shadows.sm.shadowColor,
-    shadowOffset: theme.shadows.sm.shadowOffset,
-    shadowOpacity: theme.shadows.sm.shadowOpacity,
-    shadowRadius: theme.shadows.sm.shadowRadius,
-    elevation: theme.shadows.sm.elevation,
-  },
-  stat: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  statValue: {
-    ...theme.typography.h3,
+  statText: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+  },
+  statNumber: {
+    fontWeight: '700',
     color: theme.colors.text.primary,
   },
-  statLabel: {
-    ...theme.typography.caption,
-    color: theme.colors.text.secondary,
-    marginTop: 2,
-  },
   tabsContainer: {
-    flexDirection: 'row',
+    marginBottom: theme.spacing.lg,
+  },
+  tabsScroll: {
     paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
+  },
+  tabWrapper: {
+    marginRight: theme.spacing.sm,
   },
   contentContainer: {
     flex: 1,
     paddingHorizontal: theme.spacing.sm,
   }
 });
+

@@ -4,41 +4,50 @@ import { theme } from '../../../theme';
 export default StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.white, // Clean white surface like Pinterest
+  },
+  compactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
+    backgroundColor: theme.colors.white,
+  },
+  logoContainer: {
+    marginRight: 12,
+  },
+  logoText: {
+    ...theme.typography.h3,
+    color: theme.colors.primary, // Brand color
+    fontWeight: '800',
+  },
+  searchBarFake: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  searchPlaceholder: {
+    color: theme.colors.text.secondary,
+    marginLeft: 8,
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  headerAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: theme.colors.background,
   },
-  header: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  greeting: {
-    ...theme.typography.h2,
-    color: theme.colors.text.primary,
-    marginBottom: 4,
-  },
-  subGreeting: {
-    ...theme.typography.body,
-    color: theme.colors.text.secondary,
-  },
-  logoutButton: {
-    padding: theme.spacing.sm,
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.radius.full,
-    shadowColor: theme.shadows.sm.shadowColor,
-    shadowOffset: theme.shadows.sm.shadowOffset,
-    shadowOpacity: theme.shadows.sm.shadowOpacity,
-    shadowRadius: theme.shadows.sm.shadowRadius,
-    elevation: theme.shadows.sm.elevation,
-  },
-  searchContainer: {
-    paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-  },
   categoriesScroll: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.xs,
   },
   categoriesContent: {
     paddingHorizontal: theme.spacing.lg,
@@ -48,33 +57,7 @@ export default StyleSheet.create({
   },
   feedContainer: {
     flex: 1,
-    paddingHorizontal: theme.spacing.sm, // Masonry grid has inner padding
-  },
-  // Beekeeper inline stats
-  statsCard: {
-    backgroundColor: theme.colors.white,
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.lg,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    shadowColor: theme.shadows.sm.shadowColor,
-    shadowOffset: theme.shadows.sm.shadowOffset,
-    shadowOpacity: theme.shadows.sm.shadowOpacity,
-    shadowRadius: theme.shadows.sm.shadowRadius,
-    elevation: theme.shadows.sm.elevation,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    ...theme.typography.h3,
-    color: theme.colors.primaryDark,
-  },
-  statLabel: {
-    ...theme.typography.caption,
-    color: theme.colors.text.secondary,
-    marginTop: 4,
+    paddingHorizontal: theme.spacing.sm, 
   },
 });
+

@@ -1,85 +1,79 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, SafeAreaView, Image } from 'react-native';
 import { useAuthStore } from '../../../store/auth.store';
-import { USER_ROLES } from '../../../constants/roles';
 import { theme } from '../../../theme';
 import styles from './ProfileScreen.styles';
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
+import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
 
-const TABS = ['Saved', 'Verified', 'History'];
+const TABS = ['My Hives', 'My Honey', 'Saved', 'Quality Reports', 'QR Passports', 'Activity'];
+
+const MOCK_PROFILE_DATA = [
+  { id: 'p1', type: 'honey', title: 'Summer Harvest 2026', height: 260 },
+  { id: 'p2', type: 'hive', title: 'Hive Alpha', height: 200 },
+  { id: 'p3', type: 'honey', title: 'Raw Acacia', height: 280 },
+  { id: 'p4', type: 'farm', title: 'North Field', height: 220 },
+];
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState('Saved');
-  
-  const isBeekeeper = user?.role === USER_ROLES.BEEKEEPER;
-  const userTabs = isBeekeeper ? ['Farms', 'Hives', 'Batches'] : TABS;
-  const [activeUserTab, setActiveUserTab] = useState(userTabs[0]);
-
-  const MOCK_PROFILE_DATA = [
-    { id: 'p1', type: 'product', title: 'Saved Honey 1', height: 200 },
-    { id: 'p2', type: 'product', title: 'Saved Honey 2', height: 260 },
-  ];
+  const [activeTab, setActiveTab] = useState(TABS[0]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.profileInfo}>
+      <ScrollView style={styles.flex1} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
           <Image 
             source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
             style={styles.avatar} 
           />
-          <View style={styles.profileText}>
-            <Text style={styles.name}>{user?.name || 'Prabhakar'}</Text>
-            <Text style={styles.role}>HoneyChain User</Text>
-            <View style={styles.verifiedBadge}>
-              <Text style={styles.verifiedText}>✓ Verified</Text>
-            </View>
+          <Text style={styles.name}>{user?.name || 'Prabhakar'}</Text>
+          <View style={styles.badgeRow}>
+            <VerificationBadge type="blockchain" text="Verified Beekeeper" size="small" />
+          </View>
+          <Text style={styles.bio}>
+            Passionate about sustainable beekeeping and raw, organic honey. Based in Varanasi.
+          </Text>
+          
+          <View style={styles.statsRow}>
+            <Text style={styles.statText}><Text style={styles.statNumber}>120</Text> Hives</Text>
+            <Text style={styles.statText}> • </Text>
+            <Text style={styles.statText}><Text style={styles.statNumber}>1.2k</Text> Followers</Text>
+            <Text style={styles.statText}> • </Text>
+            <Text style={styles.statText}><Text style={styles.statNumber}>45</Text> Following</Text>
           </View>
         </View>
 
-        <View style={styles.statsRow}>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Saved</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>5</Text>
-            <Text style={styles.statLabel}>Verified</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>18</Text>
-            <Text style={styles.statLabel}>Scanned</Text>
-          </View>
+        <View style={styles.tabsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
+            {TABS.map(tab => (
+              <View key={tab} style={styles.tabWrapper}>
+                <CategoryChip 
+                  label={tab}
+                  isSelected={activeTab === tab}
+                  onPress={() => setActiveTab(tab)}
+                />
+              </View>
+            ))}
+          </ScrollView>
         </View>
-      </View>
 
-      <View style={styles.tabsContainer}>
-        {userTabs.map(tab => (
-          <CategoryChip 
-            key={tab}
-            label={tab}
-            isSelected={activeUserTab === tab}
-            onPress={() => setActiveUserTab(tab)}
+        <View style={styles.contentContainer}>
+          <MasonryGrid 
+            data={MOCK_PROFILE_DATA}
+            renderItem={({ item }) => (
+              <HoneyCard
+                type={item.type}
+                title={item.title}
+                height={item.height}
+                showFavorite={false}
+              />
+            )}
           />
-        ))}
-      </View>
-
-      <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
-        <MasonryGrid 
-          data={MOCK_PROFILE_DATA}
-          renderItem={({ item }) => (
-            <HoneyCard
-              type={item.type}
-              title={item.title}
-              height={item.height}
-              showFavorite
-            />
-          )}
-        />
-        <View style={{ height: 80 }} />
+        </View>
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

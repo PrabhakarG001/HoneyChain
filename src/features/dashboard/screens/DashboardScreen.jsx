@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LogOut } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { USER_ROLES } from '../../../constants/roles';
 import { theme } from '../../../theme';
 import styles from './DashboardScreen.styles';
 
-import SearchBar from '../../../components/ui/SearchBar/SearchBar';
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
@@ -24,16 +23,10 @@ const MOCK_FEED_DATA = [
 ];
 
 export default function DashboardScreen() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const router = useRouter();
   
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/(auth)/login');
-  };
 
   const handleCardPress = (item) => {
     if (item.type === 'farm') {
@@ -43,6 +36,14 @@ export default function DashboardScreen() {
     } else if (item.type === 'hive') {
       router.push(`/hives/${item.id}`);
     }
+  };
+
+  const openSearch = () => {
+    router.push('/(app)/(tabs)/explore');
+  };
+
+  const openProfile = () => {
+    router.push('/(app)/(tabs)/profile');
   };
 
   const renderMasonryItem = ({ item }) => (
@@ -60,26 +61,23 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Good Morning {user?.name?.split(' ')[0]}</Text>
-          <Text style={styles.subGreeting}>Discover your honey journey</Text>
+      <View style={styles.compactHeader}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoText}>ApiVera</Text>
         </View>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <LogOut color={theme.colors.text.secondary} size={20} />
+        <TouchableOpacity style={styles.searchBarFake} onPress={openSearch} activeOpacity={0.8}>
+          <Search size={20} color={theme.colors.text.secondary} />
+          <Text style={styles.searchPlaceholder}>Search ApiVera...</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={openProfile}>
+          <Image 
+            source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
+            style={styles.headerAvatar} 
+          />
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.searchContainer}>
-          <SearchBar 
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search farms, honey batches..."
-          />
-        </View>
-
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -97,23 +95,6 @@ export default function DashboardScreen() {
           ))}
         </ScrollView>
 
-        {user?.role === USER_ROLES.BEEKEEPER && (
-          <View style={styles.statsCard}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>2</Text>
-              <Text style={styles.statLabel}>My Farms</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>205</Text>
-              <Text style={styles.statLabel}>Hives</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>14</Text>
-              <Text style={styles.statLabel}>Batches</Text>
-            </View>
-          </View>
-        )}
-
         <View style={styles.feedContainer}>
           <MasonryGrid 
             data={MOCK_FEED_DATA.filter(i => {
@@ -129,7 +110,8 @@ export default function DashboardScreen() {
           />
         </View>
         
-        <View style={{ height: 40 }} />
+        {/* Extra padding for bottom nav */}
+        <View style={{ height: 100 }} /> 
       </ScrollView>
     </SafeAreaView>
   );
