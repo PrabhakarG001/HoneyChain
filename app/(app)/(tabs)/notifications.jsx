@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
 import { theme } from '../../../src/theme';
 import { AlertTriangle, Info, CheckCircle, Activity } from 'lucide-react-native';
+import { useScrollToHideNav } from '../../../src/hooks/useScrollToHideNav';
 
 const NOTIFICATIONS = [
   { id: '1', type: 'attention', title: 'Hive #12 Temperature Alert', message: 'Temperature has exceeded the optimal threshold. Please check the hive ventilation.', time: '10m ago', read: false },
@@ -29,6 +30,8 @@ const getBgColor = (type) => {
 };
 
 export default function NotificationsScreen() {
+  const { onScroll, scrollEventThrottle } = useScrollToHideNav();
+  
   const renderItem = ({ item }) => (
     <TouchableOpacity style={[styles.notificationCard, !item.read && styles.unreadCard]}>
       <View style={[styles.iconContainer, { backgroundColor: getBgColor(item.type) }]}>
@@ -55,6 +58,8 @@ export default function NotificationsScreen() {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
       />
     </SafeAreaView>
   );

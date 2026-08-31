@@ -6,6 +6,7 @@ import styles from './SearchScreen.styles';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
@@ -19,6 +20,7 @@ const MOCK_SEARCH_RESULTS = [
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
+  const { onScroll, scrollEventThrottle } = useScrollToHideNav();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,7 +48,12 @@ export default function SearchScreen() {
           </View>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          style={styles.content}
+          onScroll={onScroll}
+          scrollEventThrottle={scrollEventThrottle}
+        >
           
           {query.length === 0 ? (
             <>

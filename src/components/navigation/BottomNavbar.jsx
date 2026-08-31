@@ -1,15 +1,27 @@
-import React from 'react';
-import { View, TouchableOpacity, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, TouchableOpacity, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Search, Plus, Bell, User } from 'lucide-react-native';
 import { theme } from '../../theme';
 import styles from './BottomNavbar.styles';
+import { useUIStore } from '../../store/ui.store';
 
 export default function BottomNavbar({ state, descriptors, navigation, onCreatePress }) {
   const insets = useSafeAreaInsets();
+  const isNavbarVisible = useUIStore(state => state.isNavbarVisible);
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(translateY, {
+      toValue: isNavbarVisible ? 0 : 150, // 150 pushes it completely out of view
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
+    }).start();
+  }, [isNavbarVisible]);
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20 }]}>
+    <Animated.View style={[styles.wrapper, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20, transform: [{ translateY }] }]}>
       <View style={styles.container}>
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null; // We use search as a hidden modal or just don't render it here if it's in tabs but not nav
@@ -81,6 +93,6 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           );
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 }

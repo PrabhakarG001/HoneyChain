@@ -9,6 +9,7 @@ import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 const TABS = ['My Hives', 'My Honey', 'Saved', 'Quality Reports', 'QR Passports', 'Activity'];
 
@@ -22,10 +23,16 @@ const MOCK_PROFILE_DATA = [
 export default function ProfileScreen() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState(TABS[0]);
+  const { onScroll, scrollEventThrottle } = useScrollToHideNav();
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.flex1} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.flex1} 
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+      >
         <View style={[styles.headerTop, { justifyContent: 'space-between', alignItems: 'center' }]}>
           <BrandLogo />
           <TouchableOpacity style={styles.settingsBtn}>

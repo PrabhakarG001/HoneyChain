@@ -13,6 +13,7 @@ import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
 import ActivityTimeline from '../../../components/ui/ActivityTimeline/ActivityTimeline';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
 
@@ -35,6 +36,7 @@ const MOCK_ACTIVITIES = [
 export default function DashboardScreen() {
   const { user } = useAuthStore();
   const router = useRouter();
+  const { onScroll, scrollEventThrottle } = useScrollToHideNav();
   
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [greeting, setGreeting] = useState('Good morning');
@@ -93,7 +95,11 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+      >
         
         {/* Humanized Greeting Section */}
         <View style={styles.greetingSection}>
