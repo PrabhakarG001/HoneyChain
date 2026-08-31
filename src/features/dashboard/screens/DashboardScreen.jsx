@@ -3,13 +3,14 @@ import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'r
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
-import { USER_ROLES } from '../../../constants/roles';
 import { theme } from '../../../theme';
 import styles from './DashboardScreen.styles';
 
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
+import InsightCard from '../../../components/ui/InsightCard/InsightCard';
+import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
 
@@ -66,8 +67,8 @@ export default function DashboardScreen() {
           <Text style={styles.logoText}>ApiVera</Text>
         </View>
         <TouchableOpacity style={styles.searchBarFake} onPress={openSearch} activeOpacity={0.8}>
-          <Search size={20} color={theme.colors.text.secondary} />
-          <Text style={styles.searchPlaceholder}>Search ApiVera...</Text>
+          <Search size={18} color={theme.colors.text.secondary} />
+          <Text style={styles.searchPlaceholder}>Search batches, farms...</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={openProfile}>
           <Image 
@@ -78,6 +79,36 @@ export default function DashboardScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        
+        {/* Humanized Greeting Section */}
+        <View style={styles.greetingSection}>
+          <Text style={styles.greetingTitle}>Good morning, {user?.name?.split(' ')[0] || 'Prabhakar'}.</Text>
+          <Text style={styles.greetingSubtitle}>Your hives are doing well today.</Text>
+          
+          <View style={styles.statsRow}>
+            <HumanizedStat 
+              value="18" 
+              description="Healthy Hives" 
+              color={theme.colors.status.success}
+            />
+            <HumanizedStat 
+              value="2" 
+              description="Attention Needed" 
+              color={theme.colors.status.warning}
+            />
+          </View>
+          
+          <InsightCard 
+            title="AI Insight" 
+            insight="Activity in Hive #07 is lower than its normal pattern. A quick inspection is recommended." 
+          />
+        </View>
+
+        {/* Discovery Feed */}
+        <View style={styles.feedHeader}>
+          <Text style={styles.feedTitle}>Discovery</Text>
+        </View>
+
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -111,7 +142,7 @@ export default function DashboardScreen() {
         </View>
         
         {/* Extra padding for bottom nav */}
-        <View style={{ height: 100 }} /> 
+        <View style={{ height: 120 }} /> 
       </ScrollView>
     </SafeAreaView>
   );

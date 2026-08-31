@@ -47,89 +47,74 @@ export default function BatchPassportScreen() {
   );
 
   const timelineEvents = [
-    { title: 'Harvested', date: new Date(batch.createdAt).toLocaleDateString(), completed: true },
-    { title: 'Lab Testing', date: 'Pending', completed: false },
-    { title: 'Processing', date: 'Pending', completed: false },
-    { title: 'Packaging', date: 'Pending', completed: false },
-    { title: 'Distribution', date: 'Pending', completed: false },
+    { title: 'Harvested from Hive #07', date: new Date(batch.createdAt).toLocaleDateString(), completed: true },
+    { title: 'Lab Quality Verified', date: 'Pending', completed: false },
+    { title: 'Bottled & Sealed', date: 'Pending', completed: false },
   ];
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero Image */}
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+        {/* Edge to Edge Hero */}
         <View style={styles.heroImageContainer}>
           <Image 
-            source={{ uri: 'https://picsum.photos/seed/honey2/600/600' }} 
+            source={{ uri: 'https://picsum.photos/seed/honey3/800/800' }} 
             style={styles.heroImage}
           />
-          <View style={styles.gradientOverlay} />
+          <View style={styles.gradientOverlay}>
+            <TouchableOpacity 
+              style={[styles.backBtn, { top: insets.top + 10 }]}
+              onPress={() => router.back()}
+            >
+              <ChevronLeft color={theme.colors.white} size={24} />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Floating Back Button */}
-        <TouchableOpacity 
-          style={{
-            position: 'absolute',
-            top: insets.top + 10,
-            left: theme.spacing.md,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            borderRadius: theme.radius.full,
-            padding: 8,
-            zIndex: 10
-          }}
-          onPress={() => router.back()}
-        >
-          <ChevronLeft color={theme.colors.white} size={24} />
-        </TouchableOpacity>
+        {/* Certificate Header */}
+        <View style={styles.headerContent}>
+          <Text style={styles.certificateTitle}>API VERA HONEY PASSPORT</Text>
+          <View style={styles.verificationRow}>
+            <VerificationBadge type="blockchain" text="VERIFIED AUTHENTIC" size="small" />
+          </View>
 
-      {/* Header Content */}
-      <View style={styles.headerContent}>
-        <View style={styles.headerTopRow}>
-          <Text style={styles.title}>{batch.floralSource || 'Wild Honey'}</Text>
-          <QualityScore score={92} size="large" />
+          <View style={styles.headerTopRow}>
+            <Text style={styles.title}>{batch.floralSource || 'Wild Mustard Honey'}</Text>
+            <QualityScore score={92} size="large" />
+          </View>
+          <Text style={styles.batchId}>Batch {batch.id}</Text>
         </View>
 
-        <View style={styles.badgeContainer}>
-          <VerificationBadge type="blockchain" text="Blockchain Verified" />
-          <VerificationBadge type="ai" text="Quality Analyzed" />
-        </View>
-
-        <Text style={styles.batchIdLabel}>BATCH ID</Text>
-        <Text style={styles.batchId}>{batch.id}</Text>
-      </View>
-
-      {/* Origin & Specs */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Origin</Text>
-        <View style={styles.card}>
-          <DetailRow label="Farm ID" value={batch.farmId} />
-          <DetailRow label="Hive ID" value={batch.hiveId} />
-          <DetailRow label="Location" value="Gorakhpur, UP" />
-          <DetailRow label="Honey Type" value={batch.honeyType} />
+        {/* Origin & Specs (No Card, Edge to Edge list) */}
+        <View style={styles.section}>
+          <DetailRow label="Origin" value="Uttar Pradesh, India" />
+          <DetailRow label="Farm" value={`Farm ${batch.farmId}`} />
+          <DetailRow label="Hive" value={`Hive ${batch.hiveId}`} />
+          <DetailRow label="Harvest Date" value={new Date(batch.createdAt).toLocaleDateString()} />
           <DetailRow label="Quantity" value={`${batch.quantity} kg`} />
         </View>
-      </View>
 
-      {/* Journey Timeline */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Journey</Text>
-        <View style={styles.card}>
-          <Timeline events={timelineEvents} />
+        {/* Journey Timeline */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Journey</Text>
+          <View style={styles.timelineContainer}>
+            <Timeline events={timelineEvents} />
+          </View>
         </View>
-      </View>
 
         {/* Blockchain Verification */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Verification</Text>
-          <View style={[styles.card, styles.blockchainCard]}>
-            <Text style={styles.blockchainTitle}>✓ Verified on Blockchain</Text>
-            <DetailRow label="Status" value="VALID" />
-            <DetailRow label="Recorded" value={new Date(batch.createdAt).toLocaleDateString()} />
+        <View style={[styles.section, styles.lastSection]}>
+          <Text style={styles.sectionTitle}>Traceability</Text>
+          <View style={styles.blockchainContainer}>
+            <Text style={styles.blockchainTitle}>✓ Blockchain Verified</Text>
+            <Text style={styles.blockchainDesc}>
+              This product's origin and quality records are immutably stored on the HoneyChain network.
+            </Text>
             <Text style={styles.blockchainHash}>Tx: 0x8f2c...94a1</Text>
           </View>
         </View>
 
-        <View style={{ height: 60 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );

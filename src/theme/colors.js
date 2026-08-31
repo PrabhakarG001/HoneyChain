@@ -1,28 +1,29 @@
 export const colors = {
-  primary: '#D4A373', // Premium organic honey tone
-  primaryDark: '#A67C52',
+  primary: '#E6A740', // Rich honey/amber
+  primaryDark: '#B87A22',
   primaryLight: '#FAEDCD',
-  charcoal: '#2D3142',
+  charcoal: '#1F1A17', // Deep earthy charcoal/brown
   white: '#ffffff',
-  background: '#FEFAE0', // Creamy off-white
+  background: '#FDFBF7', // Warm premium off-white/cream
   
   text: {
-    primary: '#2D3142',
-    secondary: '#8C92AC',
-    muted: '#B0B5C9',
+    primary: '#1F1A17',
+    secondary: '#7A7265', // Softer, earthy grey-brown
+    muted: '#B0A9A1',
     inverted: '#ffffff'
   },
   
-  border: '#F2E8CF',
-  borderDark: '#E5D6B6',
+  border: '#F0EBE1', // Subtle, warm border
+  borderDark: '#D4CFC6',
   
   status: {
-    success: '#6B9080',
-    successLight: 'rgba(107, 144, 128, 0.15)',
-    warning: '#F6BD60',
-    warningLight: 'rgba(246, 189, 96, 0.15)',
-    error: '#E5989B',
-    errorLight: 'rgba(229, 152, 155, 0.15)',
-    info: '#84A59D'
+    success: '#5B7B6A', // Muted sage green
+    successLight: 'rgba(91, 123, 106, 0.1)',
+    warning: '#D8973C', // Earthy orange
+    warningLight: 'rgba(216, 151, 60, 0.1)',
+    error: '#B25A5C', // Desaturated red
+    errorLight: 'rgba(178, 90, 92, 0.1)',
+    info: '#6C807B' // Muted teal/grey
   }
 };
+

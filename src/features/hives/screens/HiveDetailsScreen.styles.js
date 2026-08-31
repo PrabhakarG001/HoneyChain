@@ -18,26 +18,48 @@ export default StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.background,
   },
-  hiveHeader: {
-    backgroundColor: theme.colors.white,
-    padding: theme.spacing.lg,
+  heroContainer: {
+    width: '100%',
+    height: 300,
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  backBtn: {
+    position: 'absolute',
+    left: theme.spacing.md,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 8,
+    borderRadius: 20,
+  },
+  headerContent: {
+    padding: theme.spacing.xl,
+    backgroundColor: theme.colors.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  hiveId: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
-  },
-  statusRow: {
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: theme.spacing.xs,
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.xs,
+  },
+  hiveId: {
+    ...theme.typography.h1,
+    color: theme.colors.charcoal,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: theme.radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   statusBadgeGood: {
     backgroundColor: theme.colors.status.successLight,
@@ -45,117 +67,95 @@ export default StyleSheet.create({
   statusBadgeWarning: {
     backgroundColor: theme.colors.status.warningLight,
   },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  statusDotGood: {
+    backgroundColor: theme.colors.status.success,
+  },
+  statusDotWarning: {
+    backgroundColor: theme.colors.status.warning,
+  },
   statusText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  statusTextGood: {
-    color: theme.colors.status.success,
-  },
-  statusTextWarning: {
-    color: theme.colors.status.warning,
+    ...theme.typography.caption,
+    fontWeight: '700',
+    color: theme.colors.charcoal,
   },
   beeSpecies: {
+    ...theme.typography.body,
     color: theme.colors.text.secondary,
-    marginLeft: theme.spacing.sm,
   },
-  content: {
-    padding: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
-    marginBottom: theme.spacing.md,
-  },
-  iotCard: {
-    backgroundColor: theme.colors.white,
-    padding: 20,
-    borderRadius: theme.radius.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  iotHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-    paddingBottom: theme.spacing.md,
+  section: {
+    padding: theme.spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  deviceIdRow: {
+  sectionTitle: {
+    ...theme.typography.h3,
+    color: theme.colors.charcoal,
+    marginBottom: theme.spacing.lg,
+  },
+  dataContainer: {
+    paddingTop: theme.spacing.sm,
+  },
+  deviceFooter: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
-  deviceId: {
-    color: theme.colors.charcoal,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  statusIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: theme.colors.status.success,
-  },
-  sensorsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  sensorBlock: {
-    alignItems: 'center',
-    width: '33%',
-  },
-  sensorBlockBorder: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  sensorIconContainer: {
-    marginBottom: 8,
-  },
-  sensorValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.charcoal,
-  },
-  sensorLabel: {
-    fontSize: 12,
+  deviceText: {
+    ...theme.typography.caption,
     color: theme.colors.text.muted,
-    marginTop: 4,
-    textTransform: 'uppercase',
+    marginLeft: 6,
   },
-  emptyIotCard: {
-    backgroundColor: theme.colors.white,
-    padding: theme.spacing.xl,
-    borderRadius: theme.radius.xl,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+  emptyContainer: {
+    paddingVertical: theme.spacing.lg,
   },
-  emptyIotText: {
-    color: theme.colors.text.muted,
+  emptyText: {
+    ...theme.typography.body,
+    color: theme.colors.text.secondary,
     marginBottom: theme.spacing.md,
   },
   assignButton: {
+    alignSelf: 'flex-start',
     backgroundColor: theme.colors.charcoal,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
   },
   assignButtonText: {
+    ...theme.typography.subtitle,
     color: theme.colors.white,
-    fontWeight: 'bold',
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  activityIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  activityTextContainer: {
+    flex: 1,
+  },
+  activityTitle: {
+    ...theme.typography.subtitle,
+    color: theme.colors.charcoal,
+  },
+  activityTime: {
+    ...theme.typography.bodySmall,
+    color: theme.colors.text.secondary,
   }
 });

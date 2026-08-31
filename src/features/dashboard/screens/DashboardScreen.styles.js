@@ -4,7 +4,7 @@ import { theme } from '../../../theme';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.white, // Clean white surface like Pinterest
+    backgroundColor: theme.colors.background,
   },
   compactHeader: {
     flexDirection: 'row',
@@ -13,41 +13,71 @@ export default StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.background,
   },
   logoContainer: {
     marginRight: 12,
   },
   logoText: {
     ...theme.typography.h3,
-    color: theme.colors.primary, // Brand color
+    color: theme.colors.primaryDark,
     fontWeight: '800',
+    letterSpacing: -0.5,
   },
   searchBarFake: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.white,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
     marginRight: 12,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   searchPlaceholder: {
-    color: theme.colors.text.secondary,
+    ...theme.typography.body,
+    color: theme.colors.text.muted,
     marginLeft: 8,
-    fontSize: 15,
-    fontWeight: '500',
   },
   headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.colors.background,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: theme.colors.white,
+  },
+  greetingSection: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+  },
+  greetingTitle: {
+    ...theme.typography.h2,
+    color: theme.colors.charcoal,
+    marginBottom: 4,
+  },
+  greetingSubtitle: {
+    ...theme.typography.body,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.xl,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  feedHeader: {
+    paddingHorizontal: theme.spacing.lg,
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.sm,
+  },
+  feedTitle: {
+    ...theme.typography.h3,
+    color: theme.colors.charcoal,
   },
   categoriesScroll: {
     marginBottom: theme.spacing.md,
-    marginTop: theme.spacing.xs,
   },
   categoriesContent: {
     paddingHorizontal: theme.spacing.lg,
@@ -60,4 +90,5 @@ export default StyleSheet.create({
     paddingHorizontal: theme.spacing.sm, 
   },
 });
+
 
