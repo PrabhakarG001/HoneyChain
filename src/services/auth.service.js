@@ -2,10 +2,11 @@ import api from './api';
 
 export const authService = {
   login: async (email, password) => {
-    const response = await api.post('/auth/login', {
-      username: email, // FastAPI OAuth2PasswordRequestForm uses 'username'
-      password
-    }, {
+    const params = new URLSearchParams();
+    params.append('username', email);
+    params.append('password', password);
+
+    const response = await api.post('/auth/login', params.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }

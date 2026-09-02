@@ -32,7 +32,8 @@ export default function LoginScreen() {
       await login(res.user, res.accessToken);
       router.replace('/(app)/dashboard');
     } catch (err) {
-      setGlobalError(err.message || 'Login failed');
+      const msg = err.response?.data?.detail || err.message || 'Login failed';
+      setGlobalError(msg);
     }
   };
 
