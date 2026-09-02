@@ -8,14 +8,29 @@ logger = logging.getLogger(__name__)
 # The model path should be loaded from env or config
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'isolation_forest.joblib')
 
+def load_model():
+    global if_model
+    if os.path.exists(MODEL_PATH):
+        try:
+            if_model = joblib.load(MODEL_PATH)
+            return if_model
+        except Exception as e:
+            logger.warning(f"Error loading ML model: {e}")
+    return None
+
 try:
-    if_model = joblib.load(MODEL_PATH)
-    logger.info("ML Anomaly Detection Model loaded successfully.")
+    if_model = load_model()
+    if if_model:
+        logger.info("ML Anomaly Detection Model loaded successfully.")
 except Exception as e:
     logger.warning(f"ML Model not found at {MODEL_PATH}. Inference will return 'AI analysis unavailable'.")
     if_model = None
 
 def calculate_hybrid_risk(weight_delta: float, temp_dev: float, humidity_dev: float) -> dict:
+    global if_model
+    if if_model is None:
+        if_model = load_model()
+
     if not if_model:
         return {
             "score": None,
