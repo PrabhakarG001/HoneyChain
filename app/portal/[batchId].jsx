@@ -39,7 +39,7 @@ function PortalContent({ batchId }) {
       <View style={styles.header}>
         <View style={styles.badgeContainer}>
           <ShieldCheck color="#10B981" size={20} />
-          <Text style={styles.badgeText}>Verified by ApiVera</Text>
+          <Text style={styles.badgeText}>Verified by HoneyChain</Text>
         </View>
         <Text style={styles.title}>Honey Passport</Text>
         <Text style={styles.batchId}>Batch: {batchId || 'UNKNOWN'}</Text>
@@ -93,7 +93,7 @@ function PortalContent({ batchId }) {
       <TipBeekeeper />
       
       <View style={styles.footer}>
-        <Text style={styles.footerText}>ApiVera Consumer Portal • 2026</Text>
+        <Text style={styles.footerText}>HoneyChain Consumer Portal • 2026</Text>
       </View>
     </ScrollView>
   );

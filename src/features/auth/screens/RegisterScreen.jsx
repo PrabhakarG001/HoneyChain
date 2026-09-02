@@ -45,7 +45,7 @@ export default function RegisterScreen() {
         <View style={styles.header}>
           <BrandLogo style={{ marginBottom: 24, alignSelf: 'center' }} />
           <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join the ApiVera ecosystem</Text>
+          <Text style={styles.subtitle}>Join the HoneyChain ecosystem</Text>
         </View>
 
         {globalError ? (

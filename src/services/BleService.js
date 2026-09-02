@@ -19,7 +19,7 @@ class BleService {
       }
       
       // Typical ESP32 BLE name or service UUID filtering
-      if (scannedDevice && scannedDevice.name && scannedDevice.name.includes('ApiVera')) {
+      if (scannedDevice && scannedDevice.name && scannedDevice.name.includes('HoneyChain')) {
         onDeviceFound(scannedDevice);
       }
     });

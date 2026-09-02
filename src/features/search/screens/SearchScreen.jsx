@@ -34,7 +34,7 @@ export default function SearchScreen() {
             <Search size={20} color={theme.colors.text.secondary} />
             <TextInput
               style={styles.input}
-              placeholder="Search ApiVera"
+              placeholder="Search HoneyChain"
               placeholderTextColor={theme.colors.text.muted}
               value={query}
               onChangeText={setQuery}

@@ -3,10 +3,10 @@ import Svg, { Path } from 'react-native-svg';
 import { theme } from '../../../theme';
 
 /**
- * ApiVera Official Brand Icon
+ * HoneyChain Official Brand Icon
  * 
  * Concept: Minimalist 'A' + Honey Drop
- * The outer chevron forms the legs of the 'A' (ApiVera) and evokes a hive roof.
+ * The outer chevron forms the legs of the 'H' (HoneyChain) and evokes a hive roof.
  * The central honey drop serves as the crossbar of the 'A', representing the core product.
  * 
  * Designed as a clean vector symbol to match the wordmark's exact color.

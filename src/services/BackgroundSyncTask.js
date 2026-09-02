@@ -12,7 +12,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK, async () => {
     }
 
     // Mock API call to FastAPI backend
-    const response = await fetch('https://api.apivera.example.com/sync', {
+    const response = await fetch('https://api.honeychain.example.com/sync', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

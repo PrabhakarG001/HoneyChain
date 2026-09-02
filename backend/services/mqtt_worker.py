@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class MQTTWorker:
     def __init__(self):
-        self.client = mqtt.Client(client_id="apivera_backend_worker")
+        self.client = mqtt.Client(client_id="honeychain_backend_worker")
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         

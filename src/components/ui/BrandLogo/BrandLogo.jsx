@@ -7,7 +7,7 @@ export default function BrandLogo({ style, iconSize = 28, textStyle }) {
   return (
     <View style={[styles.container, style]}>
       <LogoIcon size={iconSize} />
-      <Text style={[styles.logoText, textStyle]}>ApiVera</Text>
+      <Text style={[styles.logoText, textStyle]}>HoneyChain</Text>
     </View>
   );
 }

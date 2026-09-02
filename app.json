@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ApiVera",
-    "slug": "ApiVera",
+    "name": "HoneyChain",
+    "slug": "HoneyChain",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,13 +31,13 @@
         {
           "isBackgroundEnabled": true,
           "modes": ["peripheral", "central"],
-          "bluetoothAlwaysPermission": "Allow ApiVera to connect to your hives via Bluetooth."
+          "bluetoothAlwaysPermission": "Allow HoneyChain to connect to your hives via Bluetooth."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow ApiVera to access your camera to take photos of hive inspections."
+          "cameraPermission": "Allow HoneyChain to access your camera to take photos of hive inspections."
         }
       ],
       "expo-location",

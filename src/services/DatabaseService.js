@@ -4,7 +4,7 @@ let db = null;
 
 export const initDatabase = async () => {
   if (!db) {
-    db = await SQLite.openDatabaseAsync('apivera_sync.db');
+    db = await SQLite.openDatabaseAsync('honeychain_sync.db');
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS sensor_data (

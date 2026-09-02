@@ -41,7 +41,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.header}>
           <Image 
-            source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
+            source={{ uri: 'https://i.pravatar.cc/150?img=12' }} 
             style={styles.avatar} 
           />
           <Text style={styles.name}>{user?.name || 'Prabhakar'}</Text>

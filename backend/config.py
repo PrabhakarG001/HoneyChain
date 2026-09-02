@@ -1,8 +1,8 @@
 import os
 
 class Settings:
-    PROJECT_NAME: str = "ApiVera Backend"
-    SQLALCHEMY_DATABASE_URI: str = "sqlite:///./apivera.db"
+    PROJECT_NAME: str = "HoneyChain Backend"
+    SQLALCHEMY_DATABASE_URI: str = "sqlite:///./honeychain.db"
     SECRET_KEY: str = "supersecretkey_change_in_prod"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24

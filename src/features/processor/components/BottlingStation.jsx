@@ -81,7 +81,7 @@ export default function BottlingStation() {
             {generatedCodes.map((code, index) => (
               <View key={code.id} style={styles.qrCard}>
                 <QRCode
-                  value={`https://apivera.app/verify/${code.id}`}
+                  value={`https://honeychain.app/verify/${code.id}`}
                   size={120}
                   getRef={(c) => (svgRefs[index] = c)}
                   color="#111827"

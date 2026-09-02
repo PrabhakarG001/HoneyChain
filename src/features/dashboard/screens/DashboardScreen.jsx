@@ -89,7 +89,7 @@ export default function DashboardScreen() {
         </TouchableOpacity>
         <TouchableOpacity onPress={openProfile}>
           <Image 
-            source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
+            source={{ uri: 'https://i.pravatar.cc/150?img=12' }} 
             style={styles.headerAvatar} 
           />
         </TouchableOpacity>

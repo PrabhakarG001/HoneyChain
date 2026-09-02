@@ -254,7 +254,7 @@ export default function VerificationLanding() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Powered by ApiVera Blockchain</Text>
+          <Text style={styles.footerText}>Powered by HoneyChain Blockchain</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

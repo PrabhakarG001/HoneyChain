@@ -40,7 +40,7 @@ export default function LoginScreen() {
       <View style={styles.header}>
         <BrandLogo style={{ marginBottom: 24, alignSelf: 'center' }} />
         <Text style={styles.title}>Welcome Back 👋</Text>
-        <Text style={styles.subtitle}>Sign in to ApiVera</Text>
+        <Text style={styles.subtitle}>Sign in to HoneyChain</Text>
       </View>
 
       {globalError ? (

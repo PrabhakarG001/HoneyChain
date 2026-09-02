@@ -87,4 +87,4 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to ApiVera Backend", "replay_mode": settings.REPLAY_MODE}
+    return {"message": "Welcome to HoneyChain Backend", "replay_mode": settings.REPLAY_MODE}
