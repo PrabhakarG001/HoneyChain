@@ -27,6 +27,7 @@ def test_calculate_hybrid_risk_high_risk():
 def test_calculate_hybrid_risk_missing_model(monkeypatch):
     # Simulate missing ML model
     monkeypatch.setattr(ml_engine, "if_model", None)
+    monkeypatch.setattr(ml_engine, "load_model", lambda: None)
     result = ml_engine.calculate_hybrid_risk(weight_delta=0.0, temp_dev=0.0, humidity_dev=0.0)
     assert result["score"] is None
     assert result["status"] == "AI analysis unavailable"
