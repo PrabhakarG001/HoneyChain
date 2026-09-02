@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Box, PlusCircle, Image as ImageIcon, FileText, QrCode, ScanLine, X } from 'lucide-react-native';
+import { Box, PlusCircle, Image as ImageIcon, FileText, QrCode, ScanLine, X, Camera, SmartphoneNfc, Factory } from 'lucide-react-native';
 import { theme } from '../../../theme';
 import styles from './CreateMenu.styles';
 
@@ -9,6 +9,9 @@ const MENU_ITEMS = [
   { id: 'add_hive', title: 'Add a Hive', subtitle: 'Track a new hive in your apiary', icon: PlusCircle, route: '/hives/add' },
   { id: 'record_harvest', title: 'Record Harvest', subtitle: 'Log a new honey extraction', icon: Box, route: '/farms/add' },
   { id: 'add_batch', title: 'Create Honey Passport', subtitle: 'Mint a new verified batch', icon: QrCode, route: '/batches/create' },
+  { id: 'ai_inspection', title: 'AI Inspection', subtitle: 'Analyze sticky board via Camera', icon: Camera, route: '/camera' },
+  { id: 'sync_hives', title: 'Sync Hives', subtitle: 'Download offline BLE sensor data', icon: SmartphoneNfc, route: '/sync' },
+  { id: 'processor_portal', title: 'Processor Portal', subtitle: 'Merge batches & generate QR labels', icon: Factory, route: '/processor' },
 ];
 
 export default function CreateMenu({ isVisible, onClose }) {

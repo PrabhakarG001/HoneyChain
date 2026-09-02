@@ -25,7 +25,23 @@
       "expo-router",
       "expo-status-bar",
       "expo-secure-store",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "Allow ApiVera to connect to your hives via Bluetooth."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ApiVera to access your camera to take photos of hive inspections."
+        }
+      ],
+      "expo-location",
+      "expo-sqlite"
     ]
   }
 }

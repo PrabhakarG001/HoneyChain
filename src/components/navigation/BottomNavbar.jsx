@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, Search, Plus, Bell, User } from 'lucide-react-native';
+import { Home, Search, Plus, Bell, User, MapPin } from 'lucide-react-native';
 import { theme } from '../../theme';
 import styles from './BottomNavbar.styles';
 import { useUIStore } from '../../store/ui.store';
@@ -61,6 +61,8 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             switch (route.name) {
               case 'index':
                 return <Home size={26} color={color} strokeWidth={strokeWidth} />;
+              case 'map':
+                return <MapPin size={26} color={color} strokeWidth={strokeWidth} />;
               case 'explore':
                 return <Search size={26} color={color} strokeWidth={strokeWidth} />;
               case 'create':
