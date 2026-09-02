@@ -10,6 +10,10 @@ router = APIRouter(prefix="/harvests", tags=["Harvests"])
 
 @router.post("/")
 def ingest_harvest(harvest: schemas.HarvestCreate, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
+    hive = db.query(models.Hive).filter(models.Hive.id == harvest.hive_id).first()
+    if not hive:
+        raise HTTPException(status_code=404, detail="Hive not found")
+
     # Execute real on-chain transaction
     harvest_id = f"HV_{harvest.hive_id}_{int(harvest.timestamp.timestamp())}"
     try:

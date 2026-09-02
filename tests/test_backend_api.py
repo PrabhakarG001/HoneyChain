@@ -61,11 +61,13 @@ def test_create_harvest(client, beekeeper_auth_headers, db, test_beekeeper_user)
         "weight_kg": 24.5,
         "timestamp": "2026-08-15T10:30:00Z"
     }
-    response = client.post("/harvests/", json=harvest_payload, headers=beekeeper_auth_headers)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["hive_id"] == "HV-HARVEST-01"
-    assert data["weight_kg"] == 24.5
+    from unittest.mock import patch
+    with patch("backend.services.contract_client.contract_client.create_harvest", return_value="0xmockharvesttx123"):
+        response = client.post("/harvests/", json=harvest_payload, headers=beekeeper_auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert "harvest_id" in data
+        assert data["tx_hash"] == "0xmockharvesttx123"
 
 def test_create_harvest_invalid_hive(client, beekeeper_auth_headers):
     harvest_payload = {

@@ -1,6 +1,6 @@
-# HoneyChain 🐝 (ApiVera)
+# HoneyChain 🐝
 
-Welcome to the **HoneyChain** (ApiVera) repository! 
+Welcome to the **HoneyChain** repository! 
 
 HoneyChain aims to provide real-time IoT monitoring, AI-driven anomaly detection, and Blockchain-backed traceability for modern beekeeping and supply chains.
 
@@ -234,7 +234,7 @@ Batch  →  Verification Record  →  QR Generation  →  Consumer Scan  →  ve
 ## 📁 Project Structure & Status
 
 ```text
-api-vera/
+honeychain/
 ├── app/               → 🟡 Frontend App (Expo)
 ├── src/               → 🟡 Frontend Source (Mocks present)
 ├── backend/           
