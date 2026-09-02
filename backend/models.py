@@ -52,3 +52,11 @@ class SensorReading(Base):
     sound_level_db = Column(Float)
     
     hive = relationship("Hive", back_populates="readings")
+
+class BlockchainTransaction(Base):
+    __tablename__ = "blockchain_transactions"
+    id = Column(Integer, primary_key=True, index=True)
+    tx_hash = Column(String, unique=True, index=True)
+    action_type = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+

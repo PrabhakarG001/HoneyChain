@@ -1,0 +1,118 @@
+import os
+import json
+import logging
+from web3 import Web3
+from web3.middleware import construct_sign_and_send_raw_middleware
+from ..database import SessionLocal
+from ..models import BlockchainTransaction
+
+logger = logging.getLogger(__name__)
+
+# Defaults for local testing if env vars missing
+DEFAULT_RPC = "http://127.0.0.1:8545"
+POLYGON_AMOY_RPC = "https://rpc-amoy.polygon.technology"
+
+# The backend wallet private key that will sign all state-changing txs on behalf of the system
+PRIVATE_KEY = os.getenv("WEB3_PRIVATE_KEY", "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+
+CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS", "0x0000000000000000000000000000000000000000")
+
+# Minimal mock ABI for the functions we need
+MOCK_ABI = json.loads('''[
+    {"inputs":[{"internalType":"string","name":"hiveId","type":"string"},{"internalType":"bytes32","name":"apiaryHash","type":"bytes32"}],"name":"registerHive","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"hiveId","type":"string"},{"internalType":"string","name":"harvestId","type":"string"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"uint256","name":"quantityKg","type":"uint256"}],"name":"createHarvest","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"string[]","name":"harvestIds","type":"string[]"}],"name":"createBatch","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"address","name":"toOwner","type":"address"}],"name":"transferCustody","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"newBatchId","type":"string"},{"internalType":"string[]","name":"parentBatchIds","type":"string[]"}],"name":"mergeBatches","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"bytes32","name":"processStepHash","type":"bytes32"}],"name":"recordProcessing","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"bytes32","name":"labTestHash","type":"bytes32"},{"internalType":"bool","name":"passed","type":"bool"}],"name":"recordLabTest","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"productId","type":"string"},{"internalType":"string","name":"batchId","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"string","name":"productId","type":"string"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"bytes32","name":"processStepHash","type":"bytes32"},{"internalType":"bytes32","name":"labTestHash","type":"bytes32"},{"internalType":"bool","name":"labPassed","type":"bool"}],"stateMutability":"view","type":"function"}
+]''')
+
+class ContractClient:
+    def __init__(self):
+        # Try Polygon Amoy first, fallback to localhost
+        self.w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI", POLYGON_AMOY_RPC)))
+        if not self.w3.is_connected():
+            logger.warning(f"Could not connect to Amoy, falling back to localhost {DEFAULT_RPC}")
+            self.w3 = Web3(Web3.HTTPProvider(DEFAULT_RPC))
+            
+        if self.w3.is_connected():
+            logger.info("Successfully connected to Web3 provider.")
+            try:
+                self.account = self.w3.eth.account.from_key(PRIVATE_KEY)
+                self.w3.middleware_onion.add(construct_sign_and_send_raw_middleware(self.account))
+                self.contract = self.w3.eth.contract(address=self.w3.to_checksum_address(CONTRACT_ADDRESS), abi=MOCK_ABI)
+            except Exception as e:
+                logger.error(f"Failed to setup Web3 account/contract: {e}")
+                self.contract = None
+        else:
+            logger.error("Failed to connect to any Web3 provider.")
+            self.contract = None
+
+    def _execute_tx(self, func_call, action_type: str) -> str:
+        if not self.contract:
+            logger.warning(f"Contract client offline. Simulating {action_type} success.")
+            return f"0xsimulated_{action_type.lower()}_hash"
+            
+        try:
+            tx_hash = func_call.transact({"from": self.account.address})
+            hex_hash = self.w3.to_hex(tx_hash)
+            
+            # Save to DB
+            db = SessionLocal()
+            record = BlockchainTransaction(tx_hash=hex_hash, action_type=action_type)
+            db.add(record)
+            db.commit()
+            db.close()
+            
+            logger.info(f"Broadcasted {action_type} tx: {hex_hash}")
+            return hex_hash
+        except Exception as e:
+            logger.error(f"Transaction failed for {action_type}: {e}")
+            raise
+
+    # ------------------ Contract Wrappers ------------------
+
+    def register_hive(self, hive_id: str, apiary_hash: bytes):
+        return self._execute_tx(self.contract.functions.registerHive(hive_id, apiary_hash), "REGISTER_HIVE")
+
+    def create_harvest(self, hive_id: str, harvest_id: str, timestamp: int, quantity_kg: int):
+        return self._execute_tx(self.contract.functions.createHarvest(hive_id, harvest_id, timestamp, quantity_kg), "CREATE_HARVEST")
+
+    def create_batch(self, batch_id: str, harvest_ids: list[str]):
+        return self._execute_tx(self.contract.functions.createBatch(batch_id, harvest_ids), "CREATE_BATCH")
+
+    def transfer_custody(self, batch_id: str, to_owner: str):
+        return self._execute_tx(self.contract.functions.transferCustody(batch_id, self.w3.to_checksum_address(to_owner)), "TRANSFER_CUSTODY")
+
+    def merge_batches(self, new_batch_id: str, parent_batch_ids: list[str]):
+        return self._execute_tx(self.contract.functions.mergeBatches(new_batch_id, parent_batch_ids), "MERGE_BATCHES")
+
+    def record_processing(self, batch_id: str, process_step_hash: bytes):
+        return self._execute_tx(self.contract.functions.recordProcessing(batch_id, process_step_hash), "RECORD_PROCESSING")
+
+    def record_lab_test(self, batch_id: str, lab_test_hash: bytes, passed: bool):
+        return self._execute_tx(self.contract.functions.recordLabTest(batch_id, lab_test_hash, passed), "RECORD_LAB_TEST")
+
+    def create_product(self, product_id: str, batch_id: str):
+        return self._execute_tx(self.contract.functions.createProduct(product_id, batch_id), "CREATE_PRODUCT")
+
+    def verify_product(self, product_id: str):
+        if not self.contract:
+            return {"error": "Web3 offline"}
+        try:
+            # call() executes locally, zero gas
+            result = self.contract.functions.verifyProduct(product_id).call()
+            return {
+                "batchId": result[0],
+                "processStepHash": self.w3.to_hex(result[1]),
+                "labTestHash": self.w3.to_hex(result[2]),
+                "labPassed": result[3]
+            }
+        except Exception as e:
+            logger.error(f"Read failed for verifyProduct: {e}")
+            raise
+
+contract_client = ContractClient()
