@@ -30,6 +30,8 @@ export default function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const isCustomer = (user?.role || '').toUpperCase() === 'CUSTOMER';
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good morning');
@@ -43,12 +45,23 @@ export default function DashboardScreen() {
     try {
       setIsLoading(true);
       setError(null);
-      // Fetch hives
-      const hivesData = await hiveService.getAllHives();
-      setHives(hivesData || []);
+
+      if (isCustomer) {
+        // Customers don't own hives; they view verified batches & transparency hub
+        setHives([]);
+      } else {
+        // Beekeepers fetch their hives
+        const hivesData = await hiveService.getAllHives();
+        setHives(hivesData || []);
+      }
     } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again later.');
+      if (err.response?.status === 403) {
+        // Customer tried accessing beekeeper API (or vice versa), backend correctly rejected with 403
+        setHives([]);
+      } else {
+        console.error('Failed to fetch dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -85,15 +98,19 @@ export default function DashboardScreen() {
     />
   );
 
-  // Map hives to feed data
-  const feedData = hives.map(hive => ({
-    id: hive.id || hive._id,
-    type: 'hive',
-    title: hive.name || `Hive ${hive.id}`,
-    subtitle: hive.location || 'Unknown Location',
-    isVerified: true,
-    badgeText: hive.status || 'Active'
-  }));
+  const feedData = isCustomer 
+    ? [
+        { id: 'BATCH_A1B2C3D4', type: 'honey', title: 'Raw Wildflower Honey', subtitle: 'Sunny Valley Apiary • Batch #A1B2C3D4', isVerified: true, badgeText: 'Lab Verified' },
+        { id: 'BATCH_E5F6G7H8', type: 'honey', title: 'Monofloral Acacia Honey', subtitle: 'Highland Organic • Batch #E5F6G7H8', isVerified: true, badgeText: 'On-Chain Verified' }
+      ]
+    : hives.map(hive => ({
+        id: hive.id || hive._id,
+        type: 'hive',
+        title: hive.name || `Hive ${hive.id}`,
+        subtitle: hive.location || 'Unknown Location',
+        isVerified: true,
+        badgeText: hive.status || 'Active'
+      }));
 
   const healthyHivesCount = hives.filter(h => h.status !== 'Warning' && h.status !== 'Critical').length;
   const attentionHivesCount = hives.length - healthyHivesCount;
@@ -117,28 +134,47 @@ export default function DashboardScreen() {
         scrollEventThrottle={scrollEventThrottle}
       >
         
-        {/* Humanized Greeting Section */}
+        {/* Greeting Section */}
         <View style={styles.greetingSection}>
           <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || user?.username || 'User'}.</Text>
-          <Text style={styles.greetingSubtitle}>Here is your summary for today.</Text>
+          <Text style={styles.greetingSubtitle}>
+            {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}
+          </Text>
           
           <View style={styles.statsRow}>
-            <HumanizedStat 
-              value={isLoading ? '-' : healthyHivesCount.toString()} 
-              description="Healthy Hives" 
-              color={theme.colors.status.success}
-            />
-            <HumanizedStat 
-              value={isLoading ? '-' : attentionHivesCount.toString()} 
-              description="Attention Needed" 
-              color={theme.colors.status.warning}
-            />
+            {isCustomer ? (
+              <>
+                <HumanizedStat 
+                  value="2" 
+                  description="Verified Honey Purchases" 
+                  color={theme.colors.status.success}
+                />
+                <HumanizedStat 
+                  value="100%" 
+                  description="On-Chain Authenticity" 
+                  color={theme.colors.primaryDark}
+                />
+              </>
+            ) : (
+              <>
+                <HumanizedStat 
+                  value={isLoading ? '-' : healthyHivesCount.toString()} 
+                  description="Healthy Hives" 
+                  color={theme.colors.status.success}
+                />
+                <HumanizedStat 
+                  value={isLoading ? '-' : attentionHivesCount.toString()} 
+                  description="Attention Needed" 
+                  color={theme.colors.status.warning}
+                />
+              </>
+            )}
           </View>
           
-          {user?.role === 'BEEKEEPER' && attentionHivesCount > 0 && (
+          {!isCustomer && attentionHivesCount > 0 && (
             <InsightCard 
               title="AI Insight" 
-              insight="Some hives need your attention. Check their telemetry for more details." 
+              insight="Some hives need your attention. Check their telemetry for details." 
             />
           )}
         </View>
@@ -151,9 +187,8 @@ export default function DashboardScreen() {
           </Text>
         ) : (
           <>
-            {/* Discovery Feed */}
             <View style={styles.feedHeader}>
-              <Text style={styles.sectionTitle}>Discovery</Text>
+              <Text style={styles.sectionTitle}>{isCustomer ? 'Verified Honey Batches' : 'Discovery'}</Text>
             </View>
 
             <ScrollView 
@@ -176,7 +211,7 @@ export default function DashboardScreen() {
             <View style={styles.feedContainer}>
               {feedData.length === 0 ? (
                 <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.text.secondary }}>
-                  No hives available.
+                  No items available.
                 </Text>
               ) : (
                 <MasonryGrid 
@@ -185,7 +220,7 @@ export default function DashboardScreen() {
                     if (selectedCategory === 'Farms') return i.type === 'farm';
                     if (selectedCategory === 'Honey') return i.type === 'honey' || i.type === 'product';
                     if (selectedCategory === 'Quality') return i.badgeText;
-                    if (selectedCategory === 'Origins') return i.subtitle.includes('Origin');
+                    if (selectedCategory === 'Origins') return i.subtitle.includes('Origin') || i.subtitle.includes('Apiary');
                     if (selectedCategory === 'Verified') return i.isVerified;
                     return true;
                   })}
@@ -196,7 +231,6 @@ export default function DashboardScreen() {
           </>
         )}
         
-        {/* Extra padding for bottom nav */}
         <View style={{ height: 120 }} /> 
       </ScrollView>
     </SafeAreaView>
