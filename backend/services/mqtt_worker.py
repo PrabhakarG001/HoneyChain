@@ -80,6 +80,7 @@ class MQTTWorker:
                 "temperature": validated_data.temperature_c,
                 "humidity": validated_data.humidity_pct,
                 "weight": validated_data.weight_kg,
+                "sound_level": validated_data.sound_level_db,
                 "risk_analysis": risk_result
             }
             
@@ -87,6 +88,10 @@ class MQTTWorker:
             if hasattr(self, 'loop') and self.loop:
                 asyncio.run_coroutine_threadsafe(
                     pubsub_manager.publish(f"hives/{validated_data.hive_id}/telemetry", ws_payload),
+                    self.loop
+                )
+                asyncio.run_coroutine_threadsafe(
+                    pubsub_manager.publish("hives/all/telemetry", ws_payload),
                     self.loop
                 )
             

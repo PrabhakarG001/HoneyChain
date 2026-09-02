@@ -65,7 +65,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 def require_role(roles: list[str]):
     def role_checker(current_user: models.User = Depends(get_current_user)):
-        if current_user.role not in roles:
+        user_role = (current_user.role or "").lower()
+        allowed_roles = [r.lower() for r in roles]
+        if user_role not in allowed_roles:
+            import logging
+            logging.warning(f"Role check failed: user '{current_user.username}' has role '{current_user.role}', required one of '{roles}'")
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return current_user
     return role_checker

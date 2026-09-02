@@ -5,46 +5,43 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Ensure project root is in sys.path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
-from backend.database import Base, get_db
-from backend import models, auth
-from datetime import timedelta
-
-from sqlalchemy.pool import StaticPool
-
-# Test in-memory SQLite database
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-import backend.database
-backend.database.engine = engine
-backend.database.SessionLocal = TestingSessionLocal
+# Add root directory to sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.main import app
+from backend.database import Base, get_db
+import backend.database as backend_db
+from backend import models
+from backend.auth import get_password_hash, create_access_token
 
+TEST_DATABASE_URL = "sqlite:///./test_honeychain.db"
 
-@pytest.fixture(scope="function")
+engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_db():
+    # Override engine in backend.database and backend.main so all operations use test_db
+    backend_db.engine = engine
+    backend_db.SessionLocal = TestingSessionLocal
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+    if os.path.exists("./test_honeychain.db"):
+        try:
+            os.remove("./test_honeychain.db")
+        except Exception:
+            pass
+
+@pytest.fixture
 def db():
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=engine)
+    yield session
+    session.close()
 
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def client(db):
     def _override_get_db():
         try:
@@ -57,59 +54,32 @@ def client(db):
         yield c
     app.dependency_overrides.clear()
 
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_beekeeper_user(db):
-    hashed_pwd = auth.get_password_hash("beekeeperpass123")
-    user = models.User(username="test_beekeeper", hashed_password=hashed_pwd, role="beekeeper")
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    user = db.query(models.User).filter(models.User.username == "test_bk").first()
+    if not user:
+        user = models.User(username="test_bk", hashed_password=get_password_hash("pass"), role="BEEKEEPER")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     return user
 
-
-@pytest.fixture(scope="function")
-def test_processor_user(db):
-    hashed_pwd = auth.get_password_hash("processorpass123")
-    user = models.User(username="test_processor", hashed_password=hashed_pwd, role="processor")
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-@pytest.fixture(scope="function")
-def test_admin_user(db):
-    hashed_pwd = auth.get_password_hash("adminpass123")
-    user = models.User(username="test_admin", hashed_password=hashed_pwd, role="admin")
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def beekeeper_auth_headers(test_beekeeper_user):
-    token = auth.create_access_token(
-        data={"sub": test_beekeeper_user.username, "role": test_beekeeper_user.role},
-        expires_delta=timedelta(minutes=30)
-    )
+    token = create_access_token(data={"sub": test_beekeeper_user.username, "role": test_beekeeper_user.role})
     return {"Authorization": f"Bearer {token}"}
 
+@pytest.fixture
+def test_processor_user(db):
+    user = db.query(models.User).filter(models.User.username == "test_proc").first()
+    if not user:
+        user = models.User(username="test_proc", hashed_password=get_password_hash("pass"), role="PROCESSOR")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    return user
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def processor_auth_headers(test_processor_user):
-    token = auth.create_access_token(
-        data={"sub": test_processor_user.username, "role": test_processor_user.role},
-        expires_delta=timedelta(minutes=30)
-    )
-    return {"Authorization": f"Bearer {token}"}
-
-
-@pytest.fixture(scope="function")
-def admin_auth_headers(test_admin_user):
-    token = auth.create_access_token(
-        data={"sub": test_admin_user.username, "role": test_admin_user.role},
-        expires_delta=timedelta(minutes=30)
-    )
+    token = create_access_token(data={"sub": test_processor_user.username, "role": test_processor_user.role})
     return {"Authorization": f"Bearer {token}"}

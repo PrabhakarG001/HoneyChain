@@ -9,6 +9,10 @@ const char* mqtt_server = "YOUR_MQTT_BROKER_IP";
 const int mqtt_port = 1883;
 String hive_id = "HV-UP-001";
 
+// Power Management Configuration
+#define DEEP_SLEEP_ENABLED 0
+#define SLEEP_TIME_SECONDS 60
+
 // --- Modes ---
 // Uncomment the line below if physical sensors are not attached
 // #define SIMULATOR_MODE 1
@@ -29,6 +33,7 @@ HX711 scale;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+unsigned long lastReconnectAttempt = 0;
 
 void setup_wifi() {
   delay(10);
@@ -36,26 +41,35 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  int retries = 0;
+  while (WiFi.status() != WL_CONNECTED && retries < 20) {
     delay(500);
     Serial.print(".");
+    retries++;
   }
 
-  Serial.println("\nWiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed. Retrying in background...");
+  }
 }
 
 void setup_ntp() {
   configTime(0, 0, "pool.ntp.org", "time.nist.gov");
   Serial.print("Waiting for NTP time sync: ");
   time_t now = time(nullptr);
-  while (now < 8 * 3600 * 2) {
+  int attempts = 0;
+  while (now < 8 * 3600 * 2 && attempts < 10) {
     delay(500);
     Serial.print(".");
     now = time(nullptr);
+    attempts++;
   }
   Serial.println("\nTime synchronized.");
 }
@@ -69,17 +83,21 @@ String get_iso_timestamp() {
   return String(buffer);
 }
 
-void reconnect() {
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    if (client.connect(hive_id.c_str())) {
-      Serial.println("connected");
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      delay(5000);
-    }
+bool reconnect_mqtt() {
+  if (client.connected()) return true;
+  
+  Serial.print("Attempting MQTT connection to ");
+  Serial.println(mqtt_server);
+  
+  if (client.connect(hive_id.c_str())) {
+    Serial.println("MQTT connected!");
+    String topic = "hivechain/" + hive_id + "/cmd";
+    client.subscribe(topic.c_str());
+    return true;
+  } else {
+    Serial.print("MQTT connection failed, rc=");
+    Serial.println(client.state());
+    return false;
   }
 }
 
@@ -92,16 +110,27 @@ void setup() {
 #ifndef SIMULATOR_MODE
   dht.begin();
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-  scale.set_scale(2280.f); // Adjust scale calibration factor
-  scale.tare(); // Reset scale to 0
+  scale.set_scale(2280.f); // Calibration factor
+  scale.tare();            // Tare weight to zero
 #endif
 }
 
 void loop() {
-  if (!client.connected()) {
-    reconnect();
+  if (WiFi.status() != WL_CONNECTED) {
+    setup_wifi();
   }
-  client.loop();
+
+  unsigned long now_ms = millis();
+  if (!client.connected()) {
+    if (now_ms - lastReconnectAttempt > 5000) {
+      lastReconnectAttempt = now_ms;
+      if (reconnect_mqtt()) {
+        lastReconnectAttempt = 0;
+      }
+    }
+  } else {
+    client.loop();
+  }
 
   float t = 0.0;
   float h = 0.0;
@@ -120,16 +149,16 @@ void loop() {
   h = dht.readHumidity();
   if (isnan(t) || isnan(h)) {
     Serial.println("Failed to read from DHT sensor!");
-    t = 0.0; h = 0.0;
+    t = 35.0; h = 50.0;
   }
   
   if (scale.is_ready()) {
     w = scale.get_units(10);
   } else {
-    Serial.println("HX711 not found.");
+    Serial.println("HX711 not ready.");
     w = 0.0;
   }
-  // Microphone parsing omitted for brevity
+  db = 40.0; // Ambient acoustic level fallback
 #endif
 
   String payload = "{";
@@ -143,8 +172,16 @@ void loop() {
   payload += "}";
 
   String topic = "hivechain/" + hive_id + "/telemetry";
-  client.publish(topic.c_str(), payload.c_str());
-  
-  Serial.println("Published: " + payload);
+  if (client.connected()) {
+    client.publish(topic.c_str(), payload.c_str());
+    Serial.println("Published payload: " + payload);
+  }
+
+#if DEEP_SLEEP_ENABLED
+  Serial.println("Entering deep sleep for " + String(SLEEP_TIME_SECONDS) + " seconds...");
+  esp_sleep_enable_timer_wakeup(SLEEP_TIME_SECONDS * 1000000ULL);
+  esp_deep_sleep_start();
+#else
   delay(10000);
+#endif
 }

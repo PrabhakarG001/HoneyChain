@@ -48,7 +48,9 @@ def calculate_hybrid_risk(weight_delta: float, temp_dev: float, humidity_dev: fl
     norm_hum = min(abs(humidity_dev) / 30.0, 1.0)
     norm_weight = min(abs(weight_delta) / 5.0, 1.0)
     
-    score = if_model.decision_function(np.array([[weight_delta, temp_dev, humidity_dev]]))
+    import pandas as pd
+    input_df = pd.DataFrame([[weight_delta, temp_dev, humidity_dev]], columns=['weight_delta', 'temp_dev', 'humidity_dev'])
+    score = if_model.decision_function(input_df)
     if_score_norm = max(0.0, min(0.5 - score[0], 1.0))
         
     hybrid_score = (0.4 * norm_temp) + (0.3 * norm_hum) + (0.2 * norm_weight) + (0.1 * if_score_norm)
