@@ -24,6 +24,10 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+import backend.database
+backend.database.engine = engine
+backend.database.SessionLocal = TestingSessionLocal
+
 
 @pytest.fixture(scope="function")
 def db():
