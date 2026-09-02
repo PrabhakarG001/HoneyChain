@@ -18,11 +18,63 @@ export default function HiveDetailsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
+  const [wsStatus, setWsStatus] = React.useState('Connecting...');
+  const [telemetry, setTelemetry] = React.useState(null);
+
   const { data: hive, isLoading } = useQuery({
     queryKey: ['hive', id],
     queryFn: () => hiveService.getHive(id),
     enabled: !!id,
   });
+
+  const { data: historyTelemetry } = useQuery({
+    queryKey: ['hive-telemetry', id],
+    queryFn: () => hiveService.getHiveTelemetry(id),
+    enabled: !!id,
+  });
+
+  const { data: analysis } = useQuery({
+    queryKey: ['hive-analysis', id],
+    queryFn: () => hiveService.getHiveAnalysis(id),
+    enabled: !!id,
+  });
+
+  // Use live telemetry if available, otherwise fallback to the most recent historical telemetry
+  const displayTelemetry = telemetry || (historyTelemetry && historyTelemetry.length > 0 ? historyTelemetry[0] : null);
+  const displayAnalysis = telemetry?.risk_analysis || analysis;
+
+  React.useEffect(() => {
+    if (!id) return;
+    
+    // Connect to actual backend WebSocket
+    const wsUrl = process.env.EXPO_PUBLIC_WS_URL || 'ws://127.0.0.1:8000';
+    const ws = new WebSocket(`${wsUrl}/hives/${id}/live`);
+
+    ws.onopen = () => {
+      setWsStatus('Connected');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setTelemetry(data);
+      } catch (err) {
+        console.error('Failed to parse WebSocket message:', err);
+      }
+    };
+
+    ws.onclose = () => {
+      setWsStatus('Disconnected');
+    };
+
+    ws.onerror = () => {
+      setWsStatus('Connection failure');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -66,62 +118,73 @@ export default function HiveDetailsScreen() {
         <View style={styles.headerContent}>
           <View style={styles.titleRow}>
             <Text style={styles.hiveId}>{hive.id}</Text>
-            <View style={[styles.statusBadge, isGood ? styles.statusBadgeGood : styles.statusBadgeWarning]}>
-              <View style={[styles.statusDot, isGood ? styles.statusDotGood : styles.statusDotWarning]} />
+            <View style={[styles.statusBadge, wsStatus === 'Connected' ? styles.statusBadgeGood : styles.statusBadgeWarning]}>
+              <View style={[styles.statusDot, wsStatus === 'Connected' ? styles.statusDotGood : styles.statusDotWarning]} />
               <Text style={styles.statusText}>
-                {isGood ? 'Healthy' : 'Needs Attention'}
+                {wsStatus}
               </Text>
             </View>
           </View>
-          <Text style={styles.beeSpecies}>{hive.beeSpecies} • Updated 3 min ago</Text>
+          <Text style={styles.beeSpecies}>{hive.beeSpecies} • {displayTelemetry?.timestamp ? new Date(displayTelemetry.timestamp).toLocaleTimeString() : 'Waiting for telemetry...'}</Text>
         </View>
 
         {/* Edge to Edge Content */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Current Status</Text>
           
-          {hive.iotDeviceId ? (
+          {displayTelemetry ? (
             <View style={styles.dataContainer}>
               <HumanizedStat 
                 icon={Thermometer}
-                value={`${hive.temperature}°C`}
-                description="Temperature is within the optimal healthy range."
+                value={`${(displayTelemetry.temperature_c || displayTelemetry.temperature || 0).toFixed(1)}°C`}
+                description="Temperature inside the hive."
                 color={theme.colors.status.warning}
               />
               <HumanizedStat 
                 icon={Droplets}
-                value={`${hive.humidity}%`}
-                description="Humidity is stable today, suitable for nectar processing."
+                value={`${(displayTelemetry.humidity_pct || displayTelemetry.humidity || 0).toFixed(1)}%`}
+                description="Humidity inside the hive."
                 color={theme.colors.status.info}
               />
               <HumanizedStat 
                 icon={Activity}
-                value={`${hive.currentWeight} kg`}
-                description="Weight has increased steadily over the last 7 days indicating a strong nectar flow."
+                value={`${(displayTelemetry.weight_kg || displayTelemetry.weight || 0).toFixed(2)} kg`}
+                description="Current weight of the hive."
                 color={theme.colors.status.success}
               />
               
               <View style={styles.deviceFooter}>
                 <Cpu size={16} color={theme.colors.text.muted} />
-                <Text style={styles.deviceText}>Sensor {hive.iotDeviceId} connected</Text>
+                <Text style={styles.deviceText}>Live updates connected</Text>
               </View>
             </View>
+          ) : wsStatus === 'Disconnected' || wsStatus === 'Connection failure' ? (
+            <EmptyState 
+              title="No Telemetry Received" 
+              message="The connection to the hive sensors was lost or could not be established."
+              actionLabel="Reconnect"
+              onAction={() => setWsStatus('Connecting...')}
+            />
           ) : (
             <EmptyState 
-              title="No Sensor Connected" 
-              message="Connect an IoT sensor to start tracking temperature, humidity, and weight automatically." 
-              actionLabel="Connect Sensor" 
-              onAction={() => {}} 
+              title="Waiting for Telemetry..." 
+              message="Please wait while we receive the first sensor reading from the hive."
+              actionLabel="Connecting..."
+              onAction={() => {}}
             />
           )}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>AI Insight</Text>
-          <InsightCard 
-            title="Hive Activity Pattern" 
-            insight="Foraging activity has peaked slightly earlier today compared to last week. The colony seems to be preparing for the spring bloom." 
-          />
+          {displayAnalysis && displayAnalysis.status !== "No Data" ? (
+             <InsightCard 
+               title={`Risk Analysis: ${displayAnalysis.status}`} 
+               insight={`Confidence Score: ${(displayAnalysis.risk_score * 100 || 0).toFixed(0)}%. ${displayAnalysis.highest_contributor && displayAnalysis.highest_contributor !== 'None' ? `Highest contributor to risk: ${displayAnalysis.highest_contributor}.` : 'Conditions look optimal.'}`} 
+             />
+          ) : (
+             <Text style={{ marginTop: 12, color: theme.colors.text.secondary }}>AI analysis unavailable or awaiting data</Text>
+          )}
         </View>
 
         <View style={styles.section}>

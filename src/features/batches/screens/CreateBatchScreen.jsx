@@ -73,6 +73,11 @@ export default function CreateBatchScreen() {
         />
 
         <View style={styles.submitContainer}>
+          {mutation.isError && (
+            <Text style={{ color: 'red', marginBottom: 10, textAlign: 'center' }}>
+              {mutation.error?.response?.data?.detail || mutation.error?.message || 'Failed to create batch'}
+            </Text>
+          )}
           <Button title="Create Batch" onPress={handleSubmit((d) => mutation.mutate(d))} isLoading={mutation.isPending} />
         </View>
       </ScrollView>

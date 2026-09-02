@@ -39,3 +39,36 @@ class MQTTPayload(BaseModel):
     humidity_pct: float
     weight_kg: float
     sound_level_db: float
+
+class MLAnalysisResponse(BaseModel):
+    hive_id: str
+    timestamp: datetime
+    risk_score: Optional[float]
+    status: str
+    highest_contributor: str
+    model_version: str
+
+    class Config:
+        from_attributes = True
+
+class VerificationResponse(BaseModel):
+    id: str
+    batch_id: str
+    tx_hash: str
+    created_at: datetime
+    status: str
+
+    class Config:
+        from_attributes = True
+
+class BatchResponse(BaseModel):
+    id: str
+    created_at: datetime
+    is_merged: bool
+    document_hash: Optional[str] = None
+    status: str
+    verification_id: Optional[str] = None
+    tx_hash: Optional[str] = None
+
+    class Config:
+        from_attributes = True

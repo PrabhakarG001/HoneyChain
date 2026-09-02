@@ -1,8 +1,10 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || process.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: 'https://api.honeychain.dev/v1',
+  baseURL: API_URL,
   timeout: 10000,
 });
 
@@ -17,7 +19,11 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Handle 401 Unauthorized globally if needed
+    if (error.response && error.response.status === 401) {
+      // Clear token and logout
+      const { useAuthStore } = require('../store/auth.store');
+      await useAuthStore.getState().logout();
+    }
     return Promise.reject(error);
   }
 );

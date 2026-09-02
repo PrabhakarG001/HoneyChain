@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 from . import models, schemas
 from .database import engine, get_db
-from .auth import create_access_token, get_password_hash
+from .auth import create_access_token, get_password_hash, get_current_user
 from .config import settings
 
 # Routers
@@ -82,6 +82,18 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)
         data={"sub": user.username, "role": user.role}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/auth/refresh", response_model=schemas.Token)
+def refresh_token(current_user: models.User = Depends(get_current_user)):
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": current_user.username, "role": current_user.role}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/users/me", response_model=schemas.UserResponse)
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
 
 @app.get("/")
 def read_root():

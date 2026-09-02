@@ -3,19 +3,19 @@ import { View, StyleSheet, Text, ActivityIndicator, Platform } from 'react-nativ
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin } from 'lucide-react-native';
+import { hiveService } from '../../../src/services/hive.service';
 
-let MapView, Marker, Circle;
+let MapView, Marker;
 if (Platform.OS !== 'web') {
   const maps = require('react-native-maps');
   MapView = maps.default;
   Marker = maps.Marker;
-  Circle = maps.Circle;
 }
 
 export default function MapScreen() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [mockNectarData, setMockNectarData] = useState([]);
+  const [hives, setHives] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -27,14 +27,13 @@ export default function MapScreen() {
 
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
-
-      // Generate some mock nectar flow data around the user's location
-      const mockPoints = Array.from({ length: 5 }).map(() => ({
-        latitude: loc.coords.latitude + (Math.random() - 0.5) * 0.05,
-        longitude: loc.coords.longitude + (Math.random() - 0.5) * 0.05,
-        intensity: Math.random() * 100, // 0 to 100%
-      }));
-      setMockNectarData(mockPoints);
+      
+      try {
+        const data = await hiveService.getAllHives();
+        setHives(data || []);
+      } catch (e) {
+        console.error('Failed to load map data', e);
+      }
     })();
   }, []);
 
@@ -44,7 +43,7 @@ export default function MapScreen() {
         <SafeAreaView edges={['top']} style={styles.header}>
           <View style={styles.headerContent}>
             <MapPin size={24} color="#111827" />
-            <Text style={styles.headerTitle}>Community Nectar Flow</Text>
+            <Text style={styles.headerTitle}>Hives Map</Text>
           </View>
         </SafeAreaView>
         <View style={styles.loadingContainer}>
@@ -68,7 +67,7 @@ export default function MapScreen() {
       <SafeAreaView edges={['top']} style={styles.header}>
         <View style={styles.headerContent}>
           <MapPin size={24} color="#111827" />
-          <Text style={styles.headerTitle}>Community Nectar Flow</Text>
+          <Text style={styles.headerTitle}>Hives Map</Text>
         </View>
       </SafeAreaView>
 
@@ -82,39 +81,18 @@ export default function MapScreen() {
         }}
         showsUserLocation={true}
       >
-        {/* We use colored circles to mock a heatmap overlay */}
-        {mockNectarData.map((point, index) => (
-          <Circle
-            key={index}
-            center={{ latitude: point.latitude, longitude: point.longitude }}
-            radius={1000 + point.intensity * 20} // Radius scales with intensity
-            fillColor={`rgba(234, 179, 8, ${point.intensity / 200})`} // Yellow color with varying opacity
-            strokeColor="rgba(234, 179, 8, 0.2)"
-            strokeWidth={1}
-          />
-        ))}
-
-        {mockNectarData.map((point, index) => (
-          <Marker
-            key={`marker-${index}`}
-            coordinate={{ latitude: point.latitude, longitude: point.longitude }}
-            title="Nectar Flow"
-            description={`Intensity: ${Math.round(point.intensity)}%`}
-          />
-        ))}
+        {hives.map((hive, index) => {
+          if (!hive.latitude || !hive.longitude) return null;
+          return (
+            <Marker
+              key={`hive-marker-${index}`}
+              coordinate={{ latitude: hive.latitude, longitude: hive.longitude }}
+              title={hive.name || `Hive ${hive.id}`}
+              description={hive.status || 'Active'}
+            />
+          );
+        })}
       </MapView>
-
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Nectar Flow Intensity</Text>
-        <View style={styles.legendRow}>
-          <View style={[styles.legendColor, { backgroundColor: 'rgba(234, 179, 8, 0.2)' }]} />
-          <Text style={styles.legendText}>Low</Text>
-        </View>
-        <View style={styles.legendRow}>
-          <View style={[styles.legendColor, { backgroundColor: 'rgba(234, 179, 8, 0.6)' }]} />
-          <Text style={styles.legendText}>High</Text>
-        </View>
-      </View>
     </View>
   );
 }
@@ -151,38 +129,5 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-  },
-  legend: {
-    position: 'absolute',
-    bottom: 120, // above bottom navbar
-    right: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  legendTitle: {
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#374151',
-  },
-  legendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  legendColor: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#4B5563',
   }
 });

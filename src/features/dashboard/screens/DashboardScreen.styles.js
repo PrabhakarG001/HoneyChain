@@ -24,7 +24,7 @@ export default StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.5,
   },
-  searchBarFake: {
+  searchBarButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',

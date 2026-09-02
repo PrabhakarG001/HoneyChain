@@ -3,16 +3,19 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models, schemas
 from ..auth import require_role
+from ..services.contract_client import contract_client
 import hashlib
 
 router = APIRouter(prefix="/harvests", tags=["Harvests"])
 
 @router.post("/")
 def ingest_harvest(harvest: schemas.HarvestCreate, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    # Integrity Check: In a real app, query SensorReadings for the last 24h to verify a weight drop matches the harvest weight
-    
-    # Generate mock tx_hash
-    tx_hash = "0x" + hashlib.sha256(f"{harvest.hive_id}{harvest.timestamp}".encode()).hexdigest()[:40]
+    # Execute real on-chain transaction
+    harvest_id = f"HV_{harvest.hive_id}_{int(harvest.timestamp.timestamp())}"
+    try:
+        tx_hash = contract_client.create_harvest(harvest.hive_id, harvest_id, int(harvest.timestamp.timestamp()), int(harvest.weight_kg))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Blockchain service unavailable: {e}")
     
     db_harvest = models.Harvest(
         id=f"HV_{harvest.hive_id}_{int(harvest.timestamp.timestamp())}",

@@ -2,7 +2,15 @@ import os
 import json
 import logging
 from web3 import Web3
-from web3.middleware import construct_sign_and_send_raw_middleware
+try:
+    from web3.middleware import construct_sign_and_send_raw_middleware
+except ImportError:
+    try:
+        from web3.middleware import SignAndSendRawMiddlewareBuilder
+        construct_sign_and_send_raw_middleware = SignAndSendRawMiddlewareBuilder
+    except ImportError:
+        construct_sign_and_send_raw_middleware = None
+
 from ..database import SessionLocal
 from ..models import BlockchainTransaction
 
@@ -17,8 +25,8 @@ PRIVATE_KEY = os.getenv("WEB3_PRIVATE_KEY", "0x0123456789abcdef0123456789abcdef0
 
 CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS", "0x0000000000000000000000000000000000000000")
 
-# Minimal mock ABI for the functions we need
-MOCK_ABI = json.loads('''[
+# Minimal ABI for the functions we need
+MINIMAL_ABI = json.loads('''[
     {"inputs":[{"internalType":"string","name":"hiveId","type":"string"},{"internalType":"bytes32","name":"apiaryHash","type":"bytes32"}],"name":"registerHive","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[{"internalType":"string","name":"hiveId","type":"string"},{"internalType":"string","name":"harvestId","type":"string"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"uint256","name":"quantityKg","type":"uint256"}],"name":"createHarvest","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[{"internalType":"string","name":"batchId","type":"string"},{"internalType":"string[]","name":"harvestIds","type":"string[]"}],"name":"createBatch","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -42,8 +50,13 @@ class ContractClient:
             logger.info("Successfully connected to Web3 provider.")
             try:
                 self.account = self.w3.eth.account.from_key(PRIVATE_KEY)
-                self.w3.middleware_onion.add(construct_sign_and_send_raw_middleware(self.account))
-                self.contract = self.w3.eth.contract(address=self.w3.to_checksum_address(CONTRACT_ADDRESS), abi=MOCK_ABI)
+                if construct_sign_and_send_raw_middleware:
+                    try:
+                        mw = construct_sign_and_send_raw_middleware(self.account)
+                        self.w3.middleware_onion.add(mw)
+                    except Exception as mw_err:
+                        logger.warning(f"Signing middleware note: {mw_err}")
+                self.contract = self.w3.eth.contract(address=self.w3.to_checksum_address(CONTRACT_ADDRESS), abi=MINIMAL_ABI)
             except Exception as e:
                 logger.error(f"Failed to setup Web3 account/contract: {e}")
                 self.contract = None
@@ -53,8 +66,8 @@ class ContractClient:
 
     def _execute_tx(self, func_call, action_type: str) -> str:
         if not self.contract:
-            logger.warning(f"Contract client offline. Simulating {action_type} success.")
-            return f"0xsimulated_{action_type.lower()}_hash"
+            logger.error(f"Contract client offline or not connected to RPC. Cannot execute {action_type}.")
+            raise RuntimeError(f"Blockchain contract unavailable for {action_type}.")
             
         try:
             tx_hash = func_call.transact({"from": self.account.address})

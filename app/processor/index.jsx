@@ -1,22 +1,45 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Factory, CheckSquare, Square, GitMerge, FileText } from 'lucide-react-native';
 import GenealogyGraph from '../../src/features/processor/components/GenealogyGraph';
 import BottlingStation from '../../src/features/processor/components/BottlingStation';
 import { useRouter } from 'expo-router';
-
-const MOCK_HARVESTS = [
-  { id: 'harvest_a', label: 'Harvest A (Hive 001) - 30 lbs' },
-  { id: 'harvest_b', label: 'Harvest B (Hive 003) - 25 lbs' },
-  { id: 'harvest_c', label: 'Harvest C (Hive 010) - 40 lbs' },
-];
+import { batchService } from '../../src/services/batch.service';
+import { theme } from '../../src/theme';
 
 export default function ProcessorPortal() {
   const router = useRouter();
+  const [availableBatches, setAvailableBatches] = useState([]);
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [logs, setLogs] = useState({ filtering: false, moisture: false, pasteurization: false });
   const [activeTab, setActiveTab] = useState('merge');
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMerging, setIsMerging] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchBatches();
+  }, []);
+
+  const fetchBatches = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const batches = await batchService.getBatches();
+      // Map them to the UI format
+      setAvailableBatches((batches || []).map(b => ({
+        id: b.id || b._id,
+        label: `Batch ${b.id || b._id} - ${b.status || 'Harvested'}`
+      })));
+    } catch (err) {
+      console.error('Failed to fetch batches', err);
+      setError('Failed to load batches.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleBatch = (id) => {
     setSelectedBatches(prev => 
@@ -35,22 +58,21 @@ export default function ProcessorPortal() {
     }
 
     try {
-      console.log('POST /batches payload:', {
+      setIsMerging(true);
+      await batchService.createBatch({
         parents: selectedBatches,
         processingLogs: logs,
-        documentHash: '0x' + (Math.random() * 1e16).toString(16),
       });
-      console.log('Triggering contract function: mergeBatches()...');
-      
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
       Alert.alert('Success', 'Batches successfully merged and recorded on-chain.');
       setSelectedBatches([]);
       setLogs({ filtering: false, moisture: false, pasteurization: false });
       setActiveTab('genealogy');
+      fetchBatches(); // refresh available batches
     } catch (e) {
       Alert.alert('Error', 'Failed to merge batches.');
+    } finally {
+      setIsMerging(false);
     }
   };
 
@@ -87,20 +109,28 @@ export default function ProcessorPortal() {
             
             <Text style={styles.sectionTitle}>1. Select Harvest Batches</Text>
             <View style={styles.list}>
-              {MOCK_HARVESTS.map(harvest => (
-                <TouchableOpacity 
-                  key={harvest.id} 
-                  style={[styles.listItem, selectedBatches.includes(harvest.id) && styles.listItemSelected]}
-                  onPress={() => toggleBatch(harvest.id)}
-                >
-                  <View style={styles.checkbox}>
-                    {selectedBatches.includes(harvest.id) ? <CheckSquare size={20} color="#1D4ED8" /> : <Square size={20} color="#9CA3AF" />}
-                  </View>
-                  <Text style={[styles.listText, selectedBatches.includes(harvest.id) && styles.listTextSelected]}>
-                    {harvest.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {isLoading ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} style={{ margin: 10 }} />
+              ) : error ? (
+                <Text style={{ margin: 10, color: theme.colors.status.error }}>{error}</Text>
+              ) : availableBatches.length === 0 ? (
+                <Text style={{ margin: 10, color: theme.colors.text.secondary }}>No batches available to merge.</Text>
+              ) : (
+                availableBatches.map(harvest => (
+                  <TouchableOpacity 
+                    key={harvest.id} 
+                    style={[styles.listItem, selectedBatches.includes(harvest.id) && styles.listItemSelected]}
+                    onPress={() => toggleBatch(harvest.id)}
+                  >
+                    <View style={styles.checkbox}>
+                      {selectedBatches.includes(harvest.id) ? <CheckSquare size={20} color="#1D4ED8" /> : <Square size={20} color="#9CA3AF" />}
+                    </View>
+                    <Text style={[styles.listText, selectedBatches.includes(harvest.id) && styles.listTextSelected]}>
+                      {harvest.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
             </View>
 
             <Text style={styles.sectionTitle}>2. Processing Step Logger</Text>
@@ -120,9 +150,19 @@ export default function ProcessorPortal() {
               ))}
             </View>
 
-            <TouchableOpacity style={styles.mergeBtn} onPress={handleMerge}>
-              <GitMerge color="#fff" size={20} />
-              <Text style={styles.mergeBtnText}>Merge Batches</Text>
+            <TouchableOpacity 
+              style={[styles.mergeBtn, (selectedBatches.length < 2 || isMerging) && { opacity: 0.7 }]} 
+              onPress={handleMerge}
+              disabled={selectedBatches.length < 2 || isMerging}
+            >
+              {isMerging ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <GitMerge color="#fff" size={20} />
+                  <Text style={styles.mergeBtnText}>Merge Batches</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         )}

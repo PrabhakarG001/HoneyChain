@@ -40,13 +40,65 @@ class MQTTWorker:
             )
             db.add(reading)
             db.commit()
+            
+            # Trigger ML inference
+            import sys
+            import os
+            # Ensure ml module is accessible
+            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            root_dir = os.path.dirname(backend_dir)
+            if root_dir not in sys.path:
+                sys.path.insert(0, root_dir)
+            
+            from ml.inference.ml_engine import calculate_hybrid_risk
+            from ..models import MLAnalysis
+            
+            weight_delta = 0.0
+            temp_dev = validated_data.temperature_c - 35.0
+            hum_dev = validated_data.humidity_pct - 50.0
+            
+            risk_result = calculate_hybrid_risk(weight_delta, temp_dev, hum_dev)
+            analysis = MLAnalysis(
+                hive_id=validated_data.hive_id,
+                timestamp=validated_data.timestamp,
+                risk_score=risk_result.get("score"),
+                status=risk_result.get("status"),
+                highest_contributor=risk_result.get("highest_contributor"),
+                model_version="if_v1.0"
+            )
+            db.add(analysis)
+            db.commit()
+            
             db.close()
-            logger.debug(f"Saved reading for {validated_data.hive_id}")
+            logger.debug(f"Saved reading and ML analysis for {validated_data.hive_id}")
+            
+            # Broadcast to WebSocket clients
+            from ..services.pubsub import pubsub_manager
+            ws_payload = {
+                "hive_id": validated_data.hive_id,
+                "timestamp": validated_data.timestamp.isoformat(),
+                "temperature": validated_data.temperature_c,
+                "humidity": validated_data.humidity_pct,
+                "weight": validated_data.weight_kg,
+                "risk_analysis": risk_result
+            }
+            
+            # Use run_coroutine_threadsafe to schedule async publish from the MQTT thread
+            if hasattr(self, 'loop') and self.loop:
+                asyncio.run_coroutine_threadsafe(
+                    pubsub_manager.publish(f"hives/{validated_data.hive_id}/telemetry", ws_payload),
+                    self.loop
+                )
             
         except Exception as e:
             logger.error(f"Error processing MQTT message: {e}")
 
     def start(self):
+        try:
+            self.loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self.loop = None
+            
         try:
             self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT, 60)
             self.client.loop_start()

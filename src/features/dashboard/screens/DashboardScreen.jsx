@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
+import { hiveService } from '../../../services/hive.service';
 import { theme } from '../../../theme';
 import styles from './DashboardScreen.styles';
 
@@ -17,22 +18,6 @@ import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
 
-const MOCK_FEED_DATA = [
-  { id: '1', type: 'farm', title: 'Varanasi Honey Farm', subtitle: '120 Hives', height: 250, isVerified: true },
-  { id: '2', type: 'honey', title: 'Wild Forest Honey', subtitle: 'HC-UP-2026-00123', height: 320, isVerified: true, badgeText: '92 Score' },
-  { id: '3', type: 'hive', title: 'Hive HV-UP-00123', subtitle: 'Healthy', height: 200, isVerified: false },
-  { id: '4', type: 'product', title: 'Pure Himalayan Honey', subtitle: 'Origin Verified', height: 280, isVerified: true },
-  { id: '5', type: 'farm', title: 'Uttarakhand Bees', subtitle: '85 Hives', height: 220, isVerified: true },
-  { id: '6', type: 'honey', title: 'Acacia Honey', subtitle: 'HC-UP-2026-00999', height: 300, isVerified: true, badgeText: '98 Score' },
-];
-
-const MOCK_ACTIVITIES = [
-  { time: '09:42', title: 'Hive #07 sensor connected', description: 'Device synced successfully' },
-  { time: '10:15', title: 'AI detected unusual activity', description: 'Hive #12 showing low foraging' },
-  { time: '11:02', title: 'Hive inspection completed', description: 'Recorded by Farmer Ramesh' },
-  { time: '14:36', title: '18.5 kg honey harvested', description: 'Batch AV-2026-00192 created' },
-];
-
 export default function DashboardScreen() {
   const { user } = useAuthStore();
   const router = useRouter();
@@ -40,13 +25,34 @@ export default function DashboardScreen() {
   
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [greeting, setGreeting] = useState('Good morning');
+  
+  const [hives, setHives] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good morning');
     else if (hour < 18) setGreeting('Good afternoon');
     else setGreeting('Good evening');
-  }, []);
+    
+    fetchDashboardData();
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      // Fetch hives
+      const hivesData = await hiveService.getAllHives();
+      setHives(hivesData || []);
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+      setError('Failed to load dashboard data. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCardPress = (item) => {
     if (item.type === 'farm') {
@@ -71,7 +77,7 @@ export default function DashboardScreen() {
       type={item.type}
       title={item.title}
       subtitle={item.subtitle}
-      height={item.height}
+      height={item.height || 200}
       isVerified={item.isVerified}
       badgeText={item.badgeText}
       showFavorite
@@ -79,17 +85,30 @@ export default function DashboardScreen() {
     />
   );
 
+  // Map hives to feed data
+  const feedData = hives.map(hive => ({
+    id: hive.id || hive._id,
+    type: 'hive',
+    title: hive.name || `Hive ${hive.id}`,
+    subtitle: hive.location || 'Unknown Location',
+    isVerified: true,
+    badgeText: hive.status || 'Active'
+  }));
+
+  const healthyHivesCount = hives.filter(h => h.status !== 'Warning' && h.status !== 'Critical').length;
+  const attentionHivesCount = hives.length - healthyHivesCount;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.compactHeader}>
         <BrandLogo style={styles.logoContainer} />
-        <TouchableOpacity style={styles.searchBarFake} onPress={openSearch} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.searchBarButton} onPress={openSearch} activeOpacity={0.8}>
           <Search size={18} color={theme.colors.text.secondary} />
           <Text style={styles.searchPlaceholder}>Search batches, farms...</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={openProfile}>
           <Image 
-            source={{ uri: 'https://i.pravatar.cc/150?img=12' }} 
+            source={{ uri: user?.avatarUrl || 'https://i.pravatar.cc/150?img=12' }} 
             style={styles.headerAvatar} 
           />
         </TouchableOpacity>
@@ -103,73 +122,82 @@ export default function DashboardScreen() {
         
         {/* Humanized Greeting Section */}
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || 'Prabhakar'}.</Text>
-          <Text style={styles.greetingSubtitle}>Your hives are doing well today.</Text>
+          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || 'User'}.</Text>
+          <Text style={styles.greetingSubtitle}>Here is your summary for today.</Text>
           
           <View style={styles.statsRow}>
             <HumanizedStat 
-              value="18" 
+              value={isLoading ? '-' : healthyHivesCount.toString()} 
               description="Healthy Hives" 
               color={theme.colors.status.success}
             />
             <HumanizedStat 
-              value="2" 
+              value={isLoading ? '-' : attentionHivesCount.toString()} 
               description="Attention Needed" 
               color={theme.colors.status.warning}
             />
           </View>
           
-          <InsightCard 
-            title="AI Insight" 
-            insight="Activity in Hive #07 is lower than its normal pattern. A quick inspection is recommended." 
-          />
+          {user?.role === 'BEEKEEPER' && attentionHivesCount > 0 && (
+            <InsightCard 
+              title="AI Insight" 
+              insight="Some hives need your attention. Check their telemetry for more details." 
+            />
+          )}
         </View>
 
-        {/* Recent Activity Section */}
-        <View style={styles.activitySection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-          </View>
-          <ActivityTimeline activities={MOCK_ACTIVITIES} />
-        </View>
-
-        {/* Discovery Feed */}
-        <View style={styles.feedHeader}>
-          <Text style={styles.sectionTitle}>Discovery</Text>
-        </View>
-
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesScroll}
-          contentContainerStyle={styles.categoriesContent}
-        >
-          {CATEGORIES.map(category => (
-            <View key={category} style={styles.chipWrapper}>
-              <CategoryChip
-                label={category}
-                isSelected={selectedCategory === category}
-                onPress={() => setSelectedCategory(category)}
-              />
+        {isLoading ? (
+          <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 40 }} />
+        ) : error ? (
+          <Text style={{ textAlign: 'center', marginTop: 40, color: theme.colors.status.error }}>
+            {error}
+          </Text>
+        ) : (
+          <>
+            {/* Discovery Feed */}
+            <View style={styles.feedHeader}>
+              <Text style={styles.sectionTitle}>Discovery</Text>
             </View>
-          ))}
-        </ScrollView>
 
-        <View style={styles.feedContainer}>
-          <MasonryGrid 
-            data={MOCK_FEED_DATA.filter(i => {
-              if (selectedCategory === 'All') return true;
-              if (selectedCategory === 'Farms') return i.type === 'farm';
-              if (selectedCategory === 'Honey') return i.type === 'honey' || i.type === 'product';
-              if (selectedCategory === 'Quality') return i.badgeText;
-              if (selectedCategory === 'Origins') return i.subtitle.includes('Origin');
-              if (selectedCategory === 'Verified') return i.isVerified;
-              return true;
-            })}
-            renderItem={renderMasonryItem}
-          />
-        </View>
-        
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.categoriesScroll}
+              contentContainerStyle={styles.categoriesContent}
+            >
+              {CATEGORIES.map(category => (
+                <View key={category} style={styles.chipWrapper}>
+                  <CategoryChip
+                    label={category}
+                    isSelected={selectedCategory === category}
+                    onPress={() => setSelectedCategory(category)}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+
+            <View style={styles.feedContainer}>
+              {feedData.length === 0 ? (
+                <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.text.secondary }}>
+                  No hives available.
+                </Text>
+              ) : (
+                <MasonryGrid 
+                  data={feedData.filter(i => {
+                    if (selectedCategory === 'All') return true;
+                    if (selectedCategory === 'Farms') return i.type === 'farm';
+                    if (selectedCategory === 'Honey') return i.type === 'honey' || i.type === 'product';
+                    if (selectedCategory === 'Quality') return i.badgeText;
+                    if (selectedCategory === 'Origins') return i.subtitle.includes('Origin');
+                    if (selectedCategory === 'Verified') return i.isVerified;
+                    return true;
+                  })}
+                  renderItem={renderMasonryItem}
+                />
+              )}
+            </View>
+          </>
+        )}
         
         {/* Extra padding for bottom nav */}
         <View style={{ height: 120 }} /> 

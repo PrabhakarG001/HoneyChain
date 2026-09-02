@@ -20,5 +20,15 @@ export const hiveService = {
   getHiveTelemetry: async (hiveId) => {
     const response = await api.get(`/hives/${hiveId}/telemetry`);
     return response.data;
+  },
+
+  getAllHives: async () => {
+    const response = await api.get('/hives');
+    return response.data;
+  },
+
+  getHiveAnalysis: async (hiveId) => {
+    const response = await api.get(`/hives/${hiveId}/analysis`);
+    return response.data;
   }
 };

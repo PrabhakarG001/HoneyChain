@@ -79,3 +79,25 @@ class BlockchainTransaction(Base):
     action_type = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+class MLAnalysis(Base):
+    __tablename__ = "ml_analyses"
+    id = Column(Integer, primary_key=True, index=True)
+    hive_id = Column(String, ForeignKey("hives.id"))
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    risk_score = Column(Float, nullable=True)
+    status = Column(String)
+    highest_contributor = Column(String)
+    model_version = Column(String)
+
+    hive = relationship("Hive")
+
+class VerificationRecord(Base):
+    __tablename__ = "verification_records"
+    id = Column(String, primary_key=True, index=True)
+    batch_id = Column(String, ForeignKey("batches.id"))
+    tx_hash = Column(String, ForeignKey("blockchain_transactions.tx_hash"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    batch = relationship("Batch")
+    transaction = relationship("BlockchainTransaction")
+

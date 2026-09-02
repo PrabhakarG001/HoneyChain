@@ -11,8 +11,9 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK, async () => {
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
 
-    // Mock API call to FastAPI backend
-    const response = await fetch('https://api.honeychain.example.com/sync', {
+    // Make real API call to FastAPI backend
+    // Assumes an endpoint /telemetry/bulk exists for bulk syncing offline data
+    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api'}/telemetry/bulk`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

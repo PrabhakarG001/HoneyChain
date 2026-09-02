@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Bookmark } from 'lucide-react-native';
+import QRCode from 'react-native-qrcode-svg';
 import { batchService } from '../../../services/batch.service';
 import { theme } from '../../../theme';
 import styles from './BatchPassportScreen.styles';
@@ -111,16 +112,39 @@ export default function BatchPassportScreen() {
           </View>
         </View>
 
-        {/* Blockchain Verification */}
+        {/* Blockchain Verification & QR */}
         <View style={[styles.section, styles.lastSection]}>
-          <Text style={styles.sectionTitle}>Traceability</Text>
-          <View style={styles.blockchainContainer}>
-            <Text style={styles.blockchainTitle}>✓ Blockchain Verified</Text>
-            <Text style={styles.blockchainDesc}>
-              This product's origin and quality records are immutably stored on the HoneyChain network.
-            </Text>
-            <Text style={styles.blockchainHash}>Tx: 0x8f2c...94a1</Text>
-          </View>
+          <Text style={styles.sectionTitle}>Traceability & Verification</Text>
+          
+          {batch.tx_hash && batch.verification_id ? (
+            <>
+              <View style={styles.blockchainContainer}>
+                <Text style={styles.blockchainTitle}>✓ Blockchain Verified</Text>
+                <Text style={styles.blockchainDesc}>
+                  This product's origin and quality records are immutably stored on the HoneyChain network.
+                </Text>
+                <Text style={styles.blockchainHash}>Tx: {batch.tx_hash}</Text>
+              </View>
+
+              <View style={{ alignItems: 'center', marginTop: 24, padding: 16, backgroundColor: '#F9FAFB', borderRadius: 12 }}>
+                <Text style={{ marginBottom: 12, fontWeight: '600', color: theme.colors.text.primary }}>Scan to Verify Authenticity</Text>
+                <QRCode
+                  value={`honeychain://verify/${batch.verification_id}`}
+                  size={150}
+                  color={theme.colors.text.primary}
+                  backgroundColor="transparent"
+                />
+                <Text style={{ marginTop: 12, fontSize: 12, color: theme.colors.text.secondary }}>ID: {batch.verification_id}</Text>
+              </View>
+            </>
+          ) : (
+            <View style={styles.blockchainContainer}>
+              <Text style={[styles.blockchainTitle, { color: theme.colors.status.error }]}>✗ Blockchain connection unavailable</Text>
+              <Text style={styles.blockchainDesc}>
+                Verification data is currently pending or unavailable for this batch.
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={{ height: 100 }} />

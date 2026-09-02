@@ -31,27 +31,35 @@ export default function CameraScreen() {
       const options = { quality: 0.5, base64: true };
       const data = await cameraRef.current.takePictureAsync(options);
       setPhoto(data);
-      processImage();
+      processImage(data);
     }
   };
 
-  const processImage = () => {
+  const processImage = async (data) => {
     setIsProcessing(true);
-    // Simulate AI processing on the edge
-    setTimeout(() => {
-      setIsProcessing(false);
-      // Mock result
-      setAnalysisResult({
-        type: 'Varroa Mites',
-        count: Math.floor(Math.random() * 15) + 1,
-        cappedBroodPercent: Math.floor(Math.random() * 20) + 70,
-        boxes: [
-          { top: '20%', left: '30%', width: 40, height: 40 },
-          { top: '50%', left: '60%', width: 35, height: 35 },
-          { top: '75%', left: '40%', width: 45, height: 45 },
-        ]
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri: data.uri,
+        type: 'image/jpeg',
+        name: 'photo.jpg',
       });
-    }, 2500);
+      // Replace with actual AI endpoint
+      // const response = await api.post('/analysis/image', formData);
+      // setAnalysisResult(response.data);
+      
+      // Fallback empty state since endpoint isn't fully known
+      setAnalysisResult({
+        type: 'Analysis Pending',
+        count: 0,
+        cappedBroodPercent: 0,
+        boxes: []
+      });
+    } catch (e) {
+      console.error('Analysis failed', e);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const saveToHiveRecord = () => {

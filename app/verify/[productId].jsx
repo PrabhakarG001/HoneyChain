@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Animated, TouchableOpacity, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated, TouchableOpacity, Linking, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldCheck, ExternalLink, Leaf, MapPin, CalendarDays, Droplets, FlaskConical, Network, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react-native';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
+import { verificationService } from '../../src/services/verification.service';
 
 // Mini Genealogy Graph SVG Component
 const MiniGenealogyGraph = () => {
@@ -91,6 +92,10 @@ export default function VerificationLanding() {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const [isGraphOpen, setIsGraphOpen] = useState(false);
 
+  const [verificationData, setVerificationData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -108,10 +113,50 @@ export default function VerificationLanding() {
     ).start();
   }, []);
 
-  const openExplorer = () => {
-    // Mock URL to Polygon Amoy Explorer
-    Linking.openURL('https://amoy.polygonscan.com/tx/0xmockhash1234567890');
+  useEffect(() => {
+    if (productId) {
+      verifyProduct();
+    } else {
+      setIsLoading(false);
+      setError('No Product ID provided.');
+    }
+  }, [productId]);
+
+  const verifyProduct = async () => {
+    try {
+      setIsLoading(true);
+      const data = await verificationService.verifyProduct(productId);
+      setVerificationData(data);
+    } catch (err) {
+      console.error('Verification failed:', err);
+      setError('Verification failed. Product might be invalid or not recorded.');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const openExplorer = () => {
+    if (verificationData && verificationData.tx_hash) {
+      Linking.openURL(`https://amoy.polygonscan.com/tx/${verificationData.tx_hash}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#10B981" />
+        <Text style={{ marginTop: 20, color: '#6B7280' }}>Verifying product on blockchain...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Text style={{ color: '#EF4444', fontSize: 18, textAlign: 'center' }}>{error}</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,12 +174,12 @@ export default function VerificationLanding() {
           <View style={styles.scoreContainer}>
             <Text style={styles.scoreTitle}>Traceability Confidence Score</Text>
             <View style={styles.scoreMeter}>
-              <View style={[styles.scoreFill, { width: '98%' }]} />
+              <View style={[styles.scoreFill, { width: '100%' }]} />
             </View>
-            <Text style={styles.scoreText}>98% Complete Chain of Custody</Text>
+            <Text style={styles.scoreText}>100% Complete Chain of Custody</Text>
           </View>
           
-          <TouchableOpacity style={styles.explorerLink} onPress={openExplorer}>
+          <TouchableOpacity style={[styles.explorerLink, !verificationData?.tx_hash && {opacity: 0.5}]} onPress={openExplorer} disabled={!verificationData?.tx_hash}>
             <Text style={styles.explorerText}>View on Polygon Blockchain</Text>
             <ExternalLink size={16} color="#1D4ED8" />
           </TouchableOpacity>
@@ -148,56 +193,21 @@ export default function VerificationLanding() {
               <CalendarDays color="#6B7280" size={20} />
               <View>
                 <Text style={styles.profileLabel}>Bottling Date</Text>
-                <Text style={styles.profileValue}>Oct 20, 2026</Text>
+                <Text style={styles.profileValue}>{verificationData?.created_at ? new Date(verificationData.created_at).toLocaleDateString() : 'N/A'}</Text>
               </View>
             </View>
             <View style={styles.profileRow}>
               <Leaf color="#6B7280" size={20} />
               <View>
                 <Text style={styles.profileLabel}>Botanical Origin</Text>
-                <Text style={styles.profileValue}>Wildflower & Eucalyptus</Text>
+                <Text style={styles.profileValue}>{verificationData?.botanicalOrigin || 'Wildflower'}</Text>
               </View>
             </View>
             <View style={styles.profileRow}>
               <MapPin color="#6B7280" size={20} />
               <View>
                 <Text style={styles.profileLabel}>Apiary Region</Text>
-                <Text style={styles.profileValue}>Nilgiris Biosphere Cluster</Text>
-              </View>
-            </View>
-          </View>
-
-          <Text style={styles.sectionTitle}>Journey Timeline</Text>
-          <View style={styles.timeline}>
-            <View style={styles.timelineStep}>
-              <View style={styles.timelineDot} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.stepTitle}>Harvest Date</Text>
-                <Text style={styles.stepDesc}>Oct 15, 2026 - Extracted from hives</Text>
-              </View>
-            </View>
-            <View style={styles.timelineLine} />
-            <View style={styles.timelineStep}>
-              <View style={styles.timelineDot} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.stepTitle}>Collection Center Intake</Text>
-                <Text style={styles.stepDesc}>Oct 16, 2026 - Weighed & logged</Text>
-              </View>
-            </View>
-            <View style={styles.timelineLine} />
-            <View style={styles.timelineStep}>
-              <View style={styles.timelineDot} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.stepTitle}>Filtration & Quality Check</Text>
-                <Text style={styles.stepDesc}>Oct 18, 2026 - Filtered at 400 mesh</Text>
-              </View>
-            </View>
-            <View style={styles.timelineLine} />
-            <View style={styles.timelineStep}>
-              <View style={[styles.timelineDot, { backgroundColor: '#10B981', borderColor: '#D1FAE5' }]} />
-              <View style={styles.timelineContent}>
-                <Text style={[styles.stepTitle, { color: '#10B981' }]}>Bottled & Sealed</Text>
-                <Text style={styles.stepDesc}>Oct 20, 2026 - QR code applied</Text>
+                <Text style={styles.profileValue}>{verificationData?.region || 'Unknown Region'}</Text>
               </View>
             </View>
           </View>
@@ -215,7 +225,7 @@ export default function VerificationLanding() {
             </View>
             {isGraphOpen ? <ChevronUp color="#6B7280" /> : <ChevronDown color="#6B7280" />}
           </TouchableOpacity>
-          <Text style={styles.graphSummary}>This bottle traces to 2 harvests across 2 registered hives.</Text>
+          <Text style={styles.graphSummary}>This bottle traces to harvests across registered hives.</Text>
           
           {isGraphOpen && (
             <View style={styles.graphWrapper}>
@@ -234,12 +244,12 @@ export default function VerificationLanding() {
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Droplets color="#3B82F6" size={24} />
-              <Text style={styles.statValue}>17.5%</Text>
+              <Text style={styles.statValue}>{verificationData?.moisture || '17.5%'}</Text>
               <Text style={styles.statLabel}>Moisture Content</Text>
             </View>
             <View style={styles.statCard}>
               <Leaf color="#EAB308" size={24} />
-              <Text style={styles.statValue}>A+</Text>
+              <Text style={styles.statValue}>{verificationData?.purity || 'A+'}</Text>
               <Text style={styles.statLabel}>Pollen Purity</Text>
             </View>
           </View>
@@ -247,8 +257,8 @@ export default function VerificationLanding() {
           <View style={styles.complianceCard}>
             <CheckCircle2 color="#10B981" size={24} />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.complianceTitle}>FSSAI Standard Compliant</Text>
-              <Text style={styles.complianceHash}>Cert Hash: 8f4e2b...9d1a3c</Text>
+              <Text style={styles.complianceTitle}>Standard Compliant</Text>
+              <Text style={styles.complianceHash}>Cert Hash: {verificationData?.tx_hash?.substring(0, 16) || 'Pending'}...</Text>
             </View>
           </View>
         </View>

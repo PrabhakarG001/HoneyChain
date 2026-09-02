@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Search, X, Clock, Flame } from 'lucide-react-native';
 import { theme } from '../../../theme';
 import styles from './SearchScreen.styles';
@@ -7,20 +7,59 @@ import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
+import { hiveService } from '../../../services/hive.service';
 
 const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
 const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 
-const MOCK_SEARCH_RESULTS = [
-  { id: '1', type: 'honey', title: 'Wild Forest Honey', height: 280, isVerified: true, subtitle: 'HC-UP-2026-000123' },
-  { id: '2', type: 'farm', title: 'Varanasi Farms', height: 200, isVerified: true, subtitle: '120 Hives' },
-  { id: '3', type: 'honey', title: 'Premium Acacia', height: 250, isVerified: true, subtitle: 'HC-UP-2026-000456' },
-];
-
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
+
+  useEffect(() => {
+    if (query.length > 2) {
+      const delayDebounceFn = setTimeout(() => {
+        handleSearch();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
+      setResults([]);
+    }
+  }, [query]);
+
+  const handleSearch = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // In a real app we'd call a specific /api/search endpoint.
+      // Here we filter hives as a fallback since no global search API was defined in the prompt.
+      const hives = await hiveService.getAllHives();
+      
+      const filtered = (hives || []).filter(h => 
+        (h.name && h.name.toLowerCase().includes(query.toLowerCase())) ||
+        (h.location && h.location.toLowerCase().includes(query.toLowerCase()))
+      ).map(h => ({
+        id: h.id || h._id,
+        type: 'hive',
+        title: h.name || 'Hive',
+        subtitle: h.location || 'Unknown',
+        height: 200,
+        isVerified: true
+      }));
+      
+      setResults(filtered);
+    } catch (err) {
+      console.error('Search error', err);
+      setError('Search failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -93,18 +132,30 @@ export default function SearchScreen() {
             </>
           ) : (
             <View style={styles.resultsContainer}>
-              <MasonryGrid 
-                data={MOCK_SEARCH_RESULTS}
-                renderItem={({ item }) => (
-                  <HoneyCard
-                    type={item.type}
-                    title={item.title}
-                    subtitle={item.subtitle}
-                    height={item.height}
-                    isVerified={item.isVerified}
-                  />
-                )}
-              />
+              {isLoading ? (
+                <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+              ) : error ? (
+                <Text style={{ textAlign: 'center', color: theme.colors.status.error, marginTop: 20 }}>
+                  {error}
+                </Text>
+              ) : results.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: theme.colors.text.secondary, marginTop: 20 }}>
+                  No results found for "{query}".
+                </Text>
+              ) : (
+                <MasonryGrid 
+                  data={results}
+                  renderItem={({ item }) => (
+                    <HoneyCard
+                      type={item.type}
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      height={item.height}
+                      isVerified={item.isVerified}
+                    />
+                  )}
+                />
+              )}
             </View>
           )}
 

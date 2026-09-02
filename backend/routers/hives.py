@@ -22,35 +22,52 @@ def create_hive(hive: schemas.HiveCreate, db: Session = Depends(get_db), current
 def get_hives(db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
     return db.query(models.Hive).filter(models.Hive.owner_id == current_user.id).all()
 
+from ..services.pubsub import pubsub_manager
+
 @router.websocket("/{hive_id}/live")
-async def hive_live_stream(websocket: WebSocket, hive_id: str, db: Session = Depends(get_db)):
+async def hive_live_stream(websocket: WebSocket, hive_id: str):
     await websocket.accept()
+    topic = f"hives/{hive_id}/telemetry"
+    await pubsub_manager.subscribe(topic, websocket)
     try:
         while True:
-            # Fetch latest reading
-            latest_reading = db.query(models.SensorReading).filter(
-                models.SensorReading.hive_id == hive_id
-            ).order_by(models.SensorReading.timestamp.desc()).first()
-            
-            if latest_reading:
-                # Calculate risk
-                # Mock historical delta for demo:
-                weight_delta = 0.0 # Calculate actual 5-min rolling delta here in prod
-                temp_dev = latest_reading.temperature_c - 35.0 # Assume 35 is ideal brood temp
-                hum_dev = latest_reading.humidity_pct - 50.0
-                
-                risk = calculate_hybrid_risk(weight_delta, temp_dev, hum_dev)
-                
-                payload = {
-                    "hive_id": hive_id,
-                    "timestamp": latest_reading.timestamp.isoformat(),
-                    "temperature": latest_reading.temperature_c,
-                    "humidity": latest_reading.humidity_pct,
-                    "weight": latest_reading.weight_kg,
-                    "risk_analysis": risk
-                }
-                await websocket.send_json(payload)
-            
-            await asyncio.sleep(5) # Poll every 5 seconds
+            # Keep the connection open and listen for disconnects
+            await websocket.receive_text()
     except WebSocketDisconnect:
+        await pubsub_manager.unsubscribe(topic, websocket)
         print(f"Client disconnected from hive {hive_id} stream")
+
+@router.get("/{hive_id}")
+def get_hive(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
+    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
+    if not hive:
+        raise HTTPException(status_code=404, detail="Hive not found")
+    return hive
+
+@router.get("/{hive_id}/telemetry")
+def get_hive_telemetry(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
+    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
+    if not hive:
+        raise HTTPException(status_code=404, detail="Hive not found")
+        
+    readings = db.query(models.SensorReading).filter(models.SensorReading.hive_id == hive_id).order_by(models.SensorReading.timestamp.desc()).limit(50).all()
+    return readings
+
+@router.get("/{hive_id}/analysis", response_model=schemas.MLAnalysisResponse)
+def get_hive_analysis(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
+    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
+    if not hive:
+        raise HTTPException(status_code=404, detail="Hive not found")
+        
+    analysis = db.query(models.MLAnalysis).filter(models.MLAnalysis.hive_id == hive_id).order_by(models.MLAnalysis.timestamp.desc()).first()
+    if not analysis:
+        # Return a safe default instead of 404 so UI doesn't crash if no telemetry yet
+        return schemas.MLAnalysisResponse(
+            hive_id=hive_id,
+            timestamp=datetime.utcnow(),
+            risk_score=None,
+            status="No Data",
+            highest_contributor="None",
+            model_version="N/A"
+        )
+    return analysis

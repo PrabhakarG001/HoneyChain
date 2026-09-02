@@ -9,5 +9,10 @@ export const batchService = {
   getBatch: async (batchId) => {
     const response = await api.get(`/batches/${batchId}`);
     return response.data;
+  },
+  
+  getBatches: async () => {
+    const response = await api.get('/batches');
+    return response.data;
   }
 };

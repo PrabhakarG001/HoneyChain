@@ -11,13 +11,27 @@ export const authService = {
       }
     });
     
-    // FastAPI returns { access_token: "...", token_type: "bearer" }
-    // We will decode user info in the store or fetch a /users/me endpoint if needed.
-    // For now, map it to the expected return type
+    // Fetch profile after login using the fresh token
+    const token = response.data.access_token;
+    const userResponse = await api.get('/users/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     return {
-      user: { email }, // Will fetch real user profile separately if needed
-      accessToken: response.data.access_token
+      user: {
+        id: userResponse.data.id || userResponse.data.username,
+        email: userResponse.data.username,
+        name: userResponse.data.name || userResponse.data.username,
+        role: userResponse.data.role,
+        avatarUrl: `https://i.pravatar.cc/150?u=${userResponse.data.username}`
+      },
+      accessToken: token
     };
+  },
+
+  getMe: async () => {
+    const response = await api.get('/users/me');
+    return response.data;
   },
 
   register: async (userData) => {

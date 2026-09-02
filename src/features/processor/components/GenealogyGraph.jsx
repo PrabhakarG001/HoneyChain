@@ -111,7 +111,7 @@ export default function GenealogyGraph() {
               <Text style={styles.detailValue}>{selectedNode?.data}</Text>
               
               <Text style={styles.detailLabel}>On-chain Hash:</Text>
-              <Text style={styles.hashText}>0x{(Math.random() * 1e16).toString(16)}...{(Math.random() * 1e16).toString(16)}</Text>
+              <Text style={styles.hashText}>{selectedNode?.hash || 'Pending...'}</Text>
             </View>
           </View>
         </View>

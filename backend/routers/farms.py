@@ -40,4 +40,7 @@ def get_farm(farm_id: str, db: Session = Depends(get_db), current_user = Depends
 
 @router.get("/{farm_id}/hives")
 def get_hives_for_farm(farm_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
+    farm = db.query(models.Farm).filter(models.Farm.id == farm_id, models.Farm.owner_id == current_user.id).first()
+    if not farm:
+        raise HTTPException(status_code=404, detail="Farm not found or unauthorized")
     return db.query(models.Hive).filter(models.Hive.farm_id == farm_id).all()

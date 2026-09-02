@@ -29,7 +29,7 @@ export default function BottlingStation() {
     const svgRef = svgRefs[index];
     if (svgRef) {
       svgRef.toDataURL((data) => {
-        console.log(`Mock Share QR Data: data:image/png;base64,${data.substring(0, 50)}...`);
+        console.log(`Share QR Data: data:image/png;base64,${data.substring(0, 50)}...`);
         Alert.alert('Success', 'QR Code saved to clipboard/gallery! (Simulated)');
       });
     }
