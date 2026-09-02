@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
-import MapView, { Marker, Circle } from 'react-native-maps';
+import { View, StyleSheet, Text, ActivityIndicator, Platform } from 'react-native';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin } from 'lucide-react-native';
+
+let MapView, Marker, Circle;
+if (Platform.OS !== 'web') {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+  Circle = maps.Circle;
+}
 
 export default function MapScreen() {
   const [location, setLocation] = useState(null);
@@ -30,6 +37,22 @@ export default function MapScreen() {
       setMockNectarData(mockPoints);
     })();
   }, []);
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        <SafeAreaView edges={['top']} style={styles.header}>
+          <View style={styles.headerContent}>
+            <MapPin size={24} color="#111827" />
+            <Text style={styles.headerTitle}>Community Nectar Flow</Text>
+          </View>
+        </SafeAreaView>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Interactive Map is only available on iOS and Android.</Text>
+        </View>
+      </View>
+    );
+  }
 
   if (!location) {
     return (
