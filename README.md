@@ -23,9 +23,9 @@ Here is an honest breakdown of what is actually implemented in this codebase, an
 | **Blockchain** | 50% | 50% | 🟡 | `HoneyChain.sol` contract, Web3.py client with signing. | Real Polygon RPC credentials, testnet deployment. |
 | **MQTT** | 50% | 50% | 🟡 | `mqtt_worker.py` parses payload, saves to DB, calls ML. | Production broker config, reconnect/scale testing. |
 | **AI/ML** | 30% | 70% | 🟡 | Inference wrapper (`ml_engine.py`), Isolation Forest code. | Real dataset, real training, production model. |
-| **ESP32 / IoT** | 15% | 85% | 🟣 | Basic WiFi/MQTT script (`firmware/esp32/main.cpp`). | Hardware integration; current readings are hardcoded. |
+| **ESP32 / IoT** | 15% | 85% | 🟣 | Basic WiFi/MQTT script (`firmware/esp32/main.cpp`). | Hardware sensor integration; simulator mode active. |
 | **Testing** | 10% | 90% | 🔴 | Basic setup. | Comprehensive unit, E2E, and integration tests. |
-| **WebSocket** | 0% | 100% | 🔴 | None. | FastApi WebSocket routing for live dashboard updates. |
+| **WebSocket** | 0% | 100% | 🔴 | None. | FastAPI WebSocket routing for live dashboard updates. |
 
 ---
 
@@ -81,8 +81,8 @@ Here is an honest breakdown of what is actually implemented in this codebase, an
 
 ## ❌ What Does Not Work Yet?
 
-- ❌ Real ESP32 sensor connection (currently hardcoded as `float t = 35.0;`).
-- ❌ Production AI/ML model (currently trained on `np.random` synthetic data).
+- ❌ Real ESP32 sensor connection (hardware sensor integration pending; simulator mode active).
+- ❌ Production AI/ML model (currently trained on synthetic data).
 - ❌ PostgreSQL integration (currently uses SQLite).
 - ❌ WebSocket real-time telemetry on the dashboard.
 - 🔵 Requires Polygon RPC credentials.
@@ -106,7 +106,7 @@ Here is an honest breakdown of what is actually implemented in this codebase, an
 
 ### 📟 ESP32 / IoT — 85% Remaining
 - [ ] Connect real hardware sensors (DHT22, HX711).
-- [ ] Remove hardcoded simulated readings in `main.cpp`.
+- [ ] Replace simulated readings with physical sensor reads in `firmware/esp32/main.cpp`.
 - [ ] Handle WiFi/MQTT reconnects gracefully.
 - [ ] Add deep sleep and power optimization.
 
@@ -143,7 +143,7 @@ Here is an honest breakdown of what is actually implemented in this codebase, an
 - [ ] Connect real MQTT broker.
 - [ ] Gather real dataset for AI/ML and train model.
 - [ ] Configure real Polygon RPC credentials.
-- [ ] Remove hardcoded ESP32 values and integrate physical sensors.
+- [ ] Remove simulated readings and integrate physical sensors.
 
 ### 🟡 Medium Priority (Important for production)
 - [ ] Complete PostgreSQL integration.
@@ -178,56 +178,55 @@ Here is an honest breakdown of what is actually implemented in this codebase, an
 
 ---
 
-## 🏗️ System Flow & Architecture
-
-### Complete System Flow
+# 🔗 How the Subsystems Communicate
 
 ```text
-🐝 Sensors (DHT22, HX711)
-    ↓
-📟 ESP32 (🟡 15%)
-    ↓
-📡 Wi-Fi
-    ↓
-📨 MQTT Broker (🟡 50%)
-    ↓
-⚙️ FastAPI (🟡 75%)
-    ↓
-┌───────────────┬───────────────┬───────────────┐
-↓               ↓               ↓
-🗄️ Database     🤖 AI/ML       ⛓️ Blockchain
-(🟡 50%)        (🟡 30%)       (🟡 50%)
-↓               ↓               ↓
-└───────────────┴───────────────┘
-                ↓
-          🔄 WebSocket (🔴 0%)
-                ↓
-         🖥️ React Dashboard (🟡 75%)
-                ↓
-          📱 QR Verification (🟡 60%)
+Sensors
+   │
+   │ Analog / Digital / I2C
+   ▼
+ESP32
+   │
+   │ Wi-Fi + MQTT
+   ▼
+MQTT Broker
+   │
+   │ MQTT Subscription
+   ▼
+Backend
+   ├──────────────► Database
+   │                 SQL + SQLAlchemy ORM
+   │
+   ├──────────────► AI / ML Engine
+   │                 Python Module / Local Model
+   │
+   ├──────────────► Blockchain
+   │                 web3.py + Smart Contract
+   │
+   └──────────────► Applications
+                     REST API + WebSocket
+
+Consumer
+   │
+   │ Scan QR
+   ▼
+Public Verification URL
+   │
+   ▼
+Backend
+   │
+   ▼
+Read-only Verify Endpoint
 ```
 
-### Module Flows
-
-**MQTT Flow**
-```text
-ESP32  →  MQTT Broker  →  FastAPI (mqtt_worker.py)  →  Validation  →  Database
-```
-
-**AI/ML Flow**
-```text
-Telemetry  →  Preprocessing  →  ML Model (Isolation Forest)  →  Prediction  →  Database  →  Dashboard
-```
-
-**Blockchain Flow**
-```text
-Batch Action  →  FastAPI  →  ContractClient (Web3.py)  →  Smart Contract  →  Polygon Network  →  Tx Hash  →  Database
-```
-
-**QR Flow**
-```text
-Batch  →  Verification Record  →  QR Generation  →  Consumer Scan  →  verify.py API  →  Read Blockchain  →  Result
-```
+* **Sensor → ESP32:** Wired analog/digital/I2C signals are transmitted directly from the sensors to the ESP32; this connection is not networked.
+* **ESP32 → MQTT Broker:** The ESP32 uses Wi-Fi to publish small JSON telemetry payloads to an MQTT topic such as `hivechain/HIVE_001/telemetry`.
+* **MQTT Broker → Backend:** The backend subscribes to the same MQTT topic and ingests every incoming telemetry message as it arrives.
+* **Backend → Database:** The backend performs standard SQL reads and writes through an ORM such as SQLAlchemy.
+* **Backend → AI/ML Engine:** The backend directly calls the Python AI/ML function or module, with no network hop required when running in the same process, or alternatively communicates with a local model-serving endpoint.
+* **Backend → Blockchain:** The backend signs and submits blockchain transactions to the smart contract using `web3.py`.
+* **Backend → Apps:** Applications communicate with the backend through a REST API, with a WebSocket channel used for live dashboard updates.
+* **Consumer → QR → Backend:** Scanning the QR code resolves to a public URL that calls a read-only verification endpoint.
 
 ---
 
@@ -246,9 +245,9 @@ honeychain/
 │       └── contract_client.py→ 🟡 Partial (Needs RPC/deployment)
 ├── ml/            
 │   ├── inference/     → 🟡 Partial (Code exists, needs real model)
-│   └── training/      → 🔴 Fake (Uses np.random data)
+│   └── training/      → 🔴 Synthetic (Uses synthetic data)
 ├── blockchain/        → 🟡 Partial (Contract written, needs deployment)
-└── firmware/          → 🟣 Partial (Hardcoded dummy sensor values)
+└── firmware/          → 🟣 Partial (Simulator mode active)
 ```
 
 ---
@@ -291,23 +290,23 @@ honeychain/
 > Check `firmware/esp32/main.cpp` to see the payload format. Read `backend/services/mqtt_worker.py` to see how FastAPI processes it. Add your broker credentials to `.env`.
 
 **Want to work on AI/ML?**
-> Look at `ml/training/train_anomaly_model.py`. Replace the `np.random` mock data with a real CSV dataset, retrain the model, and ensure the `.joblib` output is saved to `ml/models/`.
+> Look at `ml/training/train_anomaly_model.py`. Replace the synthetic mock data with a real CSV dataset, retrain the model, and ensure the `.joblib` output is saved to `ml/models/`.
 
 **Want to work on Blockchain?**
 > Go to `blockchain/contracts/HoneyChain.sol`. Compile it, deploy it to a testnet using Hardhat. Take the address and ABI, and update `backend/services/contract_client.py`.
 
 **Want to work on IoT Hardware?**
-> Open `firmware/esp32/main.cpp`. Remove the hardcoded `float t = 35.0;` lines. Import standard Arduino libraries for DHT22 and HX711, and wire up your ESP32.
+> Open `firmware/esp32/main.cpp`. Disable `SIMULATOR_MODE`. Import standard Arduino libraries for DHT22 and HX711, and wire up your ESP32.
 
 ---
 
 ## 📖 Simple Glossary
 
-- **MQTT** → A lightweight way for devices (like sensors) to send messages over the internet.
-- **ESP32** → A small, affordable computer chip used to connect physical sensors to WiFi.
-- **FastAPI** → The Python backend framework that receives and processes all data.
-- **PostgreSQL** → The production database where HoneyChain stores telemetry and user info.
-- **WebSocket** → A technology that allows the dashboard to receive live, instant updates without refreshing.
+- **MQTT** → A lightweight publish/subscribe messaging protocol for IoT devices to transmit telemetry payloads over Wi-Fi.
+- **ESP32** → A microcontroller with built-in Wi-Fi used to read sensors and transmit telemetry.
+- **FastAPI** → The Python backend framework that receives REST API requests and handles backend processing.
+- **PostgreSQL** → The relational database where HoneyChain stores telemetry, user accounts, and batch records.
+- **WebSocket** → A bi-directional communication protocol that allows the frontend dashboard to receive live updates without refreshing.
 - **AI/ML (Isolation Forest)** → An algorithm used to detect anomalies (like a sudden drop in hive weight or abnormal temperature).
 - **Blockchain (Polygon)** → Stores selected critical records in a tamper-resistant, public ledger for supply chain transparency.
 - **QR Verification** → Lets consumers check a jar of honey's history and lab test results by scanning a QR code.
