@@ -8,16 +8,20 @@ from .config import settings
 from .database import get_db
 from . import models
 
+import bcrypt
+if not hasattr(bcrypt, '__about__'):
+    bcrypt.__about__ = type('about', (), {'__version__': getattr(bcrypt, '__version__', '4.0.0')})
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def verify_password(plain_password, hashed_password):
     if not plain_password or not hashed_password:
         return False
-    return pwd_context.verify(str(plain_password), str(hashed_password))
+    return pwd_context.verify(str(plain_password)[:72], str(hashed_password))
 
 def get_password_hash(password):
-    return pwd_context.hash(str(password))
+    return pwd_context.hash(str(password)[:72])
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
