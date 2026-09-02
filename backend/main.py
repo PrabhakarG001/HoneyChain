@@ -11,7 +11,7 @@ from .auth import create_access_token, get_password_hash, get_current_user
 from .config import settings
 
 # Routers
-from .routers import farms, hives, harvests, batches, verify, websocket
+from .routers import farms, hives, harvests, batches, verify, websocket, analysis
 
 # Services
 from .services.mqtt_worker import mqtt_worker
@@ -52,7 +52,7 @@ app.include_router(harvests.router)
 app.include_router(batches.router)
 app.include_router(verify.router)
 app.include_router(websocket.router)
-
+app.include_router(analysis.router)
 
 
 @app.post("/auth/register", response_model=schemas.UserResponse)

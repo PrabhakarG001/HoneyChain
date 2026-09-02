@@ -1,3 +1,4 @@
+import io
 import pytest
 from unittest.mock import patch
 
@@ -72,3 +73,17 @@ def test_harvests_and_batches_flow(client):
 def test_qr_verify_endpoint(client):
     res = client.get("/verify/NON_EXISTENT_PRODUCT")
     assert res.status_code in [200, 404]
+
+def test_image_analysis_endpoint(client):
+    headers = get_auth_header(client, "analysis_user", "BEEKEEPER")
+    fake_image = io.BytesIO(b"fake image bytes content for frame inspection")
+    res = client.post(
+        "/analysis/image",
+        files={"file": ("test_frame.jpg", fake_image, "image/jpeg")},
+        headers=headers
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "status" in data
+    assert "count" in data
+    assert "cappedBroodPercent" in data

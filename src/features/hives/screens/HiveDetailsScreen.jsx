@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Thermometer, Droplets, Activity, Cpu, ChevronLeft, Calendar } from 'lucide-react-native';
+import { Thermometer, Droplets, Activity, Cpu, ChevronLeft, Calendar, Feather } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hiveService } from '../../../services/hive.service';
@@ -92,18 +92,23 @@ export default function HiveDetailsScreen() {
     );
   }
 
-  const isGood = hive.healthStatus === 'GOOD';
-
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
         
-        {/* Hero Image */}
-        <View style={styles.heroContainer}>
-          <Image 
-            source={{ uri: 'https://picsum.photos/seed/hive1/800/600' }} 
-            style={styles.heroImage}
-          />
+        {/* Hero Header */}
+        <View style={[styles.heroContainer, { backgroundColor: theme.colors.amber50 || '#FFFBEB', justifyContent: 'center', alignItems: 'center' }]}>
+          {hive.imageUrl ? (
+            <Image 
+              source={{ uri: hive.imageUrl }} 
+              style={styles.heroImage}
+            />
+          ) : (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Feather size={56} color={theme.colors.primaryDark} />
+              <Text style={{ marginTop: 8, fontSize: 18, fontWeight: '700', color: theme.colors.primaryDark }}>{hive.name || `Hive ${hive.id}`}</Text>
+            </View>
+          )}
           <View style={styles.heroOverlay}>
             <TouchableOpacity 
               style={[styles.backBtn, { top: insets.top + 10 }]}
@@ -117,7 +122,7 @@ export default function HiveDetailsScreen() {
         {/* Header Content */}
         <View style={styles.headerContent}>
           <View style={styles.titleRow}>
-            <Text style={styles.hiveId}>{hive.id}</Text>
+            <Text style={styles.hiveId}>{hive.name || hive.id}</Text>
             <View style={[styles.statusBadge, wsStatus === 'Connected' ? styles.statusBadgeGood : styles.statusBadgeWarning]}>
               <View style={[styles.statusDot, wsStatus === 'Connected' ? styles.statusDotGood : styles.statusDotWarning]} />
               <Text style={styles.statusText}>
@@ -125,10 +130,10 @@ export default function HiveDetailsScreen() {
               </Text>
             </View>
           </View>
-          <Text style={styles.beeSpecies}>{hive.beeSpecies} • {displayTelemetry?.timestamp ? new Date(displayTelemetry.timestamp).toLocaleTimeString() : 'Waiting for telemetry...'}</Text>
+          <Text style={styles.beeSpecies}>{hive.beeSpecies || 'Apis mellifera'} • {displayTelemetry?.timestamp ? new Date(displayTelemetry.timestamp).toLocaleTimeString() : 'Waiting for telemetry...'}</Text>
         </View>
 
-        {/* Edge to Edge Content */}
+        {/* Status Content */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Current Status</Text>
           
@@ -183,7 +188,7 @@ export default function HiveDetailsScreen() {
                insight={`Confidence Score: ${(displayAnalysis.risk_score * 100 || 0).toFixed(0)}%. ${displayAnalysis.highest_contributor && displayAnalysis.highest_contributor !== 'None' ? `Highest contributor to risk: ${displayAnalysis.highest_contributor}.` : 'Conditions look optimal.'}`} 
              />
           ) : (
-             <Text style={{ marginTop: 12, color: theme.colors.text.secondary }}>AI analysis unavailable or awaiting data</Text>
+             <Text style={{ marginTop: 12, color: theme.colors.text.secondary }}>AI analysis unavailable or awaiting telemetry data</Text>
           )}
         </View>
 
@@ -194,8 +199,8 @@ export default function HiveDetailsScreen() {
               <Calendar size={18} color={theme.colors.text.secondary} />
             </View>
             <View style={styles.activityTextContainer}>
-              <Text style={styles.activityTitle}>Routine Inspection</Text>
-              <Text style={styles.activityTime}>Yesterday at 10:00 AM</Text>
+              <Text style={styles.activityTitle}>Routine Telemetry Active</Text>
+              <Text style={styles.activityTime}>{displayTelemetry?.timestamp ? new Date(displayTelemetry.timestamp).toLocaleString() : 'System active'}</Text>
             </View>
           </View>
         </View>

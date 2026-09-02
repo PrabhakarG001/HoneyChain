@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { hiveService } from '../../../services/hive.service';
-import { authService } from '../../../services/auth.service';
 import { theme } from '../../../theme';
 import styles from './ProfileScreen.styles';
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import VerificationBadge from '../../../components/ui/VerificationBadge/VerificationBadge';
+import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
-const TABS = ['My Hives', 'My Honey', 'Saved', 'Quality Reports', 'QR Passports', 'Activity'];
+const TABS = ['My Hives', 'Saved', 'Quality Reports', 'Activity'];
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const [userStats, setUserStats] = useState({ hives: 0, followers: 0, following: 0 });
+  const [userStats, setUserStats] = useState({ hives: 0 });
 
   useEffect(() => {
     fetchProfileContent();
@@ -45,7 +45,7 @@ export default function ProfileScreen() {
       }));
       
       setProfileData(mappedData);
-      setUserStats({ hives: mappedData.length, followers: 1200, following: 45 }); // Keeping social stats static for UI sake if API doesn't have it
+      setUserStats({ hives: mappedData.length });
     } catch (err) {
       console.error('Failed to fetch profile data', err);
       setError('Failed to load profile content.');
@@ -69,24 +69,17 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.header}>
-          <Image 
-            source={{ uri: user?.avatarUrl || 'https://i.pravatar.cc/150?img=12' }} 
-            style={styles.avatar} 
-          />
-          <Text style={styles.name}>{user?.name || 'User'}</Text>
+          <UserAvatar user={user} size={80} style={styles.avatar} />
+          <Text style={styles.name}>{user?.name || user?.username || 'User'}</Text>
           <View style={styles.badgeRow}>
             <VerificationBadge type="blockchain" text={`Verified ${user?.role || 'User'}`} size="small" />
           </View>
           <Text style={styles.bio}>
-            {user?.bio || 'Passionate about sustainable beekeeping and raw, organic honey.'}
+            {user?.bio || 'HoneyChain Beekeeping & Supply Chain Platform Member.'}
           </Text>
           
           <View style={styles.statsRow}>
-            <Text style={styles.statText}><Text style={styles.statNumber}>{userStats.hives}</Text> Hives</Text>
-            <Text style={styles.statText}> • </Text>
-            <Text style={styles.statText}><Text style={styles.statNumber}>1.2k</Text> Followers</Text>
-            <Text style={styles.statText}> • </Text>
-            <Text style={styles.statText}><Text style={styles.statNumber}>45</Text> Following</Text>
+            <Text style={styles.statText}><Text style={styles.statNumber}>{userStats.hives}</Text> Registered Hives</Text>
           </View>
         </View>
 

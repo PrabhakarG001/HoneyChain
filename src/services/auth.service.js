@@ -21,9 +21,10 @@ export const authService = {
       user: {
         id: userResponse.data.id || userResponse.data.username,
         email: userResponse.data.username,
+        username: userResponse.data.username,
         name: userResponse.data.name || userResponse.data.username,
         role: userResponse.data.role,
-        avatarUrl: `https://i.pravatar.cc/150?u=${userResponse.data.username}`
+        avatarUrl: userResponse.data.avatar_url || null
       },
       accessToken: token
     };

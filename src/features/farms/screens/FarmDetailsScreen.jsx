@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, TouchableOpacity, Image, ScrollView } fr
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Home } from 'lucide-react-native';
 import { farmService } from '../../../services/farm.service';
 import { hiveService } from '../../../services/hive.service';
 import { theme } from '../../../theme';
@@ -47,12 +47,19 @@ export default function FarmDetailsScreen() {
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero Image */}
-        <View style={styles.heroImageContainer}>
-          <Image 
-            source={{ uri: 'https://picsum.photos/seed/farmview/600/400' }} 
-            style={styles.heroImage}
-          />
+        {/* Hero Header */}
+        <View style={[styles.heroImageContainer, { backgroundColor: theme.colors.amber50 || '#FFFBEB', justifyContent: 'center', alignItems: 'center' }]}>
+          {farm.imageUrl ? (
+            <Image 
+              source={{ uri: farm.imageUrl }} 
+              style={styles.heroImage}
+            />
+          ) : (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Home size={56} color={theme.colors.primaryDark} />
+              <Text style={{ marginTop: 8, fontSize: 18, fontWeight: '700', color: theme.colors.primaryDark }}>{farm.name}</Text>
+            </View>
+          )}
         </View>
 
         {/* Floating Back Button */}
@@ -77,15 +84,15 @@ export default function FarmDetailsScreen() {
 
         <View style={styles.metricsCard}>
           <View style={styles.metric}>
-            <Text style={styles.metricValue}>{farm.area}</Text>
+            <Text style={styles.metricValue}>{farm.area || 'N/A'}</Text>
             <Text style={styles.metricLabel}>Acres</Text>
           </View>
           <View style={styles.metric}>
-            <Text style={styles.metricValue}>{farm.floralSource}</Text>
+            <Text style={styles.metricValue}>{farm.floralSource || 'N/A'}</Text>
             <Text style={styles.metricLabel}>Flora</Text>
           </View>
           <View style={styles.metric}>
-            <Text style={styles.metricValue}>{farm.beeSpecies}</Text>
+            <Text style={styles.metricValue}>{farm.beeSpecies || 'Apis mellifera'}</Text>
             <Text style={styles.metricLabel}>Species</Text>
           </View>
         </View>
@@ -105,11 +112,11 @@ export default function FarmDetailsScreen() {
           renderItem={({ item, index }) => (
             <HoneyCard
               type="hive"
-              title={`Hive ${item.id.substring(0,6)}`}
-              subtitle={item.healthStatus}
+              title={item.name || `Hive ${item.id}`}
+              subtitle={item.location || 'Apiary'}
               height={index % 2 === 0 ? 180 : 220}
               onPress={() => router.push(`/(app)/hives/${item.id}`)}
-              badgeText={`${item.temperature}°C | ${item.humidity}%`}
+              badgeText={item.status || 'Active'}
             />
           )}
         />

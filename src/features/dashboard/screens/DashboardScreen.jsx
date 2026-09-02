@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
@@ -12,7 +12,7 @@ import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
-import ActivityTimeline from '../../../components/ui/ActivityTimeline/ActivityTimeline';
+import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
@@ -107,10 +107,7 @@ export default function DashboardScreen() {
           <Text style={styles.searchPlaceholder}>Search batches, farms...</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={openProfile}>
-          <Image 
-            source={{ uri: user?.avatarUrl || 'https://i.pravatar.cc/150?img=12' }} 
-            style={styles.headerAvatar} 
-          />
+          <UserAvatar user={user} size={36} />
         </TouchableOpacity>
       </View>
 
@@ -122,7 +119,7 @@ export default function DashboardScreen() {
         
         {/* Humanized Greeting Section */}
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || 'User'}.</Text>
+          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || user?.username || 'User'}.</Text>
           <Text style={styles.greetingSubtitle}>Here is your summary for today.</Text>
           
           <View style={styles.statsRow}>

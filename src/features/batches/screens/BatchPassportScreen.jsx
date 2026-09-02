@@ -3,7 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, Image, TouchableOpacity } fr
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Bookmark } from 'lucide-react-native';
+import { ChevronLeft, Bookmark, ShieldCheck } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { batchService } from '../../../services/batch.service';
 import { theme } from '../../../theme';
@@ -52,26 +52,33 @@ export default function BatchPassportScreen() {
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-        {/* Edge to Edge Hero */}
-        <View style={styles.heroImageContainer}>
-          <Image 
-            source={{ uri: 'https://picsum.photos/seed/honey3/800/800' }} 
-            style={styles.heroImage}
-          />
+        {/* Hero Banner Header */}
+        <View style={[styles.heroImageContainer, { backgroundColor: theme.colors.amber50 || '#FFFBEB', justifyContent: 'center', alignItems: 'center' }]}>
+          {batch.imageUrl ? (
+            <Image 
+              source={{ uri: batch.imageUrl }} 
+              style={styles.heroImage}
+            />
+          ) : (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <ShieldCheck size={64} color={theme.colors.primaryDark} />
+              <Text style={{ marginTop: 8, fontSize: 16, fontWeight: '700', color: theme.colors.primaryDark }}>HoneyChain Batch Passport</Text>
+            </View>
+          )}
           <View style={styles.gradientOverlay}>
             <View style={[styles.headerActions, { top: insets.top + 10 }]}>
               <TouchableOpacity 
                 style={styles.iconBtn}
                 onPress={() => router.back()}
               >
-                <ChevronLeft color={theme.colors.white} size={24} />
+                <ChevronLeft color={theme.colors.charcoal} size={24} />
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.iconBtn}
                 onPress={() => setIsSaved(!isSaved)}
               >
                 <Bookmark 
-                  color={isSaved ? theme.colors.primary : theme.colors.white} 
+                  color={isSaved ? theme.colors.primary : theme.colors.charcoal} 
                   fill={isSaved ? theme.colors.primary : 'transparent'} 
                   size={24} 
                 />
@@ -89,19 +96,19 @@ export default function BatchPassportScreen() {
           </View>
 
           <View style={styles.headerTopRow}>
-            <Text style={styles.title}>{batch.floralSource || 'Wild Mustard Honey'}</Text>
+            <Text style={styles.title}>{batch.floralSource || 'Pure Organic Honey'}</Text>
             <QualityScore score={92} size="large" />
           </View>
           <Text style={styles.batchId}>Batch {batch.id}</Text>
         </View>
 
-        {/* Origin & Specs (No Card, Edge to Edge list) */}
+        {/* Origin & Specs */}
         <View style={styles.section}>
-          <DetailRow label="Origin" value="Uttar Pradesh, India" />
-          <DetailRow label="Farm" value={`Farm ${batch.farmId}`} />
-          <DetailRow label="Hive" value={`Hive ${batch.hiveId}`} />
-          <DetailRow label="Harvest Date" value={new Date(batch.createdAt).toLocaleDateString()} />
-          <DetailRow label="Quantity" value={`${batch.quantity} kg`} />
+          <DetailRow label="Batch ID" value={batch.id} />
+          {batch.farmId && <DetailRow label="Farm" value={`Farm ${batch.farmId}`} />}
+          {batch.hiveId && <DetailRow label="Hive" value={`Hive ${batch.hiveId}`} />}
+          <DetailRow label="Harvest Date" value={batch.createdAt ? new Date(batch.createdAt).toLocaleDateString() : 'Recorded'} />
+          <DetailRow label="Status" value={batch.status || 'Processing'} />
         </View>
 
         {/* Journey Timeline */}
@@ -139,9 +146,9 @@ export default function BatchPassportScreen() {
             </>
           ) : (
             <View style={styles.blockchainContainer}>
-              <Text style={[styles.blockchainTitle, { color: theme.colors.status.error }]}>✗ Blockchain connection unavailable</Text>
+              <Text style={[styles.blockchainTitle, { color: theme.colors.status.error }]}>✗ Blockchain Connection Unavailable</Text>
               <Text style={styles.blockchainDesc}>
-                Verification data is currently pending or unavailable for this batch.
+                Verification data is pending smart contract synchronization or RPC node availability.
               </Text>
             </View>
           )}

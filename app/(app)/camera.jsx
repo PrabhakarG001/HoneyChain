@@ -2,13 +2,15 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera as CameraIcon, Check, X, ScanSearch, Save } from 'lucide-react-native';
+import { ScanSearch, Save, X } from 'lucide-react-native';
+import api from '../../src/services/api';
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [error, setError] = useState(null);
   const cameraRef = useRef(null);
 
   if (!permission) {
@@ -37,34 +39,27 @@ export default function CameraScreen() {
 
   const processImage = async (data) => {
     setIsProcessing(true);
+    setError(null);
     try {
       const formData = new FormData();
       formData.append('file', {
         uri: data.uri,
         type: 'image/jpeg',
-        name: 'photo.jpg',
+        name: 'frame_inspection.jpg',
       });
-      // Replace with actual AI endpoint
-      // const response = await api.post('/analysis/image', formData);
-      // setAnalysisResult(response.data);
       
-      // Fallback empty state since endpoint isn't fully known
-      setAnalysisResult({
-        type: 'Analysis Pending',
-        count: 0,
-        cappedBroodPercent: 0,
-        boxes: []
+      const response = await api.post('/analysis/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+      setAnalysisResult(response.data);
     } catch (e) {
-      console.error('Analysis failed', e);
+      setError('Analysis failed: Unable to connect to inspection service.');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const saveToHiveRecord = () => {
-    console.log('Saved to Hive Record:', analysisResult);
-    // In a real app, dispatch to store or save to DB here
     setPhoto(null);
     setAnalysisResult(null);
   };
@@ -72,6 +67,7 @@ export default function CameraScreen() {
   const retakePhoto = () => {
     setPhoto(null);
     setAnalysisResult(null);
+    setError(null);
   };
 
   if (photo) {
@@ -88,10 +84,15 @@ export default function CameraScreen() {
             </View>
           )}
 
+          {error && (
+            <View style={styles.resultPanel}>
+              <Text style={{ color: '#EF4444', textAlign: 'center', fontWeight: '600' }}>{error}</Text>
+            </View>
+          )}
+
           {!isProcessing && analysisResult && (
             <View style={styles.resultOverlay}>
-              {/* Mock Bounding Boxes */}
-              {analysisResult.boxes.map((box, index) => (
+              {analysisResult.boxes && analysisResult.boxes.map((box, index) => (
                 <View 
                   key={index} 
                   style={[
@@ -104,7 +105,7 @@ export default function CameraScreen() {
               <View style={styles.resultPanel}>
                 <View style={styles.resultRow}>
                   <ScanSearch color="#10B981" size={24} />
-                  <Text style={styles.resultTitle}>Inspection Complete</Text>
+                  <Text style={styles.resultTitle}>Inspection Result ({analysisResult.status})</Text>
                 </View>
                 <Text style={styles.resultDetail}>
                   Varroa Mite Count: <Text style={styles.highlight}>{analysisResult.count}</Text>
@@ -126,7 +127,7 @@ export default function CameraScreen() {
             
             <TouchableOpacity style={styles.primaryButton} onPress={saveToHiveRecord}>
               <Save color="#fff" size={20} />
-              <Text style={styles.primaryButtonText}>Save to Hive</Text>
+              <Text style={styles.primaryButtonText}>Done</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -139,7 +140,7 @@ export default function CameraScreen() {
       <CameraView style={styles.camera} facing="back" ref={cameraRef}>
         <View style={styles.cameraOverlay}>
           <View style={styles.guideFrame} />
-          <Text style={styles.guideText}>Align sticky board or frame within the guide</Text>
+          <Text style={styles.guideText}>Align frame image within the guide</Text>
         </View>
         
         <View style={styles.cameraControls}>
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '60%',
     borderWidth: 2,
-    borderColor: 'rgba(252, 211, 77, 0.7)', // yellow-300
+    borderColor: 'rgba(252, 211, 77, 0.7)',
     borderRadius: 12,
     borderStyle: 'dashed',
   },
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
   boundingBox: {
     position: 'absolute',
     borderWidth: 2,
-    borderColor: '#EF4444', // red-500
+    borderColor: '#EF4444',
     backgroundColor: 'rgba(239, 68, 68, 0.2)',
     borderRadius: 4,
   },

@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Animated } from 'react-native';
-import { Heart } from 'lucide-react-native';
+import { Heart, Home, Box, Feather } from 'lucide-react-native';
 import { theme } from '../../../theme';
 import styles from './HoneyCard.styles';
 import VerificationBadge from '../VerificationBadge/VerificationBadge';
 
-const getPlaceholder = (type) => {
+const renderFallbackIcon = (type) => {
   switch (type) {
-    case 'farm': return 'https://picsum.photos/seed/farm/400/500';
-    case 'honey': return 'https://picsum.photos/seed/honey/400/600';
-    case 'hive': return 'https://picsum.photos/seed/hive/400/400';
-    default: return 'https://picsum.photos/seed/default/400/400';
+    case 'farm': return <Home size={36} color={theme.colors.primaryDark} />;
+    case 'hive': return <Feather size={36} color={theme.colors.primaryDark} />;
+    default: return <Box size={36} color={theme.colors.primaryDark} />;
   }
 };
 
@@ -26,7 +25,6 @@ export default function HoneyCard({
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
-  const sourceUrl = imageUrl || getPlaceholder(type);
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -55,17 +53,23 @@ export default function HoneyCard({
         onPressOut={handlePressOut}
         style={{ flex: 1 }}
       >
-        <View style={[styles.imageContainer, { height }]}>
-          <Image 
-            source={{ uri: sourceUrl }} 
-            style={styles.image}
-            resizeMode="cover"
-          />
+        <View style={[styles.imageContainer, { height, backgroundColor: theme.colors.primaryLight }]}>
+          {imageUrl ? (
+            <Image 
+              source={{ uri: imageUrl }} 
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.amber50 || '#FFFBEB' }}>
+              {renderFallbackIcon(type)}
+            </View>
+          )}
           
           <TouchableOpacity style={styles.favoriteButton} onPress={toggleSave}>
             <Heart 
               size={18} 
-              color={isSaved ? theme.colors.status.error : theme.colors.white}
+              color={isSaved ? theme.colors.status.error : theme.colors.charcoal}
               fill={isSaved ? theme.colors.status.error : 'transparent'}
             />
           </TouchableOpacity>
