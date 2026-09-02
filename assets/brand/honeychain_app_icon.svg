@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="hcAppBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#241E1A" />
+      <stop offset="100%" stop-color="#14100D" />
+    </linearGradient>
+    <linearGradient id="hcAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E6A740" />
+      <stop offset="100%" stop-color="#B87A22" />
+    </linearGradient>
+    <linearGradient id="hcGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FAEDCD" />
+      <stop offset="100%" stop-color="#E6A740" />
+    </linearGradient>
+    <linearGradient id="hcDarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A322C" />
+      <stop offset="100%" stop-color="#1F1A17" />
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Container Background -->
+  <rect width="512" height="512" rx="115" fill="url(#hcAppBg)"/>
+
+  <!-- Centered HoneyChain Vector Icon Symbol -->
+  <g transform="translate(106, 106) scale(3.0)">
+    <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" stroke="url(#hcAmberGrad)" stroke-width="4" stroke-linejoin="round" fill="none" opacity="0.4"/>
+    <path d="M 24 30 L 38 22 L 38 78 L 24 70 Z" fill="url(#hcAmberGrad)"/>
+    <path d="M 62 22 L 76 30 L 76 70 L 62 78 Z" fill="url(#hcAmberGrad)"/>
+    <path d="M 38 43 L 50 36 L 62 43 L 62 57 L 50 64 L 38 57 Z" fill="url(#hcDarkGrad)"/>
+    <path d="M 50 42 L 58 50 L 50 58 L 42 50 Z" fill="url(#hcGlowGrad)"/>
+    <path d="M 38 32 L 50 39" stroke="#E6A740" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 62 32 L 50 39" stroke="#E6A740" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 38 68 L 50 61" stroke="#E6A740" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 62 68 L 50 61" stroke="#E6A740" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
