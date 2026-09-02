@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Modal, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Modal, ScrollView, Dimensions, Platform } from 'react-native';
 import Svg, { Path, Rect, Text as SvgText, Circle } from 'react-native-svg';
 import { X, ShieldCheck } from 'lucide-react-native';
 
