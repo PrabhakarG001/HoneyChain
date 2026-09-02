@@ -11,11 +11,10 @@ from .auth import create_access_token, get_password_hash
 from .config import settings
 
 # Routers
-from .routers import hives, harvests, batches, verify
+from .routers import farms, hives, harvests, batches, verify
 
 # Services
 from .services.mqtt_worker import mqtt_worker
-from .services.replay_mode import start_replay_mode
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,8 +27,6 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up FastAPI application...")
     mqtt_worker.start()
-    if settings.REPLAY_MODE:
-        start_replay_mode()
     
     yield
     
@@ -50,6 +47,7 @@ app.add_middleware(
 )
 
 # Include Routers
+app.include_router(farms.router)
 app.include_router(hives.router)
 app.include_router(harvests.router)
 app.include_router(batches.router)
@@ -87,4 +85,4 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to HoneyChain Backend", "replay_mode": settings.REPLAY_MODE}
+    return {"message": "Welcome to HoneyChain Backend"}

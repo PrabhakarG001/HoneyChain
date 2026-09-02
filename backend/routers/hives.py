@@ -5,7 +5,7 @@ import asyncio
 from ..database import get_db
 from .. import models, schemas
 from ..auth import require_role
-from ..services.ml_engine import calculate_hybrid_risk
+from ml.inference.ml_engine import calculate_hybrid_risk
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/hives", tags=["Hives"])
