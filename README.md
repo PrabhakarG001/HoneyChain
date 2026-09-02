@@ -1,11 +1,11 @@
-# HiveChain 🐝 (ApiVera)
+# HoneyChain 🐝 (ApiVera)
 
-Welcome to the **HiveChain** (ApiVera) repository! 
+Welcome to the **HoneyChain** (ApiVera) repository! 
 
-HiveChain aims to provide real-time IoT monitoring, AI-driven anomaly detection, and Blockchain-backed traceability for modern beekeeping and supply chains.
+HoneyChain aims to provide real-time IoT monitoring, AI-driven anomaly detection, and Blockchain-backed traceability for modern beekeeping and supply chains.
 
 > **🟡 IMPORTANT STATUS NOTICE**  
-> HiveChain is currently under active development. The frontend and backend foundations are implemented, while real IoT telemetry, AI/ML production inference, and blockchain testnet/mainnet integration are still being completed. Please review the implementation status below before contributing.
+> HoneyChain is currently under active development. The frontend and backend foundations are implemented, while real IoT telemetry, AI/ML production inference, and blockchain testnet/mainnet integration are still being completed. Please review the implementation status below before contributing.
 
 ---
 
@@ -306,7 +306,7 @@ api-vera/
 - **MQTT** → A lightweight way for devices (like sensors) to send messages over the internet.
 - **ESP32** → A small, affordable computer chip used to connect physical sensors to WiFi.
 - **FastAPI** → The Python backend framework that receives and processes all data.
-- **PostgreSQL** → The production database where HiveChain stores telemetry and user info.
+- **PostgreSQL** → The production database where HoneyChain stores telemetry and user info.
 - **WebSocket** → A technology that allows the dashboard to receive live, instant updates without refreshing.
 - **AI/ML (Isolation Forest)** → An algorithm used to detect anomalies (like a sudden drop in hive weight or abnormal temperature).
 - **Blockchain (Polygon)** → Stores selected critical records in a tamper-resistant, public ledger for supply chain transparency.
