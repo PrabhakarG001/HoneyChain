@@ -39,7 +39,8 @@ export default function RegisterScreen() {
       await login(res.user, res.accessToken);
       router.replace('/(app)/dashboard');
     } catch (err) {
-      setGlobalError(err.message || 'Registration failed');
+      const msg = err.response?.data?.detail || err.message || 'Registration failed';
+      setGlobalError(msg);
     }
   };
 

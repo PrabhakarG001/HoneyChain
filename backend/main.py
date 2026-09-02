@@ -57,6 +57,7 @@ app.include_router(customer.router)
 
 
 @app.post("/auth/register", response_model=schemas.UserResponse)
+@app.post("/api/auth/register", response_model=schemas.UserResponse)
 def register(user: schemas.UserCreate, db = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
@@ -70,6 +71,7 @@ def register(user: schemas.UserCreate, db = Depends(get_db)):
     return db_user
 
 @app.post("/auth/login", response_model=schemas.Token)
+@app.post("/api/auth/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     from .auth import verify_password
@@ -86,6 +88,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/auth/refresh", response_model=schemas.Token)
+@app.post("/api/auth/refresh", response_model=schemas.Token)
 def refresh_token(current_user: models.User = Depends(get_current_user)):
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -94,6 +97,7 @@ def refresh_token(current_user: models.User = Depends(get_current_user)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/users/me", response_model=schemas.UserResponse)
+@app.get("/api/users/me", response_model=schemas.UserResponse)
 def read_users_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 

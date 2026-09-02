@@ -1,7 +1,18 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { getItemAsync } from '../utils/storage';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || process.env.VITE_API_URL || 'http://localhost:8000/api';
+const getDefaultApiUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_API_URL || process.env.VITE_API_URL;
+  if (envUrl) return envUrl;
+
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:8000/api';
+  }
+  return 'http://localhost:8000/api';
+};
+
+const API_URL = getDefaultApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,7 +31,6 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and logout
       const { useAuthStore } = require('../store/auth.store');
       await useAuthStore.getState().logout();
     }
