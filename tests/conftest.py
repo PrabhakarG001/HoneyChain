@@ -11,7 +11,6 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from backend.database import Base, get_db
-from backend.main import app
 from backend import models, auth
 from datetime import timedelta
 
@@ -27,6 +26,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 import backend.database
 backend.database.engine = engine
 backend.database.SessionLocal = TestingSessionLocal
+
+from backend.main import app
 
 
 @pytest.fixture(scope="function")
