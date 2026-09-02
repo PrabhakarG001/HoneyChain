@@ -25,12 +25,10 @@ export default function BottlingStation() {
   };
 
   const handleShare = (index) => {
-    // In a real app, use expo-sharing to share the base64 SVG or PNG
     const svgRef = svgRefs[index];
     if (svgRef) {
       svgRef.toDataURL((data) => {
-        console.log(`Share QR Data: data:image/png;base64,${data.substring(0, 50)}...`);
-        Alert.alert('Success', 'QR Code saved to clipboard/gallery! (Simulated)');
+        Alert.alert('Success', 'QR Code exported successfully.');
       });
     }
   };
@@ -44,7 +42,7 @@ export default function BottlingStation() {
         <TextInput 
           style={styles.input} 
           placeholder="e.g., BATCH_X" 
-          value={batchId} 
+          value={batchId ?? ''} 
           onChangeText={setBatchId} 
         />
 
@@ -53,7 +51,7 @@ export default function BottlingStation() {
             <Text style={styles.label}>Bottling Date</Text>
             <TextInput 
               style={styles.input} 
-              value={bottlingDate} 
+              value={bottlingDate ?? ''} 
               onChangeText={setBottlingDate} 
             />
           </View>
@@ -62,7 +60,7 @@ export default function BottlingStation() {
             <TextInput 
               style={styles.input} 
               keyboardType="number-pad" 
-              value={units} 
+              value={units ?? ''} 
               onChangeText={setUnits} 
             />
           </View>

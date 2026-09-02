@@ -8,6 +8,7 @@ export function Input({
   label, 
   error, 
   style,
+  value,
   ...props 
 }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -22,6 +23,7 @@ export function Input({
       ]}>
         <TextInput
           style={styles.input}
+          value={value ?? ''}
           placeholderTextColor={theme.colors.text.muted}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -36,7 +38,8 @@ export function Input({
 Input.propTypes = {
   label: PropTypes.string,
   error: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
+  value: PropTypes.string
 };
 
 export default Input;

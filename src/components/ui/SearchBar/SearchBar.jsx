@@ -10,7 +10,7 @@ export default function SearchBar({ value, onChangeText, placeholder = 'Search..
       <Search size={20} color={theme.colors.text.muted} style={styles.icon} />
       <TextInput
         style={styles.input}
-        value={value}
+        value={value ?? ''}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={theme.colors.text.muted}

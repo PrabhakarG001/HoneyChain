@@ -17,6 +17,14 @@ export default function CreateBatchScreen() {
   
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(createBatchSchema),
+    defaultValues: {
+      farmId: '',
+      hiveId: '',
+      honeyType: '',
+      floralSource: '',
+      quantity: '',
+      harvestDate: ''
+    }
   });
 
   const mutation = useMutation({
@@ -38,37 +46,37 @@ export default function CreateBatchScreen() {
         <Controller
           control={control} name="farmId"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Farm ID" placeholder="e.g. farm-001" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.farmId?.message} />
+            <Input label="Farm ID" placeholder="e.g. farm-001" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.farmId?.message} />
           )}
         />
         <Controller
           control={control} name="hiveId"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Hive ID" placeholder="e.g. HV-UP-001" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.hiveId?.message} />
+            <Input label="Hive ID" placeholder="e.g. HV-UP-001" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.hiveId?.message} />
           )}
         />
         <Controller
           control={control} name="honeyType"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Honey Type" placeholder="e.g. Raw, Pasteurized" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.honeyType?.message} />
+            <Input label="Honey Type" placeholder="e.g. Raw, Pasteurized" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.honeyType?.message} />
           )}
         />
         <Controller
           control={control} name="floralSource"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Floral Source" placeholder="e.g. Mustard, Multi-flora" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.floralSource?.message} />
+            <Input label="Floral Source" placeholder="e.g. Mustard, Multi-flora" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.floralSource?.message} />
           )}
         />
         <Controller
           control={control} name="quantity"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Quantity (kg)" keyboardType="numeric" placeholder="e.g. 50" onBlur={onBlur} onChangeText={onChange} value={value?.toString()} error={errors.quantity?.message} />
+            <Input label="Quantity (kg)" keyboardType="numeric" placeholder="e.g. 50" onBlur={onBlur} onChangeText={onChange} value={value != null ? value.toString() : ''} error={errors.quantity?.message} />
           )}
         />
         <Controller
           control={control} name="harvestDate"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Harvest Date" placeholder="YYYY-MM-DD" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.harvestDate?.message} />
+            <Input label="Harvest Date" placeholder="YYYY-MM-DD" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.harvestDate?.message} />
           )}
         />
 

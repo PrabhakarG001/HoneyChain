@@ -5,8 +5,6 @@ import { parseEther } from 'viem';
 import { Coins, Wallet } from 'lucide-react-native';
 
 export default function TipBeekeeper({ beekeeperAddress = '0x1234567890123456789012345678901234567890' }) {
-  // If not on web, wagmi/viem might crash or not work seamlessly without significant config. 
-  // We adapt the UI if not on web, or just show it if web.
   if (Platform.OS !== 'web') {
     return (
       <View style={styles.container}>
@@ -64,7 +62,7 @@ export default function TipBeekeeper({ beekeeperAddress = '0x1234567890123456789
             <TextInput
               style={styles.input}
               keyboardType="decimal-pad"
-              value={amount}
+              value={amount ?? ''}
               onChangeText={setAmount}
               placeholder="0.0"
             />
@@ -169,7 +167,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   sendButton: {
-    backgroundColor: '#10B981', // emerald-500
+    backgroundColor: '#10B981',
     width: '100%',
     paddingVertical: 14,
     borderRadius: 12,

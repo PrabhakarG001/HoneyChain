@@ -19,6 +19,10 @@ export default function LoginScreen() {
   
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
   });
 
   const onSubmit = async (data) => {
@@ -60,7 +64,7 @@ export default function LoginScreen() {
             keyboardType="email-address"
             onBlur={onBlur}
             onChangeText={onChange}
-            value={value}
+            value={value ?? ''}
             error={errors.email?.message}
           />
         )}
@@ -76,7 +80,7 @@ export default function LoginScreen() {
             secureTextEntry
             onBlur={onBlur}
             onChangeText={onChange}
-            value={value}
+            value={value ?? ''}
             error={errors.password?.message}
           />
         )}

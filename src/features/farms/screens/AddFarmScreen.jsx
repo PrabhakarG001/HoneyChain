@@ -19,6 +19,14 @@ export default function AddFarmScreen() {
   
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(addFarmSchema),
+    defaultValues: {
+      name: '',
+      location: '',
+      area: '',
+      numberOfHives: '',
+      beeSpecies: '',
+      floralSource: ''
+    }
   });
 
   const mutation = useMutation({
@@ -40,13 +48,13 @@ export default function AddFarmScreen() {
         <Controller
           control={control} name="name"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Farm Name" placeholder="e.g. Sunny Valley Apiary" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.name?.message} />
+            <Input label="Farm Name" placeholder="e.g. Sunny Valley Apiary" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.name?.message} />
           )}
         />
         <Controller
           control={control} name="location"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Location" placeholder="City, Region" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.location?.message} />
+            <Input label="Location" placeholder="City, Region" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.location?.message} />
           )}
         />
         <View style={styles.row}>
@@ -54,7 +62,7 @@ export default function AddFarmScreen() {
             <Controller
               control={control} name="area"
               render={({ field: { onChange, onBlur, value } }) => (
-                <Input label="Area (acres)" keyboardType="numeric" placeholder="2.5" onBlur={onBlur} onChangeText={onChange} value={value?.toString()} error={errors.area?.message} />
+                <Input label="Area (acres)" keyboardType="numeric" placeholder="2.5" onBlur={onBlur} onChangeText={onChange} value={value != null ? value.toString() : ''} error={errors.area?.message} />
               )}
             />
           </View>
@@ -62,7 +70,7 @@ export default function AddFarmScreen() {
             <Controller
               control={control} name="numberOfHives"
               render={({ field: { onChange, onBlur, value } }) => (
-                <Input label="Initial Hives" keyboardType="numeric" placeholder="50" onBlur={onBlur} onChangeText={onChange} value={value?.toString()} error={errors.numberOfHives?.message} />
+                <Input label="Initial Hives" keyboardType="numeric" placeholder="50" onBlur={onBlur} onChangeText={onChange} value={value != null ? value.toString() : ''} error={errors.numberOfHives?.message} />
               )}
             />
           </View>
@@ -71,13 +79,13 @@ export default function AddFarmScreen() {
         <Controller
           control={control} name="beeSpecies"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Bee Species" placeholder="e.g. Apis mellifera" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.beeSpecies?.message} />
+            <Input label="Bee Species" placeholder="e.g. Apis mellifera" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.beeSpecies?.message} />
           )}
         />
         <Controller
           control={control} name="floralSource"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Primary Floral Source" placeholder="e.g. Mustard, Acacia" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.floralSource?.message} />
+            <Input label="Primary Floral Source" placeholder="e.g. Mustard, Acacia" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.floralSource?.message} />
           )}
         />
 

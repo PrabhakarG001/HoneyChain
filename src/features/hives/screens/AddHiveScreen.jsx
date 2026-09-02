@@ -18,6 +18,9 @@ export default function AddHiveScreen() {
   
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(addHiveSchema),
+    defaultValues: {
+      beeSpecies: ''
+    }
   });
 
   const mutation = useMutation({
@@ -39,7 +42,7 @@ export default function AddHiveScreen() {
         <Controller
           control={control} name="beeSpecies"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input label="Bee Species" placeholder="e.g. Apis mellifera" onBlur={onBlur} onChangeText={onChange} value={value} error={errors.beeSpecies?.message} />
+            <Input label="Bee Species" placeholder="e.g. Apis mellifera" onBlur={onBlur} onChangeText={onChange} value={value ?? ''} error={errors.beeSpecies?.message} />
           )}
         />
 

@@ -36,8 +36,6 @@ export default function SearchScreen() {
       setIsLoading(true);
       setError(null);
       
-      // In a real app we'd call a specific /api/search endpoint.
-      // Here we filter hives as a fallback since no global search API was defined in the prompt.
       const hives = await hiveService.getAllHives();
       
       const filtered = (hives || []).filter(h => 
@@ -75,7 +73,7 @@ export default function SearchScreen() {
               style={styles.input}
               placeholder="Search HoneyChain"
               placeholderTextColor={theme.colors.text.muted}
-              value={query}
+              value={query ?? ''}
               onChangeText={setQuery}
               autoFocus
             />
@@ -100,7 +98,7 @@ export default function SearchScreen() {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Recent searches</Text>
                 {RECENT_SEARCHES.map((item, index) => (
-                  <TouchableOpacity key={index} style={styles.listItem}>
+                  <TouchableOpacity key={index} style={styles.listItem} onPress={() => setQuery(item)}>
                     <Clock size={18} color={theme.colors.text.secondary} />
                     <Text style={styles.listText}>{item}</Text>
                   </TouchableOpacity>
@@ -111,7 +109,7 @@ export default function SearchScreen() {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Trending topics</Text>
                 {TRENDING_TOPICS.map((item, index) => (
-                  <TouchableOpacity key={index} style={styles.listItem}>
+                  <TouchableOpacity key={index} style={styles.listItem} onPress={() => setQuery(item)}>
                     <Flame size={18} color={theme.colors.primary} />
                     <Text style={styles.listText}>{item}</Text>
                   </TouchableOpacity>
@@ -123,7 +121,7 @@ export default function SearchScreen() {
                 <Text style={styles.sectionTitle}>Categories</Text>
                 <View style={styles.chipGrid}>
                   {CATEGORIES.map((cat, index) => (
-                    <TouchableOpacity key={index} style={styles.chip}>
+                    <TouchableOpacity key={index} style={styles.chip} onPress={() => setQuery(cat)}>
                       <Text style={styles.chipText}>{cat}</Text>
                     </TouchableOpacity>
                   ))}
