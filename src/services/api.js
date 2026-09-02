@@ -33,6 +33,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       const { useAuthStore } = require('../store/auth.store');
       await useAuthStore.getState().logout();
+    } else if (!error.response || error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+      error.message = `Cannot connect to HoneyChain backend server at ${API_URL}. Please start the backend server (python -m uvicorn backend.main:app --port 8000).`;
     }
     return Promise.reject(error);
   }
