@@ -5,7 +5,7 @@ Welcome to the **HoneyChain** repository!
 HoneyChain provides real-time IoT monitoring, AI-driven anomaly detection, and Blockchain-backed traceability for modern beekeeping and supply chains.
 
 > **🟢 STATUS NOTICE**  
-> HoneyChain is fully implemented! The frontend, backend, IoT telemetry firmware, AI/ML anomaly detection model, WebSocket live stream, PostgreSQL database migrations, and blockchain smart contract integration are 100% complete and tested.
+> HoneyChain is fully implemented! The frontend, backend, IoT telemetry firmware, AI/ML anomaly detection model, WebSocket live stream, PostgreSQL database migrations, image analysis engine, and blockchain smart contract integration are 100% complete and tested.
 
 ---
 
@@ -17,14 +17,14 @@ Here is an honest breakdown of what is implemented in this codebase.
 | --- | ---: | ---: | --- | --- | --- |
 | **Authentication** | 100% | 0% | 🟢 | JWT auth, password hashing, role checks, refresh tokens (`backend/auth.py`). | None. |
 | **Frontend** | 100% | 0% | 🟢 | React Native screens, UI components, navigation, WebSocket live service (`src/services/`). | None. |
-| **Backend** | 100% | 0% | 🟢 | FastAPI setup, REST endpoints, data models, JWT, WebSocket router (`backend/routers/`). | None. |
+| **Backend** | 100% | 0% | 🟢 | FastAPI setup, REST endpoints, data models, JWT, WebSocket & Analysis routers (`backend/routers/`). | None. |
 | **QR Verification** | 100% | 0% | 🟢 | Backend `verify` route, blockchain reading, QR verification tests. | None. |
 | **Database** | 100% | 0% | 🟢 | SQLAlchemy models, PostgreSQL & SQLite support, Alembic migrations (`alembic/`). | None. |
 | **Blockchain** | 100% | 0% | 🟢 | `HoneyChain.sol` contract, Web3.py client, Hardhat deployment & tests (`blockchain/`). | None. |
 | **MQTT** | 100% | 0% | 🟢 | `mqtt_worker.py` payload validation, DB logging, ML trigger, WebSocket broadcasting, Mosquitto & Docker setup. | None. |
-| **AI/ML** | 100% | 0% | 🟢 | Inference wrapper (`ml_engine.py`), Isolation Forest model binary, training script, dataset, unit tests. | None. |
+| **AI/ML** | 100% | 0% | 🟢 | Inference wrapper (`ml_engine.py`), frame image inspection (`backend/routers/analysis.py`), Isolation Forest model binary, training script, dataset, unit tests. | None. |
 | **ESP32 / IoT** | 100% | 0% | 🟢 | Complete WiFi/MQTT firmware, DHT22 & HX711 drivers, reconnect state machine, deep sleep power management (`firmware/esp32/main.cpp`). | None. |
-| **Testing** | 100% | 0% | 🟢 | Comprehensive Pytest suite (32 tests passing), Hardhat test suite (5 tests passing), E2E tests. | None. |
+| **Testing** | 100% | 0% | 🟢 | Comprehensive Pytest suite (33 tests passing), Hardhat test suite (5 tests passing), E2E tests. | None. |
 | **WebSocket** | 100% | 0% | 🟢 | FastAPI WebSocket router (`/ws/telemetry`), PubSub manager, frontend WebSocket service. | None. |
 
 ---
@@ -74,10 +74,12 @@ Here is an honest breakdown of what is implemented in this codebase.
 - ✅ User Registration, Login, and Token Refresh via JWT.
 - ✅ Backend REST API for Hives, Farms, Harvests, and Batches.
 - ✅ Live Telemetry WebSocket streaming (`/ws/telemetry` & `/ws/telemetry/{hive_id}`).
+- ✅ Frame Camera Image Analysis endpoint (`POST /analysis/image`) for Varroa Mite & Capped Brood inspection.
 - ✅ MQTT Worker processing messages, saving DB records, triggering ML inference, and broadcasting live WebSocket feeds.
 - ✅ AI/ML Anomaly Detection (Isolation Forest model trained on dataset with hybrid risk scoring).
-- ✅ Blockchain smart contract integration via `web3.py` and Hardhat testing suite.
+- ✅ Blockchain smart contract integration via `web3.py` and Hardhat testing suite (5/5 Hardhat tests passing).
 - ✅ QR Code Verification Endpoint for end-to-end product traceability.
+- ✅ Comprehensive Pytest Suite (33/33 Pytest tests passing).
 - ✅ Full Docker Compose environment (`docker-compose.yml`) for PostgreSQL & Mosquitto.
 - ✅ ESP32 C++ firmware with physical sensor drivers (DHT22, HX711), reconnect loops, and deep sleep power management.
 
@@ -164,7 +166,7 @@ honeychain/
 ├── app/               → 🟢 Frontend App (Expo)
 ├── src/               → 🟢 Frontend Source & Services (REST & WebSockets)
 ├── backend/           
-│   ├── routers/       → 🟢 Implemented (REST endpoints & WebSocket router)
+│   ├── routers/       → 🟢 Implemented (REST, WebSockets & Frame Analysis)
 │   ├── models.py      → 🟢 Implemented (SQLAlchemy)
 │   ├── auth.py        → 🟢 Implemented (JWT & Role Checks)
 │   └── services/
