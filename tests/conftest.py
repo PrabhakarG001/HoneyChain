@@ -14,12 +14,15 @@ from backend.database import Base, get_db
 from backend import models, auth
 from datetime import timedelta
 
+from sqlalchemy.pool import StaticPool
+
 # Test in-memory SQLite database
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
     SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
