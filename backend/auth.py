@@ -12,6 +12,17 @@ import bcrypt
 if not hasattr(bcrypt, '__about__'):
     bcrypt.__about__ = type('about', (), {'__version__': getattr(bcrypt, '__version__', '4.0.0')})
 
+import passlib.handlers.bcrypt
+_orig_calc_checksum = passlib.handlers.bcrypt._BcryptBackend._calc_checksum
+def _safe_calc_checksum(self, secret):
+    if isinstance(secret, bytes) and len(secret) > 72:
+        secret = secret[:72]
+    elif isinstance(secret, str) and len(secret) > 72:
+        secret = secret[:72]
+    return _orig_calc_checksum(self, secret)
+
+passlib.handlers.bcrypt._BcryptBackend._calc_checksum = _safe_calc_checksum
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
