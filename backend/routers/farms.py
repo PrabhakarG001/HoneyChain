@@ -10,17 +10,17 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
 
 @router.post("/")
 def create_farm(farm_data: dict, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    # Quick dict to model assignment, proper schemas should be used in prod
+    farm_id = farm_data.get("id") or f"farm-{uuid.uuid4().hex[:8]}"
     db_farm = models.Farm(
-        id=f"farm-{uuid.uuid4().hex[:8]}",
+        id=farm_id,
         owner_id=current_user.id,
         name=farm_data.get("name"),
         location=farm_data.get("location"),
         area=farm_data.get("area"),
-        number_of_hives=farm_data.get("numberOfHives"),
-        bee_species=farm_data.get("beeSpecies"),
-        floral_source=farm_data.get("floralSource"),
-        status="ACTIVE"
+        number_of_hives=farm_data.get("number_of_hives") or farm_data.get("numberOfHives"),
+        bee_species=farm_data.get("bee_species") or farm_data.get("beeSpecies"),
+        floral_source=farm_data.get("floral_source") or farm_data.get("floralSource"),
+        status=farm_data.get("status") or "ACTIVE"
     )
     db.add(db_farm)
     db.commit()
