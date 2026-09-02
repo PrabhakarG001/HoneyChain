@@ -1,9 +1,9 @@
-# 🍯 HoneyChain / ApiVera
+# 🍯 HoneyChain
 
 ### IoT + AI/ML + Blockchain powered honey traceability and hive intelligence platform
 
 ## 1. Overview
-HoneyChain (ApiVera) is a comprehensive platform designed to provide traceability, monitoring, and analytics for beekeeping operations. It leverages simulated IoT telemetry, machine learning, and blockchain technology to ensure the authenticity of honey batches while providing actionable insights to beekeepers regarding hive health. 
+HoneyChain is a comprehensive platform designed to provide traceability, monitoring, and analytics for beekeeping operations. It leverages simulated IoT telemetry, machine learning, and blockchain technology to ensure the authenticity of honey batches while providing actionable insights to beekeepers regarding hive health. 
 
 By integrating sensor data with an anomaly detection engine and immutably recording harvest and batch custody transfers on the blockchain, HoneyChain bridges the gap between precision agriculture and verifiable supply chains.
 
@@ -192,7 +192,7 @@ CONTRACT_ADDRESS=
 
 ## 15. Project Structure
 ```text
-ApiVera/
+HoneyChain/
 ├── app/                  # Expo Router mobile app entry points
 ├── backend/              # FastAPI application
 │   ├── routers/          # API endpoints
