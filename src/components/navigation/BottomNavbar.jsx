@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, Search, Plus, Bell, User, MapPin, QrCode, Bookmark, Box, ShoppingBag } from 'lucide-react-native';
+import { Home, Search, Plus, User, MapPin, QrCode, Bookmark, Box, ShoppingBag } from 'lucide-react-native';
 import { useUIStore } from '../../store/ui.store';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -9,6 +9,9 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 export default function BottomNavbar({ state, descriptors, navigation, onCreatePress }) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+
+  const isPhone = width < 768;
   const isNavbarVisible = useUIStore(state => state.isNavbarVisible);
   const setNavbarVisible = useUIStore(state => state.setNavbarVisible);
   const { user } = useAuthStore();
@@ -44,9 +47,11 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
       ]}>
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null;
-          if (userRole === 'CUSTOMER' && route.name === 'explore') return null;
+          
+          // Requirement 2 & 4: Hide Discover (explore) from Customer bottom navbar ONLY on Phone screens (width < 768).
+          // Preserve on Tablet / Desktop (width >= 768).
+          if (isPhone && userRole === 'CUSTOMER' && route.name === 'explore') return null;
 
-          const { options } = descriptors[route.key];
           const isFocused = state.index === index;
           const isCenterAction = route.name === 'create';
 
@@ -74,10 +79,6 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           const color = isFocused ? activeColor : inactiveColor;
           const strokeWidth = isFocused ? 2.5 : 2;
 
-          // Center button dynamic active/inactive states
-          const centerBgColor = isFocused ? colors.accent : colors.surface;
-          const centerIconColor = isFocused ? '#FFFFFF' : inactiveColor;
-
           const renderIcon = () => {
             switch (route.name) {
               case 'index':
@@ -90,8 +91,8 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
                 return <Search size={22} color={color} strokeWidth={strokeWidth} />;
               case 'create':
                 return userRole === 'CUSTOMER'
-                  ? <QrCode size={22} color={centerIconColor} strokeWidth={strokeWidth} />
-                  : <Plus size={22} color={centerIconColor} strokeWidth={strokeWidth} />;
+                  ? <QrCode size={22} color={color} strokeWidth={strokeWidth} />
+                  : <Plus size={22} color={color} strokeWidth={strokeWidth} />;
               case 'notifications':
                 return <Bookmark size={22} color={color} strokeWidth={strokeWidth} />;
               case 'profile':
@@ -113,6 +114,8 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             }
           };
 
+          // Requirement 3: Every icon (including Plus / Scan) is aligned at the EXACT same vertical level.
+          // Unified iconColumn for consistent height, spacing, and vertical center.
           return (
             <TouchableOpacity
               key={route.key}
@@ -120,25 +123,19 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
               accessibilityLabel={getLabel()}
               accessibilityState={isFocused ? { selected: true } : {}}
               onPress={onPress}
-              style={[styles.tabItem, isCenterAction && styles.centerItemWrapper]}
+              style={styles.tabItem}
               activeOpacity={0.8}
             >
-              {isCenterAction ? (
-                <View style={[
-                  styles.centerBtn, 
-                  { backgroundColor: centerBgColor, borderColor: colors.cardBorder },
-                  isFocused && styles.centerBtnFocused
+              <View style={styles.iconColumn}>
+                {renderIcon()}
+                <Text style={[
+                  styles.tabLabel, 
+                  { color: inactiveColor }, 
+                  isFocused && { color: activeColor, fontWeight: '700' }
                 ]}>
-                  {renderIcon()}
-                </View>
-              ) : (
-                <View style={styles.iconColumn}>
-                  {renderIcon()}
-                  <Text style={[styles.tabLabel, { color: inactiveColor }, isFocused && { color: activeColor, fontWeight: '700' }]}>
-                    {getLabel()}
-                  </Text>
-                </View>
-              )}
+                  {getLabel()}
+                </Text>
+              </View>
             </TouchableOpacity>
           );
         })}
@@ -187,28 +184,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     marginTop: 2,
-  },
-  centerItemWrapper: {
-    top: -10,
-  },
-  centerBtn: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    elevation: 2,
-    shadowColor: '#000000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  centerBtnFocused: {
-    elevation: 6,
-    shadowColor: '#F59E0B',
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
   },
 });

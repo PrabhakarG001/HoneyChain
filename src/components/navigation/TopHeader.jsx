@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
 import { Search, X, Plus, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
@@ -24,6 +24,15 @@ export default function TopHeader({ onSearchQueryChange }) {
   const { user } = useAuthStore();
   const router = useRouter();
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+
+  const isPhone = width < 768;
+  const userRole = (user?.role || 'BEEKEEPER').toUpperCase();
+  const isCustomer = userRole === 'CUSTOMER';
+  
+  // Requirement 1 & 4: On Phone screens, hide Plus (+) & Saved icons from Beekeeper top navbar.
+  // On Tablet/Desktop (width >= 768), preserve Plus (+) & Saved icons for Beekeeper.
+  const showHeaderActions = !isCustomer && !isPhone;
 
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -131,7 +140,7 @@ export default function TopHeader({ onSearchQueryChange }) {
 
         {/* Right Actions: Plus (+) Button, Chat & Avatar */}
         <View style={styles.rightActions}>
-          {(user?.role || '').toUpperCase() !== 'CUSTOMER' && (
+          {showHeaderActions && (
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => setIsCreateMenuVisible(true)}
@@ -142,7 +151,7 @@ export default function TopHeader({ onSearchQueryChange }) {
             </TouchableOpacity>
           )}
 
-          {(user?.role || '').toUpperCase() !== 'CUSTOMER' && (
+          {showHeaderActions && (
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => router.push('/(app)/(tabs)/notifications')}
