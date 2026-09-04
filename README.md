@@ -36,7 +36,7 @@ Web3 & Blockchain Contract      ████████████████
 Batch Genealogy Engine          ████████████████████ 100% (Non-N+1 Ancestor/Descendant Resolution)
 Public QR & Consumer Passport   ████████████████████ 100% (Opaque Verification & PII Protection)
 Testing & Quality Assurance     ████████████████████ 100% (Automated Pytest & Hardhat Suites)
-Documentation & Guides          ████████████████████ 100% (Full Junior Developer Reference)
+Documentation & Guides          ████████████████████ 100% (Full Developer Reference)
 ```
 
 ---
@@ -279,7 +279,7 @@ python scripts/demo_telemetry_replay.py --hive-id HV_E2E_01 --interval 2
 
 ---
 
-## 🛠️ 13. Junior Developer Environment Setup & Execution Guide
+## 🛠️ 13. Developer Setup & Execution Guide
 
 ### 1. Prerequisites
 * Python 3.10+ (Tested on Python 3.13)
