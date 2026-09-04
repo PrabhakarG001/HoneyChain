@@ -114,7 +114,12 @@ export function AuthProvider({ children }) {
     // Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const token = await firebaseUser.getIdToken();
+        let token = 'session_active';
+        try {
+          token = (await firebaseUser.getIdToken()) || 'session_active';
+        } catch (e) {
+          console.warn('Firebase getIdToken warning:', e.message);
+        }
         
         // Fast local storage role restoration check
         let userRole = 'CUSTOMER';
