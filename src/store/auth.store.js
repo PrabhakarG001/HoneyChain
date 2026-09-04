@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { setItemAsync, getItemAsync, deleteItemAsync } from '../utils/storage';
+import { useThemeStore } from './theme.store';
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -11,6 +12,11 @@ export const useAuthStore = create((set) => ({
     await setItemAsync('access_token', token);
     await setItemAsync('user', JSON.stringify(user));
     
+    // Requirement 4: Beekeeper System Theme After Login (default to system theme automatically)
+    try {
+      useThemeStore.getState().setThemeMode('system');
+    } catch (e) {}
+
     set({
       user,
       accessToken: token,

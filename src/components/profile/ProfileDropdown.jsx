@@ -85,7 +85,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   activeOpacity={0.85}
                 >
                   <View style={styles.avatarWrap}>
-                    <UserAvatar user={user} size={56} />
+                    <UserAvatar user={user} size={44} />
                     <View style={styles.roleBadgeContainer}>
                       <VerificationBadge type="blockchain" text={currentRole} size="small" />
                     </View>

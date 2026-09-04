@@ -48,8 +48,12 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null;
           
-          // Requirement 3 & 5: Customer Phone Bottom Navigation must be exactly:
-          // Home | Discover | Scan | Profile
+          // Completely remove Saved/Notifications tab from Beekeeper bottom navigation
+          if (userRole !== 'CUSTOMER' && route.name === 'notifications') {
+            return null;
+          }
+
+          // Customer Phone Bottom Navigation: Home | Discover | Scan | Profile
           if (isPhone && userRole === 'CUSTOMER') {
             if (route.name === 'map' || route.name === 'notifications') return null;
           }

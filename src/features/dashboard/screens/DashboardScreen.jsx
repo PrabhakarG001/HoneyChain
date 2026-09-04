@@ -20,13 +20,7 @@ import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 import { useThemeColors } from '../../../hooks/useThemeColors';
 import { firestoreService } from '../../../services/firestore.service';
 
-const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
-
-const SAMPLE_HIVES = [
-  { id: 'HIVE-101', name: 'Alpha Apiary Hive 01', location: 'Sunny Meadow', status: 'Healthy', temp: '35.2°C' },
-  { id: 'HIVE-102', name: 'Beta Apiary Hive 02', location: 'Pine Ridge', status: 'Healthy', temp: '34.8°C' },
-  { id: 'HIVE-103', name: 'Gamma Apiary Hive 03', location: 'Orchard Valley', status: 'Active', temp: '35.0°C' },
-];
+const CATEGORIES = ['All', 'Hives', 'Apiaries', 'Quality', 'Verified'];
 
 export default function DashboardScreen() {
   const { user } = useAuthStore();
@@ -62,19 +56,14 @@ export default function DashboardScreen() {
       } else {
         try {
           const hivesData = await hiveService.getAllHives();
-          setHives(hivesData && hivesData.length > 0 ? hivesData : SAMPLE_HIVES);
+          setHives(hivesData || []);
         } catch (err) {
-          // If backend API returns 401/403 or network error, fallback to Firestore or sample hives
           const firestoreHives = await firestoreService.getAllHives();
-          if (firestoreHives && firestoreHives.length > 0) {
-            setHives(firestoreHives);
-          } else {
-            setHives(SAMPLE_HIVES);
-          }
+          setHives(firestoreHives || []);
         }
       }
     } catch (err) {
-      setHives(SAMPLE_HIVES);
+      setHives([]);
     } finally {
       setIsLoading(false);
     }
@@ -103,25 +92,15 @@ export default function DashboardScreen() {
     />
   );
 
-  const feedData = isCustomer 
-    ? [
-        { id: 'BATCH_A1B2C3D4', type: 'honey', title: 'Raw Organic Acacia Honey', subtitle: 'Sunny Valley Apiary • Sonoma, CA', height: 250, isVerified: true, badgeText: 'Lab Tested', imageUrl: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' },
-        { id: 'BATCH_E5F6G7H8', type: 'honey', title: 'Mountain Lavender Honey', subtitle: 'Highland Organic • Batch #HC-901', height: 190, isVerified: true, badgeText: 'Blockchain Recorded', imageUrl: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80' },
-        { id: 'BATCH_C9D0E1F2', type: 'honey', title: 'Bio-Active Manuka Honey (UMF 15+)', subtitle: 'Aotearoa Cooperative • NZ', height: 270, isVerified: true, badgeText: 'Verified Origin', imageUrl: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' },
-        { id: 'BATCH_G3H4I5J6', type: 'honey', title: 'Wildflower Comb Honey Jar', subtitle: 'Oregon Apiary • Batch #HC-882', height: 210, isVerified: true, badgeText: 'Lab Certified', imageUrl: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80' }
-      ]
-    : hives.map((hive, idx) => ({
-        id: hive.id || hive._id,
-        type: 'hive',
-        title: hive.name || `Hive ${hive.id}`,
-        subtitle: hive.location || 'Sonoma Apiary Region',
-        height: idx % 2 === 0 ? 240 : 190,
-        isVerified: true,
-        badgeText: hive.status || 'Active',
-        imageUrl: idx % 2 === 0 
-          ? 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80'
-          : 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
-      }));
+  const feedData = hives.map((hive, idx) => ({
+    id: hive.id || hive._id,
+    type: 'hive',
+    title: hive.name || `Hive ${hive.id}`,
+    subtitle: hive.location || 'Apiary Location',
+    height: idx % 2 === 0 ? 220 : 180,
+    isVerified: true,
+    badgeText: hive.status || 'Active',
+  }));
 
   const healthyHivesCount = hives.filter(h => h.status !== 'Warning' && h.status !== 'Critical').length;
   const attentionHivesCount = hives.length - healthyHivesCount;

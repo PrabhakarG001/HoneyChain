@@ -85,7 +85,7 @@ export default function TopHeader() {
             accessibilityRole="button"
             accessibilityLabel="Open profile hub"
           >
-            <UserAvatar user={user} size={32} />
+            <UserAvatar user={user} size={28} />
           </TouchableOpacity>
         </View>
       </View>

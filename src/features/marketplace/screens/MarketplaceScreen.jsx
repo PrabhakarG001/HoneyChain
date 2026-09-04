@@ -17,61 +17,6 @@ export default function MarketplaceScreen() {
 
   const CATEGORIES = ['All', 'Acacia', 'Wildflower', 'Manuka', 'Clover', 'Lavender'];
 
-  const DEFAULT_PRODUCTS = [
-    {
-      id: 'PROD_101',
-      qrId: 'HC-QR-9842',
-      productName: 'HoneyChain Organic Raw Acacia Honey',
-      floralSource: 'Acacia',
-      netWeight: '500g',
-      price: 24.99,
-      purityScore: 98,
-      beekeeperName: 'Master Beekeeper Prabhakar',
-      location: 'Sonoma Valley Apiary',
-      organicSeal: true,
-      image: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80',
-    },
-    {
-      id: 'PROD_102',
-      qrId: 'HC-QR-8812',
-      productName: 'Pure High-Mountain Wildflower Honey',
-      floralSource: 'Wildflower',
-      netWeight: '350g',
-      price: 19.50,
-      purityScore: 96,
-      beekeeperName: 'Sonoma Bee Colony',
-      location: 'Alpine Apiary',
-      organicSeal: true,
-      image: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80',
-    },
-    {
-      id: 'PROD_103',
-      qrId: 'HC-QR-7741',
-      productName: 'Certified Bio-Active Manuka Honey (UMF 15+)',
-      floralSource: 'Manuka',
-      netWeight: '250g',
-      price: 49.99,
-      purityScore: 99,
-      beekeeperName: 'Aotearoa Honey Labs',
-      location: 'New Zealand Sanctuary',
-      organicSeal: true,
-      image: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80',
-    },
-    {
-      id: 'PROD_104',
-      qrId: 'HC-QR-6610',
-      productName: 'Organic Clover Honey Comb Jar',
-      floralSource: 'Clover',
-      netWeight: '500g',
-      price: 21.00,
-      purityScore: 94,
-      beekeeperName: 'Golden Hive Cooperative',
-      location: 'Oregon Meadows Apiary',
-      organicSeal: false,
-      image: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80',
-    },
-  ];
-
   useEffect(() => {
     loadProducts();
   }, []);
@@ -79,13 +24,9 @@ export default function MarketplaceScreen() {
   const loadProducts = async () => {
     try {
       const fetched = await firestoreService.getProducts();
-      if (fetched && fetched.length > 0) {
-        setProducts([...fetched, ...DEFAULT_PRODUCTS]);
-      } else {
-        setProducts(DEFAULT_PRODUCTS);
-      }
+      setProducts(fetched || []);
     } catch (e) {
-      setProducts(DEFAULT_PRODUCTS);
+      setProducts([]);
     }
   };
 

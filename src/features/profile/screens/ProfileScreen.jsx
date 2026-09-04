@@ -18,12 +18,7 @@ import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 import { firestoreService } from '../../../services/firestore.service';
 
-const TABS = ['My Hives', 'Saved', 'Quality Reports', 'Activity'];
-
-const SAMPLE_PROFILE_HIVES = [
-  { id: 'HIVE-101', type: 'hive', title: 'Alpha Apiary Hive 01', subtitle: 'Sunny Meadow', height: 220, isVerified: true },
-  { id: 'HIVE-102', type: 'hive', title: 'Beta Apiary Hive 02', subtitle: 'Pine Ridge', height: 220, isVerified: true },
-];
+const TABS = ['My Hives', 'Quality Reports', 'Activity'];
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
@@ -38,7 +33,7 @@ export default function ProfileScreen() {
   const [profileData, setProfileData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userStats, setUserStats] = useState({ hives: 0, verifications: 12 });
+  const [userStats, setUserStats] = useState({ hives: 0, verifications: 0 });
 
   useEffect(() => {
     fetchProfileContent();
@@ -52,11 +47,7 @@ export default function ProfileScreen() {
       try {
         hives = await hiveService.getAllHives();
       } catch (err) {
-        // Fallback to Firestore if backend returns 401/403 or is offline
         hives = await firestoreService.getAllHives();
-        if (!hives || hives.length === 0) {
-          hives = SAMPLE_PROFILE_HIVES;
-        }
       }
       
       const mappedData = (hives || []).map(hive => ({
@@ -64,15 +55,15 @@ export default function ProfileScreen() {
         type: 'hive',
         title: hive.name || `Hive ${hive.id}`,
         subtitle: hive.location || 'Apiary Location',
-        height: hive.height || 220,
+        height: hive.height || 200,
         isVerified: true,
       }));
       
       setProfileData(mappedData);
-      setUserStats(prev => ({ ...prev, hives: mappedData.length }));
+      setUserStats({ hives: mappedData.length, verifications: mappedData.length > 0 ? mappedData.length * 2 : 0 });
     } catch (err) {
-      setProfileData(SAMPLE_PROFILE_HIVES);
-      setUserStats(prev => ({ ...prev, hives: SAMPLE_PROFILE_HIVES.length }));
+      setProfileData([]);
+      setUserStats({ hives: 0, verifications: 0 });
     } finally {
       setIsLoading(false);
     }
@@ -97,9 +88,9 @@ export default function ProfileScreen() {
             accessibilityRole="button"
             accessibilityLabel="Open profile hub"
           >
-            <UserAvatar user={user} size={96} />
+            <UserAvatar user={user} size={64} />
             <View style={[styles.editAvatarBadge, { backgroundColor: colors.accent, borderColor: colors.background }]}>
-              <Edit3 size={16} color="#000000" />
+              <Edit3 size={14} color="#000000" />
             </View>
           </TouchableOpacity>
 
