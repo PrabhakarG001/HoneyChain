@@ -279,7 +279,7 @@ python scripts/demo_telemetry_replay.py --hive-id HV_E2E_01 --interval 2
 
 ---
 
-## 🛠️ 13. Junior Developer Setup & Execution Guide
+## 🛠️ 13. Junior Developer Environment Setup & Execution Guide
 
 ### 1. Prerequisites
 * Python 3.10+ (Tested on Python 3.13)
