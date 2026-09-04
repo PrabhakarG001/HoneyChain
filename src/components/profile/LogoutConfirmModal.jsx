@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { LogOut } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { theme } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeColors } from '../../hooks/useThemeColors';
 
 export default function LogoutConfirmModal({ isVisible, onClose }) {
   const { logout: authContextLogout } = useAuth();
   const { logout: storeLogout } = useAuthStore();
+  const colors = useThemeColors();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -21,7 +22,7 @@ export default function LogoutConfirmModal({ isVisible, onClose }) {
         await storeLogout();
       }
       onClose();
-      router.replace('/(auth)/login');
+      router.replace('/(auth)/role-selection');
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
@@ -36,20 +37,20 @@ export default function LogoutConfirmModal({ isVisible, onClose }) {
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
               
-              <View style={styles.iconCircle}>
-                <LogOut size={28} color="#E53E3E" style={{ marginLeft: 2 }} />
+              <View style={[styles.iconCircle, { backgroundColor: colors.isDark ? '#3F1D1D' : '#FEE2E2' }]}>
+                <LogOut size={28} color="#EF4444" style={{ marginLeft: 2 }} />
               </View>
 
-              <Text style={styles.title}>Log out of HoneyChain?</Text>
-              <Text style={styles.subtitle}>
+              <Text style={[styles.title, { color: colors.text }]}>Log out of HoneyChain?</Text>
+              <Text style={[styles.subtitle, { color: colors.subtext }]}>
                 Are you sure you want to log out? You will need to sign in again to access your hives, IoT telemetries, and verified honey passport records.
               </Text>
 
               <View style={styles.buttonRow}>
-                <TouchableOpacity style={styles.cancelButton} onPress={onClose} disabled={isLoggingOut}>
-                  <Text style={styles.cancelText}>Cancel</Text>
+                <TouchableOpacity style={[styles.cancelButton, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={onClose} disabled={isLoggingOut}>
+                  <Text style={[styles.cancelText, { color: colors.text }]}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.logoutButton} onPress={handleConfirmLogout} disabled={isLoggingOut}>
@@ -80,10 +81,10 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 420,
-    backgroundColor: theme.colors.background.card,
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
+    borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
@@ -94,7 +95,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FEE2E2',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -102,13 +102,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: theme.colors.text.primary,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: theme.colors.text.secondary,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
@@ -122,22 +120,19 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: theme.colors.background.main,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   cancelText: {
     fontSize: 15,
     fontWeight: '600',
-    color: theme.colors.text.primary,
   },
   logoutButton: {
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E53E3E',
+    backgroundColor: '#EF4444',
     alignItems: 'center',
     justifyContent: 'center',
   },

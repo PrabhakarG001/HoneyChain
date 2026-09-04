@@ -4,9 +4,9 @@ import {
   ActivityIndicator, StyleSheet, Image, TouchableWithoutFeedback, KeyboardAvoidingView, Platform 
 } from 'react-native';
 import { X, Check, Camera, User, AtSign, AlignLeft, AlertCircle } from 'lucide-react-native';
-import { theme } from '../../theme';
 import { authService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeColors } from '../../hooks/useThemeColors';
 
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=200&auto=format&fit=crop&q=80',
@@ -18,6 +18,7 @@ const PRESET_AVATARS = [
 
 export default function EditProfileModal({ isVisible, onClose }) {
   const { user, updateUser } = useAuthStore();
+  const colors = useThemeColors();
 
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -109,13 +110,13 @@ export default function EditProfileModal({ isVisible, onClose }) {
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
-              <View style={styles.modalCard}>
+              <View style={[styles.modalCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 
                 {/* Header */}
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Edit Profile</Text>
-                  <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                    <X size={22} color={theme.colors.text.primary} />
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Profile</Text>
+                  <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: colors.surface }]}>
+                    <X size={22} color={colors.text} />
                   </TouchableOpacity>
                 </View>
 
@@ -124,31 +125,31 @@ export default function EditProfileModal({ isVisible, onClose }) {
                   
                   {/* Messages */}
                   {errorMessage ? (
-                    <View style={styles.errorContainer}>
-                      <AlertCircle size={18} color={theme.colors.status.error} />
-                      <Text style={styles.errorText}>{errorMessage}</Text>
+                    <View style={[styles.errorContainer, { backgroundColor: colors.isDark ? '#3F1D1D' : '#FEE2E2' }]}>
+                      <AlertCircle size={18} color={colors.status.error} />
+                      <Text style={[styles.errorText, { color: colors.status.error }]}>{errorMessage}</Text>
                     </View>
                   ) : null}
 
                   {successMessage ? (
-                    <View style={styles.successContainer}>
-                      <Check size={18} color={theme.colors.status.success} />
-                      <Text style={styles.successText}>{successMessage}</Text>
+                    <View style={[styles.successContainer, { backgroundColor: colors.isDark ? '#1C3829' : '#D1FAE5' }]}>
+                      <Check size={18} color={colors.accent} />
+                      <Text style={[styles.successText, { color: colors.accent }]}>{successMessage}</Text>
                     </View>
                   ) : null}
 
                   {/* Avatar Picker */}
-                  <Text style={styles.label}>Profile Picture</Text>
+                  <Text style={[styles.label, { color: colors.text }]}>Profile Picture</Text>
                   <View style={styles.avatarPreviewRow}>
                     {avatarUrl ? (
                       <Image source={{ uri: isCustomMode && customAvatar ? customAvatar : avatarUrl }} style={styles.currentAvatar} />
                     ) : (
-                      <View style={[styles.currentAvatar, styles.avatarPlaceholder]}>
-                        <User size={36} color={theme.colors.charcoal} />
+                      <View style={[styles.currentAvatar, styles.avatarPlaceholder, { backgroundColor: colors.accent }]}>
+                        <User size={36} color="#000000" />
                       </View>
                     )}
                     <View style={styles.avatarInfo}>
-                      <Text style={styles.avatarHint}>Select an avatar below or provide a custom image URL.</Text>
+                      <Text style={[styles.avatarHint, { color: colors.subtext }]}>Select an avatar below or provide a custom image URL.</Text>
                     </View>
                   </View>
 
@@ -158,7 +159,10 @@ export default function EditProfileModal({ isVisible, onClose }) {
                       return (
                         <TouchableOpacity
                           key={idx}
-                          style={[styles.presetItem, isSelected && styles.presetSelected]}
+                          style={[
+                            styles.presetItem, 
+                            isSelected && { borderColor: colors.accent }
+                          ]}
                           onPress={() => {
                             setAvatarUrl(url);
                             setIsCustomMode(false);
@@ -166,8 +170,8 @@ export default function EditProfileModal({ isVisible, onClose }) {
                         >
                           <Image source={{ uri: url }} style={styles.presetImage} />
                           {isSelected && (
-                            <View style={styles.checkBadge}>
-                              <Check size={12} color="#FFF" />
+                            <View style={[styles.checkBadge, { backgroundColor: colors.accent }]}>
+                              <Check size={12} color="#000000" />
                             </View>
                           )}
                         </TouchableOpacity>
@@ -180,8 +184,8 @@ export default function EditProfileModal({ isVisible, onClose }) {
                     style={styles.toggleCustomBtn} 
                     onPress={() => setIsCustomMode(!isCustomMode)}
                   >
-                    <Camera size={16} color={theme.colors.primaryDark} />
-                    <Text style={styles.toggleCustomText}>
+                    <Camera size={16} color={colors.accent} />
+                    <Text style={[styles.toggleCustomText, { color: colors.accent }]}>
                       {isCustomMode ? 'Use Preset Avatars' : 'Use Custom Image URL'}
                     </Text>
                   </TouchableOpacity>
@@ -189,9 +193,9 @@ export default function EditProfileModal({ isVisible, onClose }) {
                   {isCustomMode && (
                     <View style={styles.inputGroup}>
                       <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
                         placeholder="https://example.com/photo.jpg"
-                        placeholderTextColor={theme.colors.text.muted}
+                        placeholderTextColor={colors.subtext}
                         value={customAvatar}
                         onChangeText={(txt) => {
                           setCustomAvatar(txt);
@@ -204,13 +208,13 @@ export default function EditProfileModal({ isVisible, onClose }) {
 
                   {/* Full Name Input */}
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Full Name</Text>
-                    <View style={styles.inputWrapper}>
-                      <User size={18} color={theme.colors.text.secondary} style={styles.inputIcon} />
+                    <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
+                    <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                      <User size={18} color={colors.subtext} style={styles.inputIcon} />
                       <TextInput
-                        style={styles.inputWithIcon}
+                        style={[styles.inputWithIcon, { color: colors.text }]}
                         placeholder="Enter your full name"
-                        placeholderTextColor={theme.colors.text.muted}
+                        placeholderTextColor={colors.subtext}
                         value={name}
                         onChangeText={setName}
                       />
@@ -219,13 +223,13 @@ export default function EditProfileModal({ isVisible, onClose }) {
 
                   {/* Username Input */}
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Username</Text>
-                    <View style={styles.inputWrapper}>
-                      <AtSign size={18} color={theme.colors.text.secondary} style={styles.inputIcon} />
+                    <Text style={[styles.label, { color: colors.text }]}>Username</Text>
+                    <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                      <AtSign size={18} color={colors.subtext} style={styles.inputIcon} />
                       <TextInput
-                        style={styles.inputWithIcon}
+                        style={[styles.inputWithIcon, { color: colors.text }]}
                         placeholder="username"
-                        placeholderTextColor={theme.colors.text.muted}
+                        placeholderTextColor={colors.subtext}
                         value={username}
                         onChangeText={setUsername}
                         autoCapitalize="none"
@@ -235,13 +239,13 @@ export default function EditProfileModal({ isVisible, onClose }) {
 
                   {/* Bio Input */}
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Bio</Text>
-                    <View style={[styles.inputWrapper, { alignItems: 'flex-start', paddingTop: 10 }]}>
-                      <AlignLeft size={18} color={theme.colors.text.secondary} style={styles.inputIcon} />
+                    <Text style={[styles.label, { color: colors.text }]}>Bio</Text>
+                    <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border, alignItems: 'flex-start', paddingTop: 10 }]}>
+                      <AlignLeft size={18} color={colors.subtext} style={styles.inputIcon} />
                       <TextInput
-                        style={[styles.inputWithIcon, { height: 75, textAlignVertical: 'top' }]}
+                        style={[styles.inputWithIcon, { color: colors.text, height: 75, textAlignVertical: 'top' }]}
                         placeholder="Tell the community about your beekeeping or honey passion..."
-                        placeholderTextColor={theme.colors.text.muted}
+                        placeholderTextColor={colors.subtext}
                         value={bio}
                         onChangeText={setBio}
                         multiline
@@ -254,13 +258,13 @@ export default function EditProfileModal({ isVisible, onClose }) {
 
                 {/* Actions */}
                 <View style={styles.modalActions}>
-                  <TouchableOpacity style={styles.cancelBtn} onPress={onClose} disabled={isLoading}>
-                    <Text style={styles.cancelText}>Cancel</Text>
+                  <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: colors.surface }]} onPress={onClose} disabled={isLoading}>
+                    <Text style={[styles.cancelText, { color: colors.subtext }]}>Cancel</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isLoading}>
+                  <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleSave} disabled={isLoading}>
                     {isLoading ? (
-                      <ActivityIndicator size="small" color={theme.colors.charcoal} />
+                      <ActivityIndicator size="small" color="#000000" />
                     ) : (
                       <Text style={styles.saveText}>Save Changes</Text>
                     )}
@@ -291,9 +295,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 500,
     maxHeight: '85%',
-    backgroundColor: theme.colors.background.card,
     borderRadius: 24,
     padding: 24,
+    borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
@@ -309,12 +313,10 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: theme.colors.text.primary,
   },
   closeBtn: {
     padding: 6,
     borderRadius: 20,
-    backgroundColor: theme.colors.background.main,
   },
   formScroll: {
     marginBottom: 20,
@@ -323,34 +325,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FEE2E2',
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
   },
   errorText: {
     fontSize: 13,
-    color: theme.colors.status.error,
     flex: 1,
   },
   successContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#D1FAE5',
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
   },
   successText: {
     fontSize: 13,
-    color: theme.colors.status.success,
     flex: 1,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: theme.colors.text.primary,
     marginBottom: 8,
   },
   avatarPreviewRow: {
@@ -365,7 +362,6 @@ const styles = StyleSheet.create({
     borderRadius: 32,
   },
   avatarPlaceholder: {
-    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -374,7 +370,6 @@ const styles = StyleSheet.create({
   },
   avatarHint: {
     fontSize: 13,
-    color: theme.colors.text.secondary,
     lineHeight: 18,
   },
   presetScroll: {
@@ -388,9 +383,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  presetSelected: {
-    borderColor: theme.colors.primary,
-  },
   presetImage: {
     width: 48,
     height: 48,
@@ -400,7 +392,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -2,
     bottom: -2,
-    backgroundColor: theme.colors.primary,
     width: 18,
     height: 18,
     borderRadius: 9,
@@ -416,7 +407,6 @@ const styles = StyleSheet.create({
   toggleCustomText: {
     fontSize: 13,
     fontWeight: '600',
-    color: theme.colors.primaryDark,
   },
   inputGroup: {
     marginBottom: 16,
@@ -424,10 +414,8 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background.main,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: theme.colors.border,
     paddingHorizontal: 12,
   },
   inputIcon: {
@@ -437,17 +425,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 46,
     fontSize: 15,
-    color: theme.colors.text.primary,
   },
   input: {
     height: 46,
-    backgroundColor: theme.colors.background.main,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: theme.colors.border,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: theme.colors.text.primary,
   },
   modalActions: {
     flexDirection: 'row',
@@ -458,18 +442,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 24,
-    backgroundColor: theme.colors.background.main,
   },
   cancelText: {
     fontSize: 15,
     fontWeight: '600',
-    color: theme.colors.text.secondary,
   },
   saveBtn: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 24,
-    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 120,
@@ -477,6 +458,6 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 15,
     fontWeight: '700',
-    color: theme.colors.charcoal,
+    color: '#000000',
   },
 });

@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from 'react-native';
 import { Search, X, Clock, Flame } from 'lucide-react-native';
-import { theme } from '../../../theme';
-import styles from './SearchScreen.styles';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 import { hiveService } from '../../../services/hive.service';
-
 import { useLocalSearchParams } from 'expo-router';
 
-const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
+const RECENT_SEARCHES = ['Acacia Honey', 'Sonoma Apiary', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
 const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 
 export default function SearchScreen() {
   const params = useLocalSearchParams();
+  const colors = useThemeColors();
   const [query, setQuery] = useState(params?.q || '');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,26 +71,26 @@ export default function SearchScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView 
         style={styles.flex1} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <BrandLogo style={{ marginBottom: 16 }} />
-          <View style={styles.searchBar}>
-            <Search size={20} color={theme.colors.text.secondary} />
+          <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Search size={18} color={colors.subtext} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               placeholder="Search HoneyChain"
-              placeholderTextColor={theme.colors.text.muted}
+              placeholderTextColor={colors.subtext}
               value={query ?? ''}
               onChangeText={setQuery}
               autoFocus
             />
             {query.length > 0 && (
               <TouchableOpacity onPress={() => setQuery('')}>
-                <X size={20} color={theme.colors.text.secondary} />
+                <X size={18} color={colors.subtext} />
               </TouchableOpacity>
             )}
           </View>
@@ -108,33 +107,45 @@ export default function SearchScreen() {
             <>
               {/* Recent Searches */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Recent searches</Text>
+                <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Recent searches</Text>
                 {RECENT_SEARCHES.map((item, index) => (
-                  <TouchableOpacity key={index} style={styles.listItem} onPress={() => setQuery(item)}>
-                    <Clock size={18} color={theme.colors.text.secondary} />
-                    <Text style={styles.listText}>{item}</Text>
+                  <TouchableOpacity 
+                    key={index} 
+                    style={[styles.listItem, { borderBottomColor: colors.border }]} 
+                    onPress={() => setQuery(item)}
+                  >
+                    <Clock size={18} color={colors.subtext} />
+                    <Text style={[styles.listText, { color: colors.text }]}>{item}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
               {/* Trending */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Trending topics</Text>
+                <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Trending topics</Text>
                 {TRENDING_TOPICS.map((item, index) => (
-                  <TouchableOpacity key={index} style={styles.listItem} onPress={() => setQuery(item)}>
-                    <Flame size={18} color={theme.colors.primary} />
-                    <Text style={styles.listText}>{item}</Text>
+                  <TouchableOpacity 
+                    key={index} 
+                    style={[styles.listItem, { borderBottomColor: colors.border }]} 
+                    onPress={() => setQuery(item)}
+                  >
+                    <Flame size={18} color={colors.accent} />
+                    <Text style={[styles.listText, { color: colors.text }]}>{item}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
               {/* Categories */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Categories</Text>
+                <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Categories</Text>
                 <View style={styles.chipGrid}>
                   {CATEGORIES.map((cat, index) => (
-                    <TouchableOpacity key={index} style={styles.chip} onPress={() => setQuery(cat)}>
-                      <Text style={styles.chipText}>{cat}</Text>
+                    <TouchableOpacity 
+                      key={index} 
+                      style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]} 
+                      onPress={() => setQuery(cat)}
+                    >
+                      <Text style={[styles.chipText, { color: colors.text }]}>{cat}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -143,13 +154,13 @@ export default function SearchScreen() {
           ) : (
             <View style={styles.resultsContainer}>
               {isLoading ? (
-                <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+                <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 20 }} />
               ) : error ? (
-                <Text style={{ textAlign: 'center', color: theme.colors.status.error, marginTop: 20 }}>
+                <Text style={{ textAlign: 'center', color: colors.status.error, marginTop: 20 }}>
                   {error}
                 </Text>
               ) : results.length === 0 ? (
-                <Text style={{ textAlign: 'center', color: theme.colors.text.secondary, marginTop: 20 }}>
+                <Text style={{ textAlign: 'center', color: colors.subtext, marginTop: 20 }}>
                   No results found for "{query}".
                 </Text>
               ) : (
@@ -175,3 +186,73 @@ export default function SearchScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  flex1: {
+    flex: 1,
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 24,
+    paddingHorizontal: 14,
+    height: 42,
+    borderWidth: 1,
+    gap: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 0,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+  },
+  listText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  chipGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  chipText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  resultsContainer: {
+    marginTop: 8,
+  },
+});

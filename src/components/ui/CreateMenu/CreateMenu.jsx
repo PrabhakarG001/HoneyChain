@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Modal, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Box, PlusCircle, QrCode, Camera, SmartphoneNfc, Factory, X, Heart } from 'lucide-react-native';
-import { theme } from '../../../theme';
-import styles from './CreateMenu.styles';
 import { useAuthStore } from '../../../store/auth.store';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function CreateMenu({ isVisible, onClose }) {
   const router = useRouter();
+  const colors = useThemeColors();
   const { user } = useAuthStore();
   const userRole = (user?.role || 'BEEKEEPER').toUpperCase();
   const isCustomer = userRole === 'CUSTOMER';
@@ -100,11 +100,18 @@ export default function CreateMenu({ isVisible, onClose }) {
       <TouchableWithoutFeedback onPress={onClose}>
         <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
           <TouchableWithoutFeedback>
-            <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
-              <View style={styles.header}>
-                <Text style={styles.title}>{isCustomer ? 'Customer Actions' : 'Create'}</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                  <X size={24} color={theme.colors.text.primary} />
+            <Animated.View style={[
+              styles.sheet, 
+              { 
+                backgroundColor: colors.background, 
+                borderColor: colors.border,
+                transform: [{ translateY: slideAnim }] 
+              }
+            ]}>
+              <View style={[styles.header, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.title, { color: colors.text }]}>{isCustomer ? 'Customer Actions' : 'Create'}</Text>
+                <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surface }]}>
+                  <X size={20} color={colors.text} />
                 </TouchableOpacity>
               </View>
               
@@ -114,16 +121,16 @@ export default function CreateMenu({ isVisible, onClose }) {
                   return (
                     <TouchableOpacity 
                       key={item.id} 
-                      style={styles.listItem}
+                      style={[styles.listItem, { borderBottomColor: colors.border }]}
                       onPress={() => handlePress(item.route)}
                       activeOpacity={0.7}
                     >
-                      <View style={styles.iconContainer}>
-                        <Icon size={24} color={theme.colors.charcoal} strokeWidth={1.5} />
+                      <View style={[styles.iconContainer, { backgroundColor: colors.surface }]}>
+                        <Icon size={20} color={colors.accent} strokeWidth={2} />
                       </View>
                       <View style={styles.textContainer}>
-                        <Text style={styles.itemTitle}>{item.title}</Text>
-                        <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
+                        <Text style={[styles.itemTitle, { color: colors.text }]}>{item.title}</Text>
+                        <Text style={[styles.itemSubtitle, { color: colors.subtext }]}>{item.subtitle}</Text>
                       </View>
                     </TouchableOpacity>
                   );
@@ -136,3 +143,72 @@ export default function CreateMenu({ isVisible, onClose }) {
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    paddingBottom: 40,
+    borderWidth: 1,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  list: {
+    gap: 4,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 14,
+    borderBottomWidth: 0.5,
+    gap: 14,
+  },
+  iconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  itemSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+});
