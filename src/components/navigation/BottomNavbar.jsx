@@ -48,9 +48,11 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null;
           
-          // Requirement 2 & 4: Hide Discover (explore) from Customer bottom navbar ONLY on Phone screens (width < 768).
-          // Preserve on Tablet / Desktop (width >= 768).
-          if (isPhone && userRole === 'CUSTOMER' && route.name === 'explore') return null;
+          // Requirement 3 & 5: Customer Phone Bottom Navigation must be exactly:
+          // Home | Discover | Scan | Profile
+          if (isPhone && userRole === 'CUSTOMER') {
+            if (route.name === 'map' || route.name === 'notifications') return null;
+          }
 
           const isFocused = state.index === index;
           const isCenterAction = route.name === 'create';
@@ -114,8 +116,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             }
           };
 
-          // Requirement 3: Every icon (including Plus / Scan) is aligned at the EXACT same vertical level.
-          // Unified iconColumn for consistent height, spacing, and vertical center.
+          // Requirement 8 & 9: Consistent vertical icon alignment across all items (including Plus/Scan)
           return (
             <TouchableOpacity
               key={route.key}
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justify.content: 'space-around',
     borderRadius: 9999,
     height: 60,
     width: '100%',

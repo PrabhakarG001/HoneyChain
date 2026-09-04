@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
-import { Search, X, Plus, MessageSquare } from 'lucide-react-native';
+import { View, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { Bell, Plus, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -11,16 +11,7 @@ import EditProfileModal from '../profile/EditProfileModal';
 import LogoutConfirmModal from '../profile/LogoutConfirmModal';
 import CreateMenu from '../ui/CreateMenu/CreateMenu';
 
-const SEARCH_SUGGESTIONS = [
-  'Acacia Honey',
-  'Organic Beekeeper Farms',
-  'Hive Temperature Sensor',
-  'Blockchain Passport Verification',
-  'Wildflower Honey Batches',
-  'Varroa Mite AI Scan'
-];
-
-export default function TopHeader({ onSearchQueryChange }) {
+export default function TopHeader() {
   const { user } = useAuthStore();
   const router = useRouter();
   const colors = useThemeColors();
@@ -30,39 +21,14 @@ export default function TopHeader({ onSearchQueryChange }) {
   const userRole = (user?.role || 'BEEKEEPER').toUpperCase();
   const isCustomer = userRole === 'CUSTOMER';
   
-  // Requirement 1 & 4: On Phone screens, hide Plus (+) & Saved icons from Beekeeper top navbar.
-  // On Tablet/Desktop (width >= 768), preserve Plus (+) & Saved icons for Beekeeper.
-  const showHeaderActions = !isCustomer && !isPhone;
+  // Requirement 6: Beekeeper top navbar phone-only hide for Plus & Chat icons.
+  // On Tablet/Desktop (width >= 768), preserve Plus (+) & Chat icons for Beekeeper.
+  const showBeekeeperExtraActions = !isCustomer && !isPhone;
 
-  const [query, setQuery] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isEditProfileVisible, setIsEditProfileVisible] = useState(false);
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   const [isCreateMenuVisible, setIsCreateMenuVisible] = useState(false);
-
-  const filteredSuggestions = query.trim()
-    ? SEARCH_SUGGESTIONS.filter(item => item.toLowerCase().includes(query.toLowerCase()))
-    : [];
-
-  const handleSearchSubmit = (textToSearch) => {
-    const targetQuery = textToSearch !== undefined ? textToSearch : query;
-    setIsFocused(false);
-    if (onSearchQueryChange) {
-      onSearchQueryChange(targetQuery);
-    }
-    router.push({
-      pathname: '/(app)/(tabs)/explore',
-      params: { q: targetQuery }
-    });
-  };
-
-  const handleClear = () => {
-    setQuery('');
-    if (onSearchQueryChange) {
-      onSearchQueryChange('');
-    }
-  };
 
   return (
     <>
@@ -77,70 +43,9 @@ export default function TopHeader({ onSearchQueryChange }) {
           <BrandLogo />
         </TouchableOpacity>
 
-        {/* Pinterest Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={[
-            styles.searchPill, 
-            { backgroundColor: colors.surface },
-            isFocused && { borderColor: colors.accent, backgroundColor: colors.background }
-          ]}>
-            <Search size={18} color={colors.subtext} style={styles.searchIcon} />
-            <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
-              placeholder="Search Honeychain"
-              placeholderTextColor={colors.subtext}
-              value={query}
-              onChangeText={(txt) => {
-                setQuery(txt);
-                if (onSearchQueryChange) onSearchQueryChange(txt);
-              }}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => {
-                setTimeout(() => setIsFocused(false), 200);
-              }}
-              onSubmitEditing={() => handleSearchSubmit()}
-              returnKeyType="search"
-              accessibilityLabel="Search Honeychain"
-            />
-            {query.length > 0 && (
-              <TouchableOpacity 
-                onPress={handleClear} 
-                style={styles.clearBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Clear search input"
-              >
-                <X size={16} color={colors.subtext} />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Suggestions Popover */}
-          {isFocused && filteredSuggestions.length > 0 && (
-            <View style={[styles.suggestionsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <ScrollView keyboardShouldPersistTaps="handled">
-                {filteredSuggestions.map((suggestion, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    style={styles.suggestionRow}
-                    onPress={() => {
-                      setQuery(suggestion);
-                      handleSearchSubmit(suggestion);
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Search for ${suggestion}`}
-                  >
-                    <Search size={14} color={colors.subtext} />
-                    <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-        </View>
-
-        {/* Right Actions: Plus (+) Button, Chat & Avatar */}
+        {/* Right Header Actions: Notification Bell & Profile Avatar */}
         <View style={styles.rightActions}>
-          {showHeaderActions && (
+          {showBeekeeperExtraActions && (
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => setIsCreateMenuVisible(true)}
@@ -151,17 +56,28 @@ export default function TopHeader({ onSearchQueryChange }) {
             </TouchableOpacity>
           )}
 
-          {showHeaderActions && (
+          {showBeekeeperExtraActions && (
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => router.push('/(app)/(tabs)/notifications')}
               accessibilityRole="button"
-              accessibilityLabel="Open notifications"
+              accessibilityLabel="Open chat"
             >
               <MessageSquare size={20} color={colors.text} />
             </TouchableOpacity>
           )}
 
+          {/* Requirement 2: Notification Bell Icon in top navbar */}
+          <TouchableOpacity 
+            style={[styles.actionBtn, { backgroundColor: colors.surface }]}
+            onPress={() => router.push('/(app)/(tabs)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Open notifications"
+          >
+            <Bell size={20} color={colors.text} />
+          </TouchableOpacity>
+
+          {/* Profile Avatar */}
           <TouchableOpacity 
             onPress={() => setIsDropdownVisible(true)}
             activeOpacity={0.8}
@@ -209,73 +125,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     zIndex: 100,
-    gap: 12,
-  },
-  searchContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  searchPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    height: 40,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    paddingVertical: 0,
-  },
-  clearBtn: {
-    padding: 4,
-  },
-  suggestionsContainer: {
-    position: 'absolute',
-    top: 46,
-    left: 0,
-    right: 0,
-    borderRadius: 16,
-    paddingVertical: 8,
-    maxHeight: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    borderWidth: 1,
-    zIndex: 200,
-  },
-  suggestionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  suggestionText: {
-    fontSize: 14,
   },
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   actionBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarWrapper: {
     padding: 2,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 2,
   },
 });
