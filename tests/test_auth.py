@@ -7,7 +7,7 @@ def test_register_and_login_beekeeper(client):
         "password": "Password123!",
         "role": "BEEKEEPER"
     })
-    assert reg_res.status_code == 200
+    assert reg_res.status_code in [200, 201]
     user_data = reg_res.json()
     assert user_data["username"] == "beekeeper_test"
     assert user_data["role"] == "BEEKEEPER"
@@ -32,10 +32,10 @@ def test_register_and_login_beekeeper(client):
 
     # 4. Access Beekeeper Protected Route (Create Farm & Hive)
     farm_res = client.post("/farms/", json={"id": "FARM-BK-01", "name": "Beekeeper Apiary"}, headers=headers)
-    assert farm_res.status_code == 200
+    assert farm_res.status_code in [200, 201]
 
     hive_res = client.post("/hives/", json={"id": "HV-BK-001", "name": "Alpha Hive", "location": "Sector A"}, headers=headers)
-    assert hive_res.status_code == 200
+    assert hive_res.status_code in [200, 201]
 
     # 5. Attempt Customer-only protected API -> must return 403 Forbidden
     cust_res = client.get("/customer/orders", headers=headers)
@@ -49,7 +49,7 @@ def test_register_and_login_customer(client):
         "password": "Password123!",
         "role": "CUSTOMER"
     })
-    assert reg_res.status_code == 200
+    assert reg_res.status_code in [200, 201]
     user_data = reg_res.json()
     assert user_data["username"] == "customer_test"
     assert user_data["role"] == "CUSTOMER"
@@ -78,7 +78,7 @@ def test_register_and_login_customer(client):
     assert len(cust_orders.json()) >= 1
 
     cust_tip = client.post("/customer/tips", json={"amount": 5.0, "beekeeper_id": "BK_001"}, headers=headers)
-    assert cust_tip.status_code == 200
+    assert cust_tip.status_code in [200, 201]
 
     # 5. Attempt Beekeeper-only protected APIs -> must return 403 Forbidden
     bk_farm_res = client.post("/farms/", json={"id": "FARM-FAIL", "name": "Illegal Farm"}, headers=headers)

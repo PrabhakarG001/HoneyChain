@@ -1,106 +1,107 @@
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
-import asyncio
+from datetime import datetime, timedelta
+import logging
 from ..database import get_db
 from .. import models, schemas
-from ..auth import require_role
-from ml.inference.ml_engine import calculate_hybrid_risk
-from datetime import datetime, timedelta
+from ..auth import require_role, get_current_user
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/hives", tags=["Hives"])
 
-@router.post("/", response_model=schemas.HiveCreate)
-def create_hive(hive: schemas.HiveCreate, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    db_hive = models.Hive(id=hive.id, name=hive.name, location=hive.location, owner_id=current_user.id)
-    db.add(db_hive)
+@router.get("/", response_model=List[schemas.HiveResponse])
+def get_hives(
+    apiary_id: Optional[str] = None,
+    farm_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Retrieve all hives accessible to current user."""
+    query = db.query(models.Hive)
+    if (current_user.role or "").lower() == "beekeeper":
+        query = query.filter(models.Hive.owner_id == current_user.id)
+    if apiary_id:
+        query = query.filter(models.Hive.apiary_id == apiary_id)
+    if farm_id:
+        query = query.filter(models.Hive.farm_id == farm_id)
+    return query.all()
+
+@router.post("/", response_model=schemas.HiveResponse, status_code=status.HTTP_201_CREATED)
+def create_hive(
+    hive_req: schemas.HiveCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role(["beekeeper", "admin"]))
+):
+    """Create a new hive linked to an apiary or farm."""
+    existing = db.query(models.Hive).filter(models.Hive.id == hive_req.id).first()
+    if existing:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Hive '{hive_req.id}' already exists")
+
+    hive_code = hive_req.hive_code or f"HC-{hive_req.id}"
+    code_check = db.query(models.Hive).filter(models.Hive.hive_code == hive_code).first()
+    if code_check:
+        hive_code = f"HC-{hive_req.id}-{int(datetime.utcnow().timestamp())}"
+
+    apiary_id = hive_req.apiary_id
+    if not apiary_id and hive_req.farm_id:
+        apiary_id = hive_req.farm_id
+
+    new_hive = models.Hive(
+        id=hive_req.id,
+        apiary_id=apiary_id,
+        farm_id=hive_req.farm_id or apiary_id,
+        owner_id=current_user.id,
+        name=hive_req.name or f"Hive {hive_req.id}",
+        hive_code=hive_code,
+        location=hive_req.location,
+        install_date=hive_req.install_date or datetime.utcnow()
+    )
+    db.add(new_hive)
     db.commit()
-    db.refresh(db_hive)
-    return db_hive
+    db.refresh(new_hive)
+    logger.info(f"Hive '{hive_req.id}' created with hive_code '{hive_code}'.")
+    return new_hive
 
-@router.get("/")
-def get_hives(db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    return db.query(models.Hive).filter(models.Hive.owner_id == current_user.id).all()
-
-from ..services.pubsub import pubsub_manager
-
-@router.websocket("/{hive_id}/live")
-async def hive_live_stream(websocket: WebSocket, hive_id: str):
-    await websocket.accept()
-    topic = f"hives/{hive_id}/telemetry"
-    await pubsub_manager.subscribe(topic, websocket)
-    try:
-        while True:
-            # Keep the connection open and listen for disconnects
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        await pubsub_manager.unsubscribe(topic, websocket)
-        print(f"Client disconnected from hive {hive_id} stream")
-
-@router.get("/{hive_id}")
-def get_hive(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
+@router.get("/{id}", response_model=schemas.HiveResponse)
+def get_hive(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    hive = db.query(models.Hive).filter(models.Hive.id == id).first()
     if not hive:
-        raise HTTPException(status_code=404, detail="Hive not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{id}' not found")
     return hive
 
-@router.get("/{hive_id}/readings")
-@router.get("/{hive_id}/telemetry")
+@router.get("/{id}/readings", response_model=List[schemas.SensorReadingResponse])
 def get_hive_readings(
-    hive_id: str, 
-    range: Optional[str] = "24h",
-    limit: int = 100,
-    offset: int = 0,
-    db: Session = Depends(get_db), 
-    current_user = Depends(require_role(["beekeeper", "admin", "processor", "customer"]))
+    id: str,
+    range: str = Query("24h", description="Time range: 1h, 24h, 7d, 30d, all"),
+    limit: int = Query(100, ge=1, le=1000, description="Max readings to return (capped at 1000)"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
+    db: Session = Depends(get_db)
 ):
     """
-    REST Endpoint: Bounded historical sensor data query.
-    Supports range (1h, 24h, 7d, 30d, all), limit, and pagination offset.
+    REST Endpoint: Fetch historical time-series sensor readings for a hive.
+    Uses index-backed queries with time-range windowing and pagination to prevent memory overhead.
     """
-    hive = db.query(models.Hive).filter(models.Hive.id == hive_id).first()
+    hive = db.query(models.Hive).filter(models.Hive.id == id).first()
     if not hive:
-        raise HTTPException(status_code=404, detail=f"Hive '{hive_id}' not found")
-        
-    # Check ownership for beekeepers
-    if (current_user.role or "").lower() == "beekeeper" and hive.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Unauthorized access to this hive's sensor readings")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{id}' not found")
 
-    # Enforce safe upper bound on limit to prevent unbounded memory allocation
-    capped_limit = max(1, min(limit, 1000))
+    query = db.query(models.SensorReading).filter(models.SensorReading.hive_id == id)
 
-    query = db.query(models.SensorReading).filter(models.SensorReading.hive_id == hive_id)
-
-    # Time range filtering
     now = datetime.utcnow()
     if range == "1h":
         query = query.filter(models.SensorReading.timestamp >= now - timedelta(hours=1))
     elif range == "24h":
-        query = query.filter(models.SensorReading.timestamp >= now - timedelta(hours=24))
+        query = query.filter(models.SensorReading.timestamp >= now - timedelta(days=1))
     elif range == "7d":
         query = query.filter(models.SensorReading.timestamp >= now - timedelta(days=7))
     elif range == "30d":
         query = query.filter(models.SensorReading.timestamp >= now - timedelta(days=30))
 
-    readings = query.order_by(models.SensorReading.timestamp.asc()).offset(offset).limit(capped_limit).all()
+    readings = query.order_by(models.SensorReading.timestamp.desc())\
+        .offset(offset)\
+        .limit(limit)\
+        .all()
+
     return readings
-
-
-@router.get("/{hive_id}/analysis", response_model=schemas.MLAnalysisResponse)
-def get_hive_analysis(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
-    if not hive:
-        raise HTTPException(status_code=404, detail="Hive not found")
-        
-    analysis = db.query(models.MLAnalysis).filter(models.MLAnalysis.hive_id == hive_id).order_by(models.MLAnalysis.timestamp.desc()).first()
-    if not analysis:
-        # Return a safe default instead of 404 so UI doesn't crash if no telemetry yet
-        return schemas.MLAnalysisResponse(
-            hive_id=hive_id,
-            timestamp=datetime.utcnow(),
-            risk_score=None,
-            status="No Data",
-            highest_contributor="None",
-            model_version="N/A"
-        )
-    return analysis

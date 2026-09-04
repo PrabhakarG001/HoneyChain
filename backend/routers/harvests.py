@@ -19,9 +19,13 @@ def create_harvest(
     current_user = Depends(require_role(["beekeeper", "admin"]))
 ):
     """
-    REST Endpoint: Beekeeper records a harvest event (one-off action).
-    Validates hive ownership, records batch ID, and logs transaction on blockchain.
+    REST Endpoint: Beekeeper records a harvest extraction event.
+    Enforces positive harvest weight, links batch genealogy via batch_sources,
+    and logs transaction on-chain & off-chain index.
     """
+    if harvest.weight_kg <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Harvest quantity must be greater than zero")
+
     hive = db.query(models.Hive).filter(models.Hive.id == harvest.hive_id).first()
     if not hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{harvest.hive_id}' not found")
@@ -39,11 +43,25 @@ def create_harvest(
     if existing_harvest:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Harvest '{harvest_id}' already recorded")
 
+    # Beekeeper lookup if present
+    beekeeper_id = harvest.beekeeper_id
+    if not beekeeper_id and current_user:
+        bk = db.query(models.Beekeeper).filter(models.Beekeeper.user_id == current_user.id).first()
+        if bk:
+            beekeeper_id = bk.id
+
     # Determine or create batch
     batch_id = harvest.batch_id or f"BATCH_{harvest.hive_id}_{ts_seconds}"
     batch = db.query(models.Batch).filter(models.Batch.id == batch_id).first()
     if not batch:
-        batch = models.Batch(id=batch_id, created_at=timestamp, status="Created", is_merged=False)
+        batch_code = f"CODE_{batch_id}"
+        batch = models.Batch(
+            id=batch_id,
+            batch_code=batch_code,
+            created_at=timestamp,
+            status="CREATED",
+            is_merged=False
+        )
         db.add(batch)
         db.commit()
         db.refresh(batch)
@@ -59,6 +77,7 @@ def create_harvest(
     db_harvest = models.Harvest(
         id=harvest_id,
         hive_id=harvest.hive_id,
+        beekeeper_id=beekeeper_id,
         weight_kg=harvest.weight_kg,
         timestamp=timestamp,
         tx_hash=tx_hash,
@@ -68,7 +87,27 @@ def create_harvest(
     db.commit()
     db.refresh(db_harvest)
 
-    # Create verification record if missing
+    # Record genealogy mapping in batch_sources
+    bs_entry = db.query(models.BatchSource).filter(
+        models.BatchSource.batch_id == batch.id,
+        models.BatchSource.harvest_id == db_harvest.id
+    ).first()
+    if not bs_entry:
+        bs_entry = models.BatchSource(batch_id=batch.id, harvest_id=db_harvest.id)
+        db.add(bs_entry)
+
+    # Off-chain index in blockchain_transactions
+    if tx_hash:
+        bc_tx = models.BlockchainTransaction(
+            related_table="harvest_events",
+            related_id=db_harvest.id,
+            tx_hash=tx_hash,
+            action_type="HARVEST_LOGGED",
+            timestamp=timestamp
+        )
+        db.add(bc_tx)
+
+    # Verification record
     ver_rec = db.query(models.VerificationRecord).filter(models.VerificationRecord.batch_id == batch.id).first()
     if not ver_rec:
         ver_rec = models.VerificationRecord(
@@ -78,7 +117,8 @@ def create_harvest(
             created_at=timestamp
         )
         db.add(ver_rec)
-        db.commit()
+
+    db.commit()
 
     logger.info(f"Harvest '{harvest_id}' recorded successfully for hive '{harvest.hive_id}' by user '{current_user.username}'.")
 
@@ -95,7 +135,7 @@ def create_harvest(
         )
     )
 
-@router.get("/")
+@router.get("/", response_model=List[schemas.HarvestDetailResponse])
 def get_harvests(
     hive_id: Optional[str] = None, 
     db: Session = Depends(get_db), 
@@ -109,7 +149,7 @@ def get_harvests(
         query = query.filter(models.Harvest.hive_id == hive_id)
     return query.order_by(models.Harvest.timestamp.desc()).all()
 
-@router.get("/{harvest_id}")
+@router.get("/{harvest_id}", response_model=schemas.HarvestDetailResponse)
 def get_harvest(
     harvest_id: str, 
     db: Session = Depends(get_db), 
@@ -119,4 +159,3 @@ def get_harvest(
     if not harvest:
         raise HTTPException(status_code=404, detail="Harvest record not found")
     return harvest
-

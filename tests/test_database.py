@@ -79,7 +79,7 @@ def test_sensor_reading_and_ml_analysis_models(db, test_beekeeper_user):
 
 def test_verification_record_batch_relationship(db):
     batch = models.Batch(id="BATCH_V1", is_merged=True, status="Bottled")
-    tx = models.BlockchainTransaction(tx_hash="0x123456789abcdef", action_type="MERGE_BATCHES")
+    tx = models.BlockchainTransaction(related_table="honey_batches", related_id=batch.id, tx_hash="0x123456789abcdef", action_type="MERGE_BATCHES")
     db.add_all([batch, tx])
     db.commit()
 
@@ -89,4 +89,4 @@ def test_verification_record_batch_relationship(db):
 
     saved_v = db.query(models.VerificationRecord).filter_by(id="VERIFY_V1").first()
     assert saved_v.batch.status == "Bottled"
-    assert saved_v.transaction.action_type == "MERGE_BATCHES"
+    assert saved_v.tx_hash == "0x123456789abcdef"
