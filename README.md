@@ -199,6 +199,8 @@ HoneyChain features a distinct, technology-focused visual identity that combines
 
 ### Global Theme System (`useThemeColors.js` & `theme.store.js`)
 * **True Global Theme Support**: Every page, screen, modal, card, dropdown, tab bar, header, map, and form dynamically adjusts to the selected mode.
+* **System Mode Auto-Tracking**: Upon login, Beekeeper automatically follows the device OS Light/Dark theme (`themeMode: 'system'`).
+* **Theme-Aware Authentication**: Login, Registration, and Landing pages dynamically adapt colors so white cards never appear in dark mode or black cards in light mode.
 * **Light Mode**:
   * Overall Background: `#FFFFFF` (Pure White)
   * Surface/Cards: `#F8FAFC` (Light Neutral Surface)
@@ -216,7 +218,46 @@ HoneyChain features a distinct, technology-focused visual identity that combines
 
 ---
 
-## 📱 6. Role-Based Navigation & Header Responsiveness
+## 🌐 6. Multi-Language System (22 Scheduled Indian Languages + English)
+
+HoneyChain provides complete pre-login and post-login internationalization (i18n) supporting all 22 Scheduled Languages of India + English (23 total):
+
+### Supported Languages & Native Scripts
+| Language | Native Name & Script | Code |
+| --- | --- | --- |
+| English | English | `en` |
+| Hindi | हिन्दी | `hi` |
+| Bengali | বাংলা | `bn` |
+| Telugu | తెలుగు | `te` |
+| Marathi | मराठी | `mr` |
+| Tamil | தமிழ் | `ta` |
+| Urdu | اردو | `ur` |
+| Gujarati | ગુજરાતી | `gu` |
+| Kannada | ಕನ್ನಡ | `kn` |
+| Malayalam | മലയാളം | `ml` |
+| Odia | ଓଡ଼ିଆ | `or` |
+| Punjabi | ਪੰਜਾਬੀ | `pa` |
+| Assamese | অসমীয়া | `as` |
+| Maithili | मैथिली | `mai` |
+| Santali | ᱥᱟᱱᱛᱟᱲᱤ | `sat` |
+| Kashmiri | कॉशुर / كَشُر | `ks` |
+| Nepali | नेपाली | `ne` |
+| Konkani | कोंकणी | `kok` |
+| Dogri | डोगरी | `doi` |
+| Manipuri | মৈতৈলোন্ | `mni` |
+| Sindhi | सिन्धी / سنڌي | `sd` |
+| Sanskrit | संस्कृतम् | `sa` |
+| Bodo | बर' | `brx` |
+
+### Interactive Language Search & Modal (`LanguageModal.jsx`)
+* **Dual Script Search Box**: Search for any language using either its English name or native script (e.g. typing `Hindi` or `हिन्दी` filters to Hindi; `Tamil` or `தமிழ்` filters to Tamil).
+* **Pre-Login Selector**: Accessible via top header globe buttons on `RoleSelectionScreen`, `LoginScreen`, and `RegisterScreen`.
+* **Post-Login Header Icon**: Positioned immediately beside the Notification Bell in `TopHeader` on every page, as well as in `ProfileDropdown`.
+* **Session Persistence**: Selected locale is stored in `AsyncStorage` via Zustand (`language.store.js`) and persists across reloads.
+
+---
+
+## 📱 7. Role-Based Navigation & Header Responsiveness
 
 ### Customer Mobile Navigation
 For Customer mobile screen sizes (<768px), the bottom dock navigation displays:
