@@ -17,7 +17,7 @@ export default function CreateMenu({ isVisible, onClose }) {
 
   const BEEKEEPER_ITEMS = [
     { id: 'add_hive', title: 'Add a Hive', subtitle: 'Track a new hive in your apiary', icon: PlusCircle, route: '/hives/add' },
-    { id: 'record_harvest', title: 'Record Harvest', subtitle: 'Log a new honey extraction', icon: Box, route: '/farms/add' },
+    { id: 'record_harvest', title: 'Record Harvest', subtitle: 'Log a new honey extraction', icon: Box, route: '/harvests/register' },
     { id: 'add_batch', title: 'Create Honey Passport', subtitle: 'Mint a new verified batch', icon: QrCode, route: '/batches/create' },
     { id: 'blockchain_passport', title: 'Blockchain Passport', subtitle: 'View on-chain cryptographic details', icon: QrCode, route: '/blockchain/passport' },
     { id: 'ai_inspection', title: 'AI Inspection', subtitle: 'Analyze sticky board via Camera', icon: Camera, route: '/camera' },
@@ -27,7 +27,7 @@ export default function CreateMenu({ isVisible, onClose }) {
   const PROCESSOR_ITEMS = [
     { id: 'processor_portal', title: 'Processor Batch Portal', subtitle: 'Merge batches & process honey', icon: Factory, route: '/processor' },
     { id: 'qr_packaging', title: 'QR Bottling & Packaging', subtitle: 'Generate consumer QR codes', icon: QrCode, route: '/packaging/qr' },
-    { id: 'register_harvest', title: 'Record Batch Intake', subtitle: 'Register incoming honey harvest', icon: Box, route: '/farms/add' },
+    { id: 'register_harvest', title: 'Record Batch Intake', subtitle: 'Register incoming honey harvest', icon: Box, route: '/harvests/register' },
   ];
 
   const LAB_ITEMS = [
