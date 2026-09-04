@@ -18,12 +18,17 @@ class MQTTWorker:
         self.client.on_message = self.on_message
         self.buffer: List[Dict[str, Any]] = []
         self.buffer_lock = asyncio.Lock() if hasattr(asyncio, 'Lock') else None
+        self.is_connected = False
+        self.is_started = False
         
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
-            logger.info("Connected to MQTT Broker!")
+            if not self.is_connected:
+                logger.info("Connected to MQTT Broker!")
+                self.is_connected = True
             client.subscribe(settings.MQTT_TOPIC)
         else:
+            self.is_connected = False
             logger.error(f"Failed to connect to MQTT broker, return code {rc}")
 
     def process_sensor_reading(self, validated_data: MQTTPayload):
@@ -117,6 +122,8 @@ class MQTTWorker:
             logger.error(f"Error processing MQTT message: {e}")
 
     def start(self):
+        if self.is_started:
+            return
         try:
             self.loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -125,12 +132,16 @@ class MQTTWorker:
         try:
             self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT, 60)
             self.client.loop_start()
+            self.is_started = True
         except Exception as e:
             logger.error(f"Could not start MQTT worker: {e}")
 
     def stop(self):
-        self.client.loop_stop()
-        self.client.disconnect()
+        if self.is_started:
+            self.client.loop_stop()
+            self.client.disconnect()
+            self.is_started = False
+            self.is_connected = False
 
 mqtt_worker = MQTTWorker()
 
