@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import { Eye, EyeOff } from 'lucide-react-native';
 import styles from './Input.styles';
 import { theme } from '../../../theme';
+
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const styleId = 'hide-native-password-reveal';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.appendChild(document.createTextNode(`
+      input::-ms-reveal,
+      input::-ms-clear {
+        display: none !important;
+      }
+    `));
+    document.head.appendChild(style);
+  }
+}
 
 export function Input({ 
   label, 
