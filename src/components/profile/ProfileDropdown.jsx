@@ -322,6 +322,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
       </TouchableWithoutFeedback>
 
       <LanguageModal 
+        isVisible={isLangModalOpen}
         visible={isLangModalOpen}
         onClose={() => setIsLangModalOpen(false)}
       />

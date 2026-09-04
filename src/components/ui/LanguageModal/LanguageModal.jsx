@@ -8,12 +8,13 @@ import { INDIAN_LANGUAGES } from '../../../constants/languages';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { useThemeColors } from '../../../hooks/useThemeColors';
 
-export default function LanguageModal({ isVisible, onClose }) {
+export default function LanguageModal({ isVisible, visible, onClose }) {
   const colors = useThemeColors();
   const { t, languageCode, setLanguageCode } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
 
-  if (!isVisible) return null;
+  const showModal = isVisible !== undefined ? isVisible : visible;
+  if (!showModal) return null;
 
   const filteredLanguages = INDIAN_LANGUAGES.filter((item) => {
     if (!searchQuery.trim()) return true;
@@ -33,7 +34,7 @@ export default function LanguageModal({ isVisible, onClose }) {
 
   return (
     <Modal 
-      visible={isVisible} 
+      visible={Boolean(showModal)} 
       transparent 
       animationType="fade" 
       onRequestClose={onClose}

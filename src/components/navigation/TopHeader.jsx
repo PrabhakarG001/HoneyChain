@@ -71,20 +71,24 @@ export default function TopHeader() {
             </TouchableOpacity>
           )}
 
-          {/* Language Selector Globe Icon */}
+          {/* Language Selector Globe Icon - Immediately beside Notification button */}
           <TouchableOpacity 
             style={[styles.actionBtn, { backgroundColor: colors.surface }]}
             onPress={() => setIsLangModalVisible(true)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
             accessibilityRole="button"
-            accessibilityLabel="Select language"
+            accessibilityLabel="Change Language"
           >
             <Globe size={20} color={colors.accent} />
           </TouchableOpacity>
 
-          {/* Requirement 2: Notification Bell Icon in top navbar */}
+          {/* Notification Bell Icon */}
           <TouchableOpacity 
             style={[styles.actionBtn, { backgroundColor: colors.surface }]}
             onPress={() => router.push('/(app)/(tabs)/notifications')}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel="Open notifications"
           >
@@ -128,6 +132,7 @@ export default function TopHeader() {
       />
 
       <LanguageModal
+        isVisible={isLangModalVisible}
         visible={isLangModalVisible}
         onClose={() => setIsLangModalVisible(false)}
       />
@@ -148,12 +153,12 @@ const styles = StyleSheet.create({
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   actionBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
