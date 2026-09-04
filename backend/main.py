@@ -45,15 +45,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Routers
+# Include Routers (Direct & /api Prefixed)
 app.include_router(farms.router)
+app.include_router(farms.router, prefix="/api")
+
 app.include_router(hives.router)
+app.include_router(hives.router, prefix="/api")
+
 app.include_router(harvests.router)
+app.include_router(harvests.router, prefix="/api")
+
 app.include_router(batches.router)
+app.include_router(batches.router, prefix="/api")
+
 app.include_router(verify.router)
+app.include_router(verify.router, prefix="/api")
+
 app.include_router(websocket.router)
+app.include_router(websocket.router, prefix="/api")
+
 app.include_router(analysis.router)
+app.include_router(analysis.router, prefix="/api")
+
 app.include_router(customer.router)
+app.include_router(customer.router, prefix="/api")
+
 
 
 @app.post("/auth/register", response_model=schemas.UserResponse)

@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Any, Dict
 from datetime import datetime
 
 class UserBase(BaseModel):
@@ -22,11 +22,26 @@ class HiveCreate(BaseModel):
     id: str
     name: str
     location: str
+    farm_id: Optional[str] = None
 
 class HarvestCreate(BaseModel):
     hive_id: str
-    weight_kg: float
-    timestamp: datetime
+    weight_kg: float = Field(..., gt=0, description="Harvest weight in kilograms")
+    timestamp: Optional[datetime] = None
+    batch_id: Optional[str] = None
+
+class HarvestResponseData(BaseModel):
+    harvestId: str
+    batchId: str
+    hiveId: str
+    weightKg: float
+    createdAt: datetime
+    txHash: Optional[str] = None
+
+class HarvestResponse(BaseModel):
+    success: bool = True
+    message: str = "Harvest recorded successfully"
+    data: HarvestResponseData
 
 class BatchMerge(BaseModel):
     parent_harvest_ids: List[str]
@@ -40,6 +55,18 @@ class MQTTPayload(BaseModel):
     weight_kg: float
     sound_level_db: float
 
+class SensorReadingResponse(BaseModel):
+    id: int
+    hive_id: str
+    timestamp: datetime
+    temperature_c: float
+    humidity_pct: float
+    weight_kg: float
+    sound_level_db: float
+
+    class Config:
+        from_attributes = True
+
 class MLAnalysisResponse(BaseModel):
     hive_id: str
     timestamp: datetime
@@ -52,11 +79,13 @@ class MLAnalysisResponse(BaseModel):
         from_attributes = True
 
 class VerificationResponse(BaseModel):
+    success: bool = True
     id: str
     batch_id: str
     tx_hash: str
     created_at: datetime
-    status: str
+    status: str = "Verified"
+    details: Optional[Dict[str, Any]] = None
 
     class Config:
         from_attributes = True
@@ -72,3 +101,4 @@ class BatchResponse(BaseModel):
 
     class Config:
         from_attributes = True
+

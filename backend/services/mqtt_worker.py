@@ -3,6 +3,7 @@ import json
 import logging
 import asyncio
 from datetime import datetime
+from typing import List, Dict, Any
 from ..config import settings
 from ..schemas import MQTTPayload
 from ..database import SessionLocal
@@ -15,6 +16,8 @@ class MQTTWorker:
         self.client = mqtt.Client(client_id="honeychain_backend_worker")
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
+        self.buffer: List[Dict[str, Any]] = []
+        self.buffer_lock = asyncio.Lock() if hasattr(asyncio, 'Lock') else None
         
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -23,13 +26,11 @@ class MQTTWorker:
         else:
             logger.error(f"Failed to connect to MQTT broker, return code {rc}")
 
-    def on_message(self, client, userdata, msg):
+    def process_sensor_reading(self, validated_data: MQTTPayload):
+        """Processes sensor data: saves to DB and broadcasts live WebSocket frame."""
+        # 1. Save to Database
+        db = SessionLocal()
         try:
-            payload = json.loads(msg.payload.decode())
-            validated_data = MQTTPayload(**payload)
-            
-            # Save to database
-            db = SessionLocal()
             reading = SensorReading(
                 hive_id=validated_data.hive_id,
                 timestamp=validated_data.timestamp,
@@ -41,10 +42,9 @@ class MQTTWorker:
             db.add(reading)
             db.commit()
             
-            # Trigger ML inference
+            # 2. ML Inference
             import sys
             import os
-            # Ensure ml module is accessible
             backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             root_dir = os.path.dirname(backend_dir)
             if root_dir not in sys.path:
@@ -69,12 +69,19 @@ class MQTTWorker:
             db.add(analysis)
             db.commit()
             
+            logger.debug(f"Saved sensor reading and ML analysis for hive '{validated_data.hive_id}'")
+        except Exception as err:
+            logger.error(f"Failed to save sensor reading to DB: {err}")
+            db.rollback()
+        finally:
             db.close()
-            logger.debug(f"Saved reading and ML analysis for {validated_data.hive_id}")
-            
-            # Broadcast to WebSocket clients
-            from ..services.pubsub import pubsub_manager
-            ws_payload = {
+
+        # 3. Broadcast to WebSocket Subscribers in Standard Format
+        from ..services.pubsub import pubsub_manager
+        ws_payload = {
+            "type": "sensor_update",
+            "hiveId": validated_data.hive_id,
+            "data": {
                 "hive_id": validated_data.hive_id,
                 "timestamp": validated_data.timestamp.isoformat(),
                 "temperature": validated_data.temperature_c,
@@ -83,18 +90,23 @@ class MQTTWorker:
                 "sound_level": validated_data.sound_level_db,
                 "risk_analysis": risk_result
             }
-            
-            # Use run_coroutine_threadsafe to schedule async publish from the MQTT thread
-            if hasattr(self, 'loop') and self.loop:
-                asyncio.run_coroutine_threadsafe(
-                    pubsub_manager.publish(f"hives/{validated_data.hive_id}/telemetry", ws_payload),
-                    self.loop
-                )
-                asyncio.run_coroutine_threadsafe(
-                    pubsub_manager.publish("hives/all/telemetry", ws_payload),
-                    self.loop
-                )
-            
+        }
+
+        if hasattr(self, 'loop') and self.loop:
+            asyncio.run_coroutine_threadsafe(
+                pubsub_manager.publish(f"hives/{validated_data.hive_id}/telemetry", ws_payload),
+                self.loop
+            )
+            asyncio.run_coroutine_threadsafe(
+                pubsub_manager.publish("hives/all/telemetry", ws_payload),
+                self.loop
+            )
+
+    def on_message(self, client, userdata, msg):
+        try:
+            payload = json.loads(msg.payload.decode())
+            validated_data = MQTTPayload(**payload)
+            self.process_sensor_reading(validated_data)
         except Exception as e:
             logger.error(f"Error processing MQTT message: {e}")
 
@@ -115,3 +127,4 @@ class MQTTWorker:
         self.client.disconnect()
 
 mqtt_worker = MQTTWorker()
+

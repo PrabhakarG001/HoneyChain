@@ -16,7 +16,21 @@ export const hiveService = {
     return response.data;
   },
 
-  // Note: Telemetry will now come through WebSockets or specific endpoints
+  /**
+   * REST Endpoint: Fetch bounded historical sensor readings for a hive.
+   * @param {string} hiveId
+   * @param {Object} options - { range: '24h'|'7d'|'30d'|'1h'|'all', limit: number, offset: number }
+   */
+  getHiveReadings: async (hiveId, options = {}) => {
+    const params = {
+      range: options.range || '24h',
+      limit: options.limit || 100,
+      offset: options.offset || 0
+    };
+    const response = await api.get(`/hives/${hiveId}/readings`, { params });
+    return response.data;
+  },
+
   getHiveTelemetry: async (hiveId) => {
     const response = await api.get(`/hives/${hiveId}/telemetry`);
     return response.data;

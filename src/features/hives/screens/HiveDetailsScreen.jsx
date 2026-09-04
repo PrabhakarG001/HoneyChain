@@ -6,6 +6,7 @@ import { Thermometer, Droplets, Activity, Cpu, ChevronLeft, Calendar, Feather } 
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hiveService } from '../../../services/hive.service';
+import { webSocketService } from '../../../services/websocket.service';
 import { theme } from '../../../theme';
 import styles from './HiveDetailsScreen.styles';
 
@@ -28,8 +29,8 @@ export default function HiveDetailsScreen() {
   });
 
   const { data: historyTelemetry } = useQuery({
-    queryKey: ['hive-telemetry', id],
-    queryFn: () => hiveService.getHiveTelemetry(id),
+    queryKey: ['hive-readings', id],
+    queryFn: () => hiveService.getHiveReadings(id, { range: '24h', limit: 50 }),
     enabled: !!id,
   });
 
@@ -40,41 +41,29 @@ export default function HiveDetailsScreen() {
   });
 
   // Use live telemetry if available, otherwise fallback to the most recent historical telemetry
-  const displayTelemetry = telemetry || (historyTelemetry && historyTelemetry.length > 0 ? historyTelemetry[0] : null);
+  const displayTelemetry = telemetry || (historyTelemetry && historyTelemetry.length > 0 ? historyTelemetry[historyTelemetry.length - 1] : null);
   const displayAnalysis = telemetry?.risk_analysis || analysis;
 
   React.useEffect(() => {
     if (!id) return;
     
-    // Connect to actual backend WebSocket
-    const wsUrl = process.env.EXPO_PUBLIC_WS_URL || 'ws://127.0.0.1:8000';
-    const ws = new WebSocket(`${wsUrl}/hives/${id}/live`);
+    // Subscribe to hive telemetry using centralized webSocketService
+    const unsubscribeStatus = webSocketService.onStatusChange((status) => {
+      if (status === 'CONNECTED') setWsStatus('Connected');
+      else if (status === 'CONNECTING' || status === 'RECONNECTING') setWsStatus('Connecting...');
+      else setWsStatus('Disconnected');
+    });
 
-    ws.onopen = () => {
-      setWsStatus('Connected');
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setTelemetry(data);
-      } catch (err) {
-        console.error('Failed to parse WebSocket message:', err);
-      }
-    };
-
-    ws.onclose = () => {
-      setWsStatus('Disconnected');
-    };
-
-    ws.onerror = () => {
-      setWsStatus('Connection failure');
-    };
+    const unsubscribeHive = webSocketService.subscribeHive(id, (liveData) => {
+      setTelemetry(liveData);
+    });
 
     return () => {
-      ws.close();
+      unsubscribeStatus();
+      unsubscribeHive();
     };
   }, [id]);
+
 
   if (isLoading) {
     return (

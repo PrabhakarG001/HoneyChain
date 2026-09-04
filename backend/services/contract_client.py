@@ -40,11 +40,12 @@ MINIMAL_ABI = json.loads('''[
 
 class ContractClient:
     def __init__(self):
-        # Try Polygon Amoy first, fallback to localhost
-        self.w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI", POLYGON_AMOY_RPC)))
-        if not self.w3.is_connected():
-            logger.warning(f"Could not connect to Amoy, falling back to localhost {DEFAULT_RPC}")
-            self.w3 = Web3(Web3.HTTPProvider(DEFAULT_RPC))
+        # Try provider URI first with 2-second timeout for fast fallback
+        provider_uri = os.getenv("WEB3_PROVIDER_URI", DEFAULT_RPC)
+        self.w3 = Web3(Web3.HTTPProvider(provider_uri, request_kwargs={'timeout': 2}))
+        if not self.w3.is_connected() and provider_uri != DEFAULT_RPC:
+            logger.warning(f"Could not connect to {provider_uri}, falling back to localhost {DEFAULT_RPC}")
+            self.w3 = Web3(Web3.HTTPProvider(DEFAULT_RPC, request_kwargs={'timeout': 2}))
             
         if self.w3.is_connected():
             logger.info("Successfully connected to Web3 provider.")
@@ -65,9 +66,9 @@ class ContractClient:
             self.contract = None
 
     def _execute_tx(self, func_call, action_type: str) -> str:
-        if not self.contract:
-            logger.error(f"Contract client offline or not connected to RPC. Cannot execute {action_type}.")
-            raise RuntimeError(f"Blockchain contract unavailable for {action_type}.")
+        if not self.contract or CONTRACT_ADDRESS == "0x0000000000000000000000000000000000000000":
+            logger.info(f"Contract client offline or unconfigured (CONTRACT_ADDRESS is zero address). Generating local proof hash for {action_type}.")
+            raise RuntimeError(f"Blockchain contract unconfigured for {action_type}.")
             
         try:
             tx_hash = func_call.transact({"from": self.account.address})
@@ -85,6 +86,7 @@ class ContractClient:
         except Exception as e:
             logger.error(f"Transaction failed for {action_type}: {e}")
             raise
+
 
     # ------------------ Contract Wrappers ------------------
 

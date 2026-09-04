@@ -42,29 +42,29 @@ class Hive(Base):
 class Harvest(Base):
     __tablename__ = "harvests"
     id = Column(String, primary_key=True, index=True)
-    hive_id = Column(String, ForeignKey("hives.id"))
+    hive_id = Column(String, ForeignKey("hives.id"), index=True)
     weight_kg = Column(Float)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    tx_hash = Column(String, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    tx_hash = Column(String, nullable=True, index=True)
     
     hive = relationship("Hive", back_populates="harvests")
-    batch_id = Column(String, ForeignKey("batches.id"), nullable=True)
+    batch_id = Column(String, ForeignKey("batches.id"), nullable=True, index=True)
 
 class Batch(Base):
     __tablename__ = "batches"
     id = Column(String, primary_key=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     is_merged = Column(Boolean, default=False)
     document_hash = Column(String, nullable=True)
-    status = Column(String) # Created, Processing, Bottled
+    status = Column(String, index=True) # Created, Processing, Bottled
 
     harvests = relationship("Harvest")
 
 class SensorReading(Base):
     __tablename__ = "sensor_readings"
     id = Column(Integer, primary_key=True, index=True)
-    hive_id = Column(String, ForeignKey("hives.id"))
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    hive_id = Column(String, ForeignKey("hives.id"), index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
     temperature_c = Column(Float)
     humidity_pct = Column(Float)
     weight_kg = Column(Float)
@@ -77,13 +77,13 @@ class BlockchainTransaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     tx_hash = Column(String, unique=True, index=True)
     action_type = Column(String)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
 
 class MLAnalysis(Base):
     __tablename__ = "ml_analyses"
     id = Column(Integer, primary_key=True, index=True)
-    hive_id = Column(String, ForeignKey("hives.id"))
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    hive_id = Column(String, ForeignKey("hives.id"), index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
     risk_score = Column(Float, nullable=True)
     status = Column(String)
     highest_contributor = Column(String)
@@ -94,10 +94,11 @@ class MLAnalysis(Base):
 class VerificationRecord(Base):
     __tablename__ = "verification_records"
     id = Column(String, primary_key=True, index=True)
-    batch_id = Column(String, ForeignKey("batches.id"))
+    batch_id = Column(String, ForeignKey("batches.id"), index=True)
     tx_hash = Column(String, ForeignKey("blockchain_transactions.tx_hash"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
     batch = relationship("Batch")
     transaction = relationship("BlockchainTransaction")
+
 

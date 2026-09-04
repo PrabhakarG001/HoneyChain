@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import asyncio
 from ..database import get_db
 from .. import models, schemas
@@ -44,14 +44,47 @@ def get_hive(hive_id: str, db: Session = Depends(get_db), current_user = Depends
         raise HTTPException(status_code=404, detail="Hive not found")
     return hive
 
+@router.get("/{hive_id}/readings")
 @router.get("/{hive_id}/telemetry")
-def get_hive_telemetry(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
-    hive = db.query(models.Hive).filter(models.Hive.id == hive_id, models.Hive.owner_id == current_user.id).first()
+def get_hive_readings(
+    hive_id: str, 
+    range: Optional[str] = "24h",
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db), 
+    current_user = Depends(require_role(["beekeeper", "admin", "processor", "customer"]))
+):
+    """
+    REST Endpoint: Bounded historical sensor data query.
+    Supports range (1h, 24h, 7d, 30d, all), limit, and pagination offset.
+    """
+    hive = db.query(models.Hive).filter(models.Hive.id == hive_id).first()
     if not hive:
-        raise HTTPException(status_code=404, detail="Hive not found")
+        raise HTTPException(status_code=404, detail=f"Hive '{hive_id}' not found")
         
-    readings = db.query(models.SensorReading).filter(models.SensorReading.hive_id == hive_id).order_by(models.SensorReading.timestamp.desc()).limit(50).all()
+    # Check ownership for beekeepers
+    if (current_user.role or "").lower() == "beekeeper" and hive.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Unauthorized access to this hive's sensor readings")
+
+    # Enforce safe upper bound on limit to prevent unbounded memory allocation
+    capped_limit = max(1, min(limit, 1000))
+
+    query = db.query(models.SensorReading).filter(models.SensorReading.hive_id == hive_id)
+
+    # Time range filtering
+    now = datetime.utcnow()
+    if range == "1h":
+        query = query.filter(models.SensorReading.timestamp >= now - timedelta(hours=1))
+    elif range == "24h":
+        query = query.filter(models.SensorReading.timestamp >= now - timedelta(hours=24))
+    elif range == "7d":
+        query = query.filter(models.SensorReading.timestamp >= now - timedelta(days=7))
+    elif range == "30d":
+        query = query.filter(models.SensorReading.timestamp >= now - timedelta(days=30))
+
+    readings = query.order_by(models.SensorReading.timestamp.asc()).offset(offset).limit(capped_limit).all()
     return readings
+
 
 @router.get("/{hive_id}/analysis", response_model=schemas.MLAnalysisResponse)
 def get_hive_analysis(hive_id: str, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
