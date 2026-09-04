@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ShieldCheck, ArrowRight, Globe } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight, Globe, Sparkles, Award, Box } from 'lucide-react-native';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
+import AuthBackground from '../components/AuthBackground';
 import { useThemeColors } from '../../../hooks/useThemeColors';
 import { useTranslation } from '../../../hooks/useTranslation';
 
@@ -24,96 +25,114 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Top Header Row with Language Button */}
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={[styles.langBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
-          onPress={() => setIsLangModalVisible(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Select language"
-        >
-          <Globe size={16} color={colors.accent} />
-          <Text style={[styles.langBtnText, { color: colors.text }]}>{currentLanguage.native}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={[styles.contentWrapper, isTabletOrDesktop && styles.tabletContentWrapper]}>
-          {/* Header */}
-          <View style={styles.header}>
-            <BrandLogo style={{ alignSelf: 'center', marginBottom: 16 }} iconSize={44} />
-            <Text style={[styles.title, { color: colors.text }]}>{t('welcome', 'Welcome to HoneyChain')}</Text>
-            <Text style={[styles.subtitle, { color: colors.subtext }]}>{t('roleTitle', 'How do you want to use HoneyChain?')}</Text>
-          </View>
-
-          {/* Role Options */}
-          <View style={[styles.cardGrid, isTabletOrDesktop && styles.tabletCardGrid]}>
-            {/* Beekeeper Option */}
-            <TouchableOpacity
-              style={[
-                styles.roleCard, 
-                { backgroundColor: colors.surface, borderColor: colors.border }
-              ]}
-              onPress={() => handleSelectRole('BEEKEEPER')}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Select Beekeeper and Producer role"
-            >
-              <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
-                <Text style={styles.emojiIcon}>🐝</Text>
-              </View>
-              <View style={styles.cardInfo}>
-                <Text style={[styles.roleTitle, { color: colors.text }]}>{t('beekeeperRoleTitle', 'Beekeeper & Producer')}</Text>
-                <Text style={[styles.roleDesc, { color: colors.subtext }]}>
-                  {t('beekeeperRoleDesc', 'Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.')}
-                </Text>
-              </View>
-              <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
-                <ArrowRight size={20} color={colors.accent} />
-              </View>
-            </TouchableOpacity>
-
-            {/* Customer Option */}
-            <TouchableOpacity
-              style={[
-                styles.roleCard, 
-                { backgroundColor: colors.surface, borderColor: colors.border }
-              ]}
-              onPress={() => handleSelectRole('CUSTOMER')}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Select Customer and Buyer role"
-            >
-              <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
-                <Text style={styles.emojiIcon}>🍯</Text>
-              </View>
-              <View style={styles.cardInfo}>
-                <Text style={[styles.roleTitle, { color: colors.text }]}>{t('customerRoleTitle', 'Customer & Buyer')}</Text>
-                <Text style={[styles.roleDesc, { color: colors.subtext }]}>
-                  {t('customerRoleDesc', 'Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.')}
-                </Text>
-              </View>
-              <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
-                <ArrowRight size={20} color={colors.accent} />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* Trust Badge */}
-          <View style={styles.trustFooter}>
-            <ShieldCheck size={18} color={colors.accent} />
-            <Text style={[styles.trustText, { color: colors.subtext }]}>{t('onChainTrust', 'On-Chain Provenance • Lab Quality Verified')}</Text>
-          </View>
+    <AuthBackground style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        {/* Top Header Row with Language Button */}
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            style={[styles.langBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => setIsLangModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Select language"
+          >
+            <Globe size={16} color={colors.accent} />
+            <Text style={[styles.langBtnText, { color: colors.text }]}>{currentLanguage.native}</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
 
-      {/* Language Selection Modal */}
-      <LanguageModal 
-        isVisible={isLangModalVisible} 
-        onClose={() => setIsLangModalVisible(false)} 
-      />
-    </SafeAreaView>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={[styles.contentWrapper, isTabletOrDesktop && styles.tabletContentWrapper]}>
+            
+            {/* Honey & Bee Brand Hero Header */}
+            <View style={styles.header}>
+              <View style={[styles.beeBadge, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.15)' : '#FEF3C7', borderColor: colors.accent + '44' }]}>
+                <Sparkles size={14} color={colors.accent} />
+                <Text style={[styles.beeBadgeText, { color: colors.accent }]}>🐝 Pure Honey Provenance & Smart Apiary Ecosystem</Text>
+              </View>
+
+              <BrandLogo style={{ alignSelf: 'center', marginBottom: 16 }} iconSize={48} />
+              <Text style={[styles.title, { color: colors.text }]}>{t('welcome', 'Welcome to HoneyChain')}</Text>
+              <Text style={[styles.subtitle, { color: colors.subtext }]}>{t('roleTitle', 'Choose your role to get started')}</Text>
+            </View>
+
+            {/* Role Options */}
+            <View style={[styles.cardGrid, isTabletOrDesktop && styles.tabletCardGrid]}>
+              {/* Beekeeper Option */}
+              <TouchableOpacity
+                style={[
+                  styles.roleCard, 
+                  { backgroundColor: colors.surface, borderColor: colors.border }
+                ]}
+                onPress={() => handleSelectRole('BEEKEEPER')}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Select Beekeeper and Producer role"
+              >
+                <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
+                  <Text style={styles.emojiIcon}>🐝</Text>
+                </View>
+                <View style={styles.cardInfo}>
+                  <View style={styles.roleHeaderRow}>
+                    <Text style={[styles.roleTitle, { color: colors.text }]}>{t('beekeeperRoleTitle', 'Beekeeper & Producer')}</Text>
+                    <View style={[styles.rolePill, { backgroundColor: colors.accent + '22' }]}>
+                      <Text style={[styles.rolePillText, { color: colors.accent }]}>Apiary IoT</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.roleDesc, { color: colors.subtext }]}>
+                    {t('beekeeperRoleDesc', 'Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.')}
+                  </Text>
+                </View>
+                <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
+                  <ArrowRight size={20} color={colors.accent} />
+                </View>
+              </TouchableOpacity>
+
+              {/* Customer Option */}
+              <TouchableOpacity
+                style={[
+                  styles.roleCard, 
+                  { backgroundColor: colors.surface, borderColor: colors.border }
+                ]}
+                onPress={() => handleSelectRole('CUSTOMER')}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Select Customer and Buyer role"
+              >
+                <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
+                  <Text style={styles.emojiIcon}>🍯</Text>
+                </View>
+                <View style={styles.cardInfo}>
+                  <View style={styles.roleHeaderRow}>
+                    <Text style={[styles.roleTitle, { color: colors.text }]}>{t('customerRoleTitle', 'Customer & Buyer')}</Text>
+                    <View style={[styles.rolePill, { backgroundColor: colors.accent + '22' }]}>
+                      <Text style={[styles.rolePillText, { color: colors.accent }]}>Verified Honey</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.roleDesc, { color: colors.subtext }]}>
+                    {t('customerRoleDesc', 'Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.')}
+                  </Text>
+                </View>
+                <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
+                  <ArrowRight size={20} color={colors.accent} />
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Trust Footer */}
+            <View style={styles.trustFooter}>
+              <ShieldCheck size={18} color={colors.accent} />
+              <Text style={[styles.trustText, { color: colors.subtext }]}>{t('onChainTrust', 'On-Chain Provenance • Lab Quality Verified')}</Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Language Selection Modal */}
+        <LanguageModal 
+          isVisible={isLangModalVisible} 
+          onClose={() => setIsLangModalVisible(false)} 
+        />
+      </SafeAreaView>
+    </AuthBackground>
   );
 }
 
@@ -223,6 +242,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  beeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  beeBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  roleHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    gap: 8,
+  },
+  rolePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  rolePillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   trustFooter: {
     flexDirection: 'row',
