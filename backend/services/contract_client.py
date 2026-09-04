@@ -65,7 +65,7 @@ class ContractClient:
             logger.error("Failed to connect to any Web3 provider.")
             self.contract = None
 
-    def _execute_tx(self, func_call, action_type: str) -> str:
+    def _execute_tx(self, func_call, action_type: str, related_table: str = "blockchain", related_id: str = "tx") -> str:
         if not self.contract or CONTRACT_ADDRESS == "0x0000000000000000000000000000000000000000":
             logger.info(f"Contract client offline or unconfigured (CONTRACT_ADDRESS is zero address). Generating local proof hash for {action_type}.")
             raise RuntimeError(f"Blockchain contract unconfigured for {action_type}.")
@@ -76,7 +76,12 @@ class ContractClient:
             
             # Save to DB
             db = SessionLocal()
-            record = BlockchainTransaction(tx_hash=hex_hash, action_type=action_type)
+            record = BlockchainTransaction(
+                related_table=related_table,
+                related_id=related_id,
+                tx_hash=hex_hash,
+                action_type=action_type
+            )
             db.add(record)
             db.commit()
             db.close()
@@ -93,42 +98,42 @@ class ContractClient:
     def register_hive(self, hive_id: str, apiary_hash: bytes):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for REGISTER_HIVE.")
-        return self._execute_tx(self.contract.functions.registerHive(hive_id, apiary_hash), "REGISTER_HIVE")
+        return self._execute_tx(self.contract.functions.registerHive(hive_id, apiary_hash), "REGISTER_HIVE", "hives", hive_id)
 
     def create_harvest(self, hive_id: str, harvest_id: str, timestamp: int, quantity_kg: int):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for CREATE_HARVEST.")
-        return self._execute_tx(self.contract.functions.createHarvest(hive_id, harvest_id, timestamp, quantity_kg), "CREATE_HARVEST")
+        return self._execute_tx(self.contract.functions.createHarvest(hive_id, harvest_id, timestamp, quantity_kg), "CREATE_HARVEST", "harvest_events", harvest_id)
 
     def create_batch(self, batch_id: str, harvest_ids: list[str]):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for CREATE_BATCH.")
-        return self._execute_tx(self.contract.functions.createBatch(batch_id, harvest_ids), "CREATE_BATCH")
+        return self._execute_tx(self.contract.functions.createBatch(batch_id, harvest_ids), "CREATE_BATCH", "honey_batches", batch_id)
 
     def transfer_custody(self, batch_id: str, to_owner: str):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for TRANSFER_CUSTODY.")
-        return self._execute_tx(self.contract.functions.transferCustody(batch_id, self.w3.to_checksum_address(to_owner)), "TRANSFER_CUSTODY")
+        return self._execute_tx(self.contract.functions.transferCustody(batch_id, self.w3.to_checksum_address(to_owner)), "TRANSFER_CUSTODY", "custody_transfers", batch_id)
 
     def merge_batches(self, new_batch_id: str, parent_batch_ids: list[str]):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for MERGE_BATCHES.")
-        return self._execute_tx(self.contract.functions.mergeBatches(new_batch_id, parent_batch_ids), "MERGE_BATCHES")
+        return self._execute_tx(self.contract.functions.mergeBatches(new_batch_id, parent_batch_ids), "MERGE_BATCHES", "honey_batches", new_batch_id)
 
     def record_processing(self, batch_id: str, process_step_hash: bytes):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for RECORD_PROCESSING.")
-        return self._execute_tx(self.contract.functions.recordProcessing(batch_id, process_step_hash), "RECORD_PROCESSING")
+        return self._execute_tx(self.contract.functions.recordProcessing(batch_id, process_step_hash), "RECORD_PROCESSING", "honey_batches", batch_id)
 
     def record_lab_test(self, batch_id: str, lab_test_hash: bytes, passed: bool):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for RECORD_LAB_TEST.")
-        return self._execute_tx(self.contract.functions.recordLabTest(batch_id, lab_test_hash, passed), "RECORD_LAB_TEST")
+        return self._execute_tx(self.contract.functions.recordLabTest(batch_id, lab_test_hash, passed), "RECORD_LAB_TEST", "lab_tests", batch_id)
 
     def create_product(self, product_id: str, batch_id: str):
         if not self.contract:
             raise RuntimeError("Blockchain contract unavailable for CREATE_PRODUCT.")
-        return self._execute_tx(self.contract.functions.createProduct(product_id, batch_id), "CREATE_PRODUCT")
+        return self._execute_tx(self.contract.functions.createProduct(product_id, batch_id), "CREATE_PRODUCT", "products", product_id)
 
     def verify_product(self, product_id: str):
         if not self.contract:

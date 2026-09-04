@@ -16,9 +16,9 @@ def get_hives(
     apiary_id: Optional[str] = None,
     farm_id: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(require_role(["beekeeper", "admin"]))
 ):
-    """Retrieve all hives accessible to current user."""
+    """Retrieve all hives accessible to current beekeeper/admin user."""
     query = db.query(models.Hive)
     if (current_user.role or "").lower() == "beekeeper":
         query = query.filter(models.Hive.owner_id == current_user.id)
@@ -65,7 +65,7 @@ def create_hive(
     return new_hive
 
 @router.get("/{id}", response_model=schemas.HiveResponse)
-def get_hive(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def get_hive(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["beekeeper", "admin"]))):
     hive = db.query(models.Hive).filter(models.Hive.id == id).first()
     if not hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{id}' not found")
