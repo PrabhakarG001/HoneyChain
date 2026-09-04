@@ -280,13 +280,13 @@ flowchart TD
 
 | Hardware | Purpose | Software Connection | Status | Completion % |
 |---|---|---|---|---:|
-| **ESP32 Microcontroller** | Main IoT controller & sensor aggregator | MQTT over Wi-Fi 802.11 b/g/n | ✅ Complete | 100% |
+| **ESP32 Microcontroller** | Main IoT controller, SPIFFS offline flash buffer queue & sensor aggregator | MQTT over Wi-Fi 802.11 b/g/n / SPIFFS fallback | ✅ Complete | 100% |
 | **DHT22 Sensor** | Ambient hive temperature & humidity sensing | GPIO 4 (Digital Single-Bus) → ESP32 | ✅ Complete | 100% |
 | **Load Cell (50kg)** | Strain gauge measuring honey hive mass | Wheatstone Bridge → HX711 Amplifier | ✅ Complete | 100% |
 | **HX711 Amplifier** | 24-bit ADC & load cell signal amplifier | GPIO 16 (DOUT), GPIO 17 (SCK) → ESP32 | ✅ Complete | 100% |
 | **INMP441 Microphone** | Colony acoustic frequency monitoring | I2S Interface → ESP32 / Audio Classifier | ⚪ Optional | 0% |
-| **NEO-6M GPS Module** | Geolocation tracking for apiary hives | Serial UART → ESP32 / Database Lat/Lng | ❌ Missing | 0% |
-| **Solar Panel & TP4056** | Renewable battery power & voltage monitoring | ESP32 ADC Pin / Sleep Timer | ❌ Missing | 0% |
+| **NEO-6M GPS Module** | Geolocation tracking for apiary hives | Serial UART → ESP32 / Database Lat/Lng | ✅ Complete | 100% |
+| **Solar Panel & TP4056** | Renewable battery power & voltage monitoring | ESP32 ADC Pin 34 / Sleep Timer / DB Model | ✅ Complete | 100% |
 
 ---
 

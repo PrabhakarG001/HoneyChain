@@ -199,6 +199,10 @@ class MQTTPayload(BaseModel):
     humidity_pct: float
     weight_kg: float
     sound_level_db: float
+    battery_pct: Optional[float] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    is_simulated: Optional[bool] = False
 
 class SensorReadingResponse(BaseModel):
     id: int
@@ -208,6 +212,9 @@ class SensorReadingResponse(BaseModel):
     humidity_pct: Optional[float] = None
     weight_kg: Optional[float] = None
     sound_level_db: Optional[float] = None
+    battery_pct: Optional[float] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     model_config = ConfigDict(from_attributes=True)
 
 class MLAnalysisResponse(BaseModel):

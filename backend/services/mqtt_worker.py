@@ -37,7 +37,10 @@ class MQTTWorker:
                 temperature_c=validated_data.temperature_c,
                 humidity_pct=validated_data.humidity_pct,
                 weight_kg=validated_data.weight_kg,
-                sound_level_db=validated_data.sound_level_db
+                sound_level_db=validated_data.sound_level_db,
+                battery_pct=validated_data.battery_pct,
+                lat=validated_data.lat,
+                lng=validated_data.lng
             )
             db.add(reading)
             db.commit()
@@ -88,6 +91,9 @@ class MQTTWorker:
                 "humidity": validated_data.humidity_pct,
                 "weight": validated_data.weight_kg,
                 "sound_level": validated_data.sound_level_db,
+                "battery_pct": validated_data.battery_pct,
+                "lat": validated_data.lat,
+                "lng": validated_data.lng,
                 "risk_analysis": risk_result
             }
         }

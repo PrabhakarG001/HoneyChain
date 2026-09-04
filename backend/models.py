@@ -100,6 +100,9 @@ class SensorReading(Base):
     humidity_pct = Column(Float, nullable=True)
     weight_kg = Column(Float, nullable=True)
     sound_level_db = Column(Float, nullable=True)
+    battery_pct = Column(Float, nullable=True)
+    lat = Column(Float, nullable=True)
+    lng = Column(Float, nullable=True)
     
     hive = relationship("Hive", back_populates="readings")
 
