@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, Search, Plus, Bell, User, MapPin, QrCode, Bookmark, Box } from 'lucide-react-native';
+import { Home, Search, Plus, Bell, User, MapPin, QrCode, Bookmark, Box, ShoppingBag } from 'lucide-react-native';
 import { useUIStore } from '../../store/ui.store';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -79,7 +79,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
                 return <Home size={22} color={color} strokeWidth={strokeWidth} />;
               case 'map':
                 return userRole === 'CUSTOMER' 
-                  ? <Search size={22} color={color} strokeWidth={strokeWidth} />
+                  ? <ShoppingBag size={22} color={color} strokeWidth={strokeWidth} />
                   : <MapPin size={22} color={color} strokeWidth={strokeWidth} />;
               case 'explore':
                 return <Search size={22} color={color} strokeWidth={strokeWidth} />;
@@ -101,7 +101,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             switch (route.name) {
               case 'index': return 'Home';
               case 'explore': return 'Discover';
-              case 'map': return userRole === 'CUSTOMER' ? 'Discover' : 'Apiaries';
+              case 'map': return userRole === 'CUSTOMER' ? 'Store' : 'Apiaries';
               case 'notifications': return 'Saved';
               case 'profile': return 'Profile';
               default: return route.name;
