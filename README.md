@@ -75,7 +75,7 @@ Honey is one of the most adulterated food products globally. High-fructose corn 
 
 ---
 
-## 🤖 3. Local AI/ML Architecture
+## 🤖 3. Local AI & Machine Learning Intelligence Architecture
 
 HoneyChain features a **100% local, self-contained AI/ML stack** operating without external LLM/AI APIs. All model inference and training run locally using Scikit-Learn, Joblib, Librosa, Pandas, and NumPy.
 
