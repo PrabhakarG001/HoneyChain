@@ -14,6 +14,7 @@ import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
 import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import ProtocolOverview from '../../../components/ui/ProtocolOverview/ProtocolOverview';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
@@ -134,8 +135,10 @@ export default function DashboardScreen() {
         scrollEventThrottle={scrollEventThrottle}
       >
         
-        {/* Greeting Section */}
+        {/* Greeting & Protocol Overview Section */}
         <View style={styles.greetingSection}>
+          <ProtocolOverview />
+          
           <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || user?.username || 'User'}.</Text>
           <Text style={styles.greetingSubtitle}>
             {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}

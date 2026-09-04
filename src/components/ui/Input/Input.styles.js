@@ -50,6 +50,8 @@ export default StyleSheet.create({
     fontSize: 15,
     paddingVertical: 0,
     height: '100%',
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   inputWithLeftIcon: {
     paddingLeft: 0,

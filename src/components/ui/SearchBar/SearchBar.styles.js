@@ -25,6 +25,8 @@ export default StyleSheet.create({
     ...theme.typography.body,
     color: theme.colors.text.primary,
     height: '100%',
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   clearButton: {
     padding: theme.spacing.xs,

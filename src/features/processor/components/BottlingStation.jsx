@@ -139,6 +139,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     color: '#111827',
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   row: {
     flexDirection: 'row',

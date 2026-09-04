@@ -29,6 +29,8 @@ export default StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     color: theme.colors.text.primary,
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   content: {
     flex: 1,

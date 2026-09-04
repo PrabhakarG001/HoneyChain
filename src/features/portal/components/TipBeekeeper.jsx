@@ -160,6 +160,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#111827',
     paddingVertical: 12,
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   currency: {
     fontSize: 18,

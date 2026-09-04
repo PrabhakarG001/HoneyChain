@@ -18,14 +18,15 @@ import {
   Lock, 
   CheckSquare, 
   Square, 
-  ShieldCheck, 
-  Hexagon, 
-  Sparkles, 
   ArrowRight, 
   AlertCircle,
   CheckCircle2,
   X
 } from 'lucide-react-native';
+
+import { FaFileContract, FaMicrochip } from 'react-icons/fa';
+import { MdVerified } from 'react-icons/md';
+import { SiEthereum } from 'react-icons/si';
 
 import Input from '../../../components/ui/Input/Input';
 import Button from '../../../components/ui/Button/Button';
@@ -133,38 +134,46 @@ export default function LoginScreen() {
             {isDesktop && (
               <View style={styles.showcaseSide}>
                 <View style={styles.showcaseBadge}>
-                  <Hexagon size={18} color="#E6A740" fill="#E6A74022" />
+                  <SiEthereum size={12} color="#E6A740" style={{ marginRight: 6 }} />
                   <Text style={styles.showcaseBadgeText}>HoneyChain Protocol v2.4</Text>
                 </View>
 
                 <Text style={styles.showcaseTitle}>
-                  Decentralized Honey Provenance & Hive Telemetry
+                  Track every batch. Verify every hive.
                 </Text>
                 
                 <Text style={styles.showcaseSubtitle}>
-                  Connect directly to your IoT hives, inspect immutable batch passports, and verify pure honey quality on-chain.
+                  Connect your IoT-enabled hives, monitor hive conditions in real time, and create tamper-resistant honey provenance records on-chain.
                 </Text>
 
                 <View style={styles.featureList}>
                   <View style={styles.featureItem}>
-                    <ShieldCheck size={22} color="#E6A740" style={styles.featureIcon} />
+                    <FaFileContract size={18} color="#E6A740" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
-                      <Text style={styles.featureTitle}>Blockchain Passport</Text>
-                      <Text style={styles.featureDesc}>Smart contract timestamped honey batches</Text>
+                      <Text style={styles.featureTitle}>Blockchain Passports</Text>
+                      <Text style={styles.featureDesc}>Timestamped and verifiable honey batch records secured by smart contracts.</Text>
                     </View>
                   </View>
 
                   <View style={styles.featureItem}>
-                    <Sparkles size={22} color="#E6A740" style={styles.featureIcon} />
+                    <FaMicrochip size={18} color="#E6A740" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
-                      <Text style={styles.featureTitle}>IoT Hive Analytics</Text>
-                      <Text style={styles.featureDesc}>Real-time temperature, sound & humidity sensors</Text>
+                      <Text style={styles.featureTitle}>Hive Telemetry</Text>
+                      <Text style={styles.featureDesc}>Monitor temperature, humidity, and hive sound data from connected IoT devices.</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.featureItem}>
+                    <MdVerified size={20} color="#E6A740" style={styles.featureIcon} />
+                    <View style={styles.featureTextGroup}>
+                      <Text style={styles.featureTitle}>On-Chain Verification</Text>
+                      <Text style={styles.featureDesc}>Verify batch history and provenance without relying on a centralized database.</Text>
                     </View>
                   </View>
                 </View>
 
                 <View style={styles.showcaseFooter}>
-                  <Text style={styles.showcaseFooterText}>🔒 End-to-End Cryptography Encrypted</Text>
+                  <Text style={styles.showcaseFooterText}>Network Status: Connected</Text>
                 </View>
               </View>
             )}
