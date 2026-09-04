@@ -29,7 +29,8 @@ def test_contract_client_tx_execution_with_mocked_contract(db):
     client.w3 = MagicMock()
     client.w3.to_hex.return_value = "0x123456789abcdef0"
 
-    with patch("backend.services.contract_client.SessionLocal", return_value=db):
+    with patch("backend.services.contract_client.CONTRACT_ADDRESS", "0x1234567890123456789012345678901234567890"), \
+         patch("backend.services.contract_client.SessionLocal", return_value=db):
         tx_hash = client.create_batch("BATCH_MOCK_1", ["H1", "H2"])
         assert tx_hash == "0x123456789abcdef0"
 

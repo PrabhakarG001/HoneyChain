@@ -1,0 +1,36 @@
+{
+  "source": "https://hivetool.net",
+  "project": "HiveTool Open Source Honeybee Telemetry",
+  "sensor_specifications": {
+    "temperature": {
+      "sensor": "DHT22 / DS18B20",
+      "optimal_min_c": 32.0,
+      "optimal_max_c": 36.0,
+      "critical_min_c": 15.0,
+      "critical_max_c": 40.0,
+      "units": "Celsius"
+    },
+    "humidity": {
+      "sensor": "DHT22 / BME280",
+      "optimal_min_pct": 40.0,
+      "optimal_max_pct": 65.0,
+      "critical_min_pct": 20.0,
+      "critical_max_pct": 90.0,
+      "units": "Percent"
+    },
+    "weight": {
+      "sensor": "HX711 Load Cell",
+      "typical_hive_empty_kg": 20.0,
+      "typical_harvestable_kg": 45.0,
+      "max_capacity_kg": 150.0,
+      "units": "Kilograms"
+    },
+    "acoustics": {
+      "sensor": "INMP441 MEMS Microphone",
+      "frequency_calm_hz": [180, 220],
+      "frequency_piping_hz": [450, 550],
+      "frequency_swarming_hz": [320, 400],
+      "units": "Hertz / Decibels"
+    }
+  }
+}

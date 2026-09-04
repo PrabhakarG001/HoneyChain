@@ -1,0 +1,7 @@
+clip_id,hive_id,duration_sec,label,mfcc_mean_01,mfcc_mean_02,mfcc_std_01,mfcc_std_02
+NUH_101,Hive_X,1.0,Calm,-115.2,42.8,12.5,5.1
+NUH_102,Hive_X,1.0,Calm,-116.0,43.1,11.8,4.9
+NUH_201,Hive_Y,1.0,Agitated/Piping,-88.4,75.2,22.1,8.4
+NUH_202,Hive_Y,1.0,Agitated/Piping,-86.1,77.0,24.0,9.1
+NUH_301,Hive_Z,1.0,Queenless Swarming,-98.5,58.4,18.9,6.8
+NUH_302,Hive_Z,1.0,Queenless Swarming,-96.2,60.1,19.4,7.2

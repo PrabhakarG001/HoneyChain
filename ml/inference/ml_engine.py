@@ -42,6 +42,16 @@ def calculate_hybrid_risk(
     if if_model is None:
         if_model = load_model()
 
+    if if_model is None:
+        return {
+            "score": None,
+            "status": "AI analysis unavailable",
+            "highest_contributor": "None",
+            "factor_breakdown": {},
+            "explanation": "Isolation Forest model unavailable.",
+            "recommendation": "Check model path or train model file."
+        }
+
     # Rule-based metric normalization
     norm_temp = min(abs(temp_dev) / 10.0, 1.0)
     norm_hum = min(abs(humidity_dev) / 30.0, 1.0)

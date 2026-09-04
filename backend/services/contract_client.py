@@ -47,7 +47,7 @@ class ContractClient:
             logger.warning(f"Could not connect to {provider_uri}, falling back to localhost {DEFAULT_RPC}")
             self.w3 = Web3(Web3.HTTPProvider(DEFAULT_RPC, request_kwargs={'timeout': 2}))
             
-        if self.w3.is_connected():
+        if self.w3.is_connected() and CONTRACT_ADDRESS != "0x0000000000000000000000000000000000000000":
             logger.info("Successfully connected to Web3 provider.")
             try:
                 self.account = self.w3.eth.account.from_key(PRIVATE_KEY)
@@ -62,13 +62,13 @@ class ContractClient:
                 logger.error(f"Failed to setup Web3 account/contract: {e}")
                 self.contract = None
         else:
-            logger.error("Failed to connect to any Web3 provider.")
+            logger.info("Web3 provider offline or unconfigured. Contract client in offline mode.")
             self.contract = None
 
     def _execute_tx(self, func_call, action_type: str, related_table: str = "blockchain", related_id: str = "tx") -> str:
-        if not self.contract or CONTRACT_ADDRESS == "0x0000000000000000000000000000000000000000":
-            logger.info(f"Contract client offline or unconfigured (CONTRACT_ADDRESS is zero address). Generating local proof hash for {action_type}.")
-            raise RuntimeError(f"Blockchain contract unconfigured for {action_type}.")
+        if not self.contract:
+            logger.info(f"Contract client offline or unconfigured. Generating local proof hash for {action_type}.")
+            raise RuntimeError(f"Blockchain contract unavailable for {action_type}.")
             
         try:
             tx_hash = func_call.transact({"from": self.account.address})

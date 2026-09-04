@@ -1,10 +1,11 @@
 import pytest
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from backend import models
 from ml.inference.ml_engine import calculate_hybrid_risk, load_model
 from ml.inference.yield_engine import predict_honey_yield
-from ml.training.evaluate_models import evaluate_anomaly_model, evaluate_yield_model
+from ml.inference.audio_engine import analyze_hive_audio
+from ml.training.evaluate_models import evaluate_anomaly_model, evaluate_yield_model, evaluate_audio_model
 
 # 1. Test Isolation Forest Anomaly Model Loading
 def test_isolation_forest_model_loading():
@@ -45,7 +46,21 @@ def test_yield_forecaster_engine():
     assert "start_date" in res["optimal_harvest_window"]
     assert "end_date" in res["optimal_harvest_window"]
 
-# 4. Test Model Evaluation Suite Execution
+# 4. Test Hive Audio Classification Engine
+def test_audio_classifier_inference():
+    # Test Calm state classification
+    calm_res = analyze_hive_audio(state_hint="Calm")
+    assert calm_res["predicted_state"] == "Calm"
+    assert calm_res["confidence"] > 0.50
+    assert "diagnosis" in calm_res
+    assert "recommended_action" in calm_res
+
+    # Test Agitated/Piping state classification
+    agitated_res = analyze_hive_audio(state_hint="Agitated/Piping")
+    assert agitated_res["predicted_state"] == "Agitated/Piping"
+    assert agitated_res["confidence"] > 0.50
+
+# 5. Test Model Evaluation Suite Execution
 def test_model_evaluation_metrics():
     anomaly_eval = evaluate_anomaly_model()
     assert "precision" in anomaly_eval
@@ -58,7 +73,11 @@ def test_model_evaluation_metrics():
     assert "r2_score" in yield_eval
     assert yield_eval["r2_score"] >= 0.70
 
-# 5. Test API Endpoints for Anomaly, Yield, & Evaluation
+    audio_eval = evaluate_audio_model()
+    assert "accuracy" in audio_eval
+    assert audio_eval["accuracy"] >= 0.80
+
+# 6. Test API Endpoints for Anomaly, Yield, Audio, & Evaluation
 def test_ml_api_endpoints(client, db, beekeeper_auth_headers, test_beekeeper_user):
     hive = models.Hive(id="HV_ML_001", owner_id=test_beekeeper_user.id, name="ML Test Hive")
     db.add(hive)
@@ -66,7 +85,7 @@ def test_ml_api_endpoints(client, db, beekeeper_auth_headers, test_beekeeper_use
 
     reading = models.SensorReading(
         hive_id="HV_ML_001",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         temperature_c=36.5,
         humidity_pct=52.0,
         weight_kg=38.0,
@@ -90,6 +109,14 @@ def test_ml_api_endpoints(client, db, beekeeper_auth_headers, test_beekeeper_use
     assert "predicted_yield_kg" in y_data
     assert "optimal_harvest_window" in y_data
 
+    # Audio analysis endpoint
+    audio_resp = client.post("/analysis/audio", data={"state_hint": "Calm"})
+    assert audio_resp.status_code == 200
+    a_data = audio_resp.json()
+    assert "predicted_state" in a_data
+    assert "confidence" in a_data
+    assert "diagnosis" in a_data
+
     # Models evaluation endpoint
     eval_resp = client.get("/analysis/models/eval")
     assert eval_resp.status_code == 200
@@ -97,6 +124,7 @@ def test_ml_api_endpoints(client, db, beekeeper_auth_headers, test_beekeeper_use
     assert e_data["status"] == "Success"
     assert "anomaly_detection_metrics" in e_data
     assert "yield_forecaster_metrics" in e_data
+    assert "audio_classifier_metrics" in e_data
 
     # Hive router integration endpoints
     h_analysis = client.get("/hives/HV_ML_001/analysis", headers=beekeeper_auth_headers)

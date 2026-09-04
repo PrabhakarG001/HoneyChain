@@ -1,14 +1,16 @@
 import io
 import pytest
 from unittest.mock import patch
+import uuid
 
 def get_auth_header(client, username="api_user", role="BEEKEEPER"):
+    unique_username = f"{username}_{uuid.uuid4().hex[:6]}"
     client.post("/auth/register", json={
-        "username": username,
+        "username": unique_username,
         "password": "password123",
         "role": role
     })
-    res = client.post("/auth/login", data={"username": username, "password": "password123"})
+    res = client.post("/auth/login", data={"username": unique_username, "password": "password123"})
     token = res.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -51,8 +53,11 @@ def test_harvests_and_batches_flow(client):
     }, headers=headers)
     assert hive_res.status_code in [200, 201]
 
+    mock_harvest_tx = f"0xmockharvesttx_{uuid.uuid4().hex[:8]}"
+    mock_merge_tx = f"0xmockmergetx_{uuid.uuid4().hex[:8]}"
+
     # Create Harvest with contract client mock
-    with patch("backend.services.contract_client.contract_client.create_harvest", return_value="0xmockharvesttx123"):
+    with patch("backend.routers.harvests.contract_client.create_harvest", return_value=mock_harvest_tx):
         harvest_res = client.post("/harvests/", json={
             "hive_id": "HIVE_TEST_02",
             "weight_kg": 35.5,
@@ -64,7 +69,7 @@ def test_harvests_and_batches_flow(client):
 
     processor_headers = get_auth_header(client, "processor_user", "PROCESSOR")
     # Create Batch with contract client mock
-    with patch("backend.services.contract_client.contract_client.create_batch", return_value="0xmockmergetx123"):
+    with patch("backend.routers.batches.contract_client.create_batch", return_value=mock_merge_tx):
         batch_res = client.post("/batches/merge", json={
             "parent_harvest_ids": [harvest_id],
             "document_hash": "0x1234567890abcdef"

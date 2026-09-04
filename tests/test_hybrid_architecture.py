@@ -4,7 +4,8 @@ from fastapi.testclient import TestClient
 from fastapi.websockets import WebSocket
 from datetime import datetime
 from backend.main import app
-from backend.database import SessionLocal, engine, Base
+from backend.database import Base, get_db
+from tests.conftest import engine, TestingSessionLocal
 from backend import models, auth
 
 client = TestClient(app)
@@ -12,12 +13,21 @@ client = TestClient(app)
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():
     Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
+    db = TestingSessionLocal()
     
+    def _override_get_db():
+        try:
+            yield db
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = _override_get_db
+
     # Create test user (beekeeper)
     user = db.query(models.User).filter(models.User.username == "test_beekeeper@honeychain.dev").first()
     if not user:
         user = models.User(
+            name="Test Beekeeper",
             username="test_beekeeper@honeychain.dev",
             hashed_password=auth.get_password_hash("password123"),
             role="beekeeper"
@@ -38,8 +48,9 @@ def setup_db():
         db.add(hive)
         db.commit()
 
-    db.close()
     yield
+    db.close()
+    app.dependency_overrides.clear()
 
 def get_auth_token():
     response = client.post("/auth/login", data={

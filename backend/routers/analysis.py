@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
 from sqlalchemy.orm import Session
 from typing import Optional
 from ..database import get_db
@@ -6,7 +6,8 @@ from ..auth import get_current_user
 from .. import models
 from ml.inference.ml_engine import calculate_hybrid_risk
 from ml.inference.yield_engine import predict_honey_yield
-from ml.training.evaluate_models import evaluate_anomaly_model, evaluate_yield_model
+from ml.inference.audio_engine import analyze_hive_audio
+from ml.training.evaluate_models import evaluate_anomaly_model, evaluate_yield_model, evaluate_audio_model
 
 router = APIRouter(prefix="/analysis", tags=["Analysis"])
 
@@ -36,6 +37,22 @@ async def analyze_frame_image(
             {"top": 120, "left": 80, "width": 40, "height": 40}
         ] if varroa_count > 0 else []
     }
+
+@router.post("/audio")
+async def analyze_hive_audio_recording(
+    file: Optional[UploadFile] = File(None),
+    state_hint: Optional[str] = Form(None)
+):
+    """
+    REST Endpoint: Hive acoustic spectrum analysis using local scikit-learn RandomForest & Librosa MFCC.
+    Classifies hive sound into Calm, Agitated/Piping, or Queenless Swarming.
+    """
+    audio_bytes = None
+    if file:
+        audio_bytes = await file.read()
+        
+    analysis = analyze_hive_audio(audio_bytes=audio_bytes, state_hint=state_hint)
+    return analysis
 
 @router.get("/hive/{hive_id}")
 def get_hive_anomaly_analysis(hive_id: str, db: Session = Depends(get_db)):
@@ -108,8 +125,10 @@ def get_ml_model_evaluation_metrics():
     """
     anomaly_eval = evaluate_anomaly_model()
     yield_eval = evaluate_yield_model()
+    audio_eval = evaluate_audio_model()
     return {
         "status": "Success",
         "anomaly_detection_metrics": anomaly_eval,
-        "yield_forecaster_metrics": yield_eval
+        "yield_forecaster_metrics": yield_eval,
+        "audio_classifier_metrics": audio_eval
     }

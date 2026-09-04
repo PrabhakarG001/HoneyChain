@@ -1,0 +1,7 @@
+sample_id,hive_id,acoustic_state,fundamental_freq_hz,mfcc_1_mean,mfcc_2_mean,mfcc_3_mean,inspection_label,queen_status
+URB_001,Hive_A,Calm,195.4,-120.5,45.2,12.8,Normal,Queen Present
+URB_002,Hive_A,Calm,202.1,-118.2,46.0,11.5,Normal,Queen Present
+URB_003,Hive_B,Agitated/Piping,498.5,-85.4,78.9,34.2,Piping Event,Virgin Queen Piping
+URB_004,Hive_B,Agitated/Piping,512.0,-82.1,80.5,36.1,Swarm Warning,Multiple Cells
+URB_005,Hive_C,Queenless Swarming,365.2,-95.0,60.1,22.4,Queenless,Queen Absent
+URB_006,Hive_C,Queenless Swarming,378.9,-92.4,62.8,24.1,Queenless,Queen Absent
