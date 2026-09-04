@@ -1,12 +1,12 @@
 # HoneyChain 🐝 — End-to-End Honey Traceability & Apiary Intelligence Platform
 
-[![Build & Test Status](https://img.shields.io/badge/Pytest-67%2F67%20Passed%20(100%25)-brightgreen)](file:///c:/Users/Prabh/Downloads/ApiVera/tests)
-[![Smart Contract Tests](https://img.shields.io/badge/Hardhat-5%2F5%20Passed-blue)](file:///c:/Users/Prabh/Downloads/ApiVera/blockchain)
-[![Backend Status](https://img.shields.io/badge/Backend-FastAPI%200.115-009688)](file:///c:/Users/Prabh/Downloads/ApiVera/backend)
-[![Database Status](https://img.shields.io/badge/Database-SQLAlchemy%20%7C%20Alembic-blue)](file:///c:/Users/Prabh/Downloads/ApiVera/backend)
-[![Frontend Status](https://img.shields.io/badge/Frontend-Expo%20SDK%2057-61DAFB)](file:///c:/Users/Prabh/Downloads/ApiVera/src)
-[![AI/ML Status](https://img.shields.io/badge/AI%2FML-Local%20Scikit--Learn%20%7C%20Librosa-FF6F00)](file:///c:/Users/Prabh/Downloads/ApiVera/ml)
-[![Web3 Status](https://img.shields.io/badge/Blockchain-Polygon%20Amoy-8247E5)](file:///c:/Users/Prabh/Downloads/ApiVera/blockchain)
+[![Build & Test Status](https://img.shields.io/badge/Pytest-67%2F67%20Passed%20(100%25)-brightgreen)](tests)
+[![Smart Contract Tests](https://img.shields.io/badge/Hardhat-5%2F5%20Passed-blue)](blockchain)
+[![Backend Status](https://img.shields.io/badge/Backend-FastAPI%200.115-009688)](backend)
+[![Database Status](https://img.shields.io/badge/Database-SQLAlchemy%20%7C%20Alembic-blue)](backend)
+[![Frontend Status](https://img.shields.io/badge/Frontend-Expo%20SDK%2057-61DAFB)](src)
+[![AI/ML Status](https://img.shields.io/badge/AI%2FML-Local%20Scikit--Learn%20%7C%20Librosa-FF6F00)](ml)
+[![Web3 Status](https://img.shields.io/badge/Blockchain-Polygon%20Amoy-8247E5)](blockchain)
 
 > **Enterprise-grade Web3, IoT, and AI-powered platform ensuring authentic honey supply chain transparency from apiary to consumer.**
 
@@ -290,7 +290,7 @@ python scripts/demo_telemetry_replay.py --hive-id HV_E2E_01 --interval 2
 ```bash
 # Clone the repository
 git clone https://github.com/PrabhakarG001/HoneyChain.git
-cd ApiVera
+cd HoneyChain
 
 # Create and activate Python virtual environment
 python -m venv venv
@@ -346,5 +346,5 @@ npx hardhat test
 
 ## 📜 15. License & Credits
 
-- **License**: MIT License ([LICENSE](file:///c:/Users/Prabh/Downloads/ApiVera/LICENSE))
+- **License**: MIT License ([LICENSE](LICENSE))
 - **Team**: Antigravity Senior Engineering Team & HoneyChain Open Source Contributors.
