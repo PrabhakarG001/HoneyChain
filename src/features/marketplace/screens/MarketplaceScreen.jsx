@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Alert, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Search, ShoppingBag, Award, ShieldCheck, Filter, ArrowLeft, Heart, CheckCircle2 } from 'lucide-react-native';
+import { Search, ShoppingBag, Award, ShieldCheck, Filter, ArrowLeft, Heart, CheckCircle2, Globe } from 'lucide-react-native';
 import { firestoreService } from '../../../services/firestore.service';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
+import { useTranslation } from '../../../hooks/useTranslation';
+import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
+  const { t, currentLanguage } = useTranslation();
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [highPurityOnly, setHighPurityOnly] = useState(false);
@@ -50,18 +54,28 @@ export default function MarketplaceScreen() {
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ArrowLeft color="#111827" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Honey Discovery & Store</Text>
-        <TouchableOpacity 
-          style={styles.cartIconBox}
-          onPress={() => Alert.alert('Shopping Cart', `You have ${cartCount} item(s) in your cart.`)}
-        >
-          <ShoppingBag size={22} color="#0F172A" />
-          {cartCount > 0 && (
-            <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>{cartCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('honeyStore', 'Honey Discovery & Store')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity 
+            style={styles.cartIconBox}
+            onPress={() => setIsLangModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Select language"
+          >
+            <Globe size={22} color="#D97706" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.cartIconBox}
+            onPress={() => Alert.alert('Shopping Cart', `You have ${cartCount} item(s) in your cart.`)}
+          >
+            <ShoppingBag size={22} color="#0F172A" />
+            {cartCount > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cartCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView 
@@ -151,6 +165,11 @@ export default function MarketplaceScreen() {
           ))}
         </View>
       </ScrollView>
+
+      <LanguageModal 
+        visible={isLangModalVisible}
+        onClose={() => setIsLangModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }

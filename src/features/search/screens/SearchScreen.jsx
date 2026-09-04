@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from 'react-native';
-import { Search, X, Clock, Flame } from 'lucide-react-native';
+import { Search, X, Clock, Flame, Globe } from 'lucide-react-native';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 import { useThemeColors } from '../../../hooks/useThemeColors';
+import { useTranslation } from '../../../hooks/useTranslation';
+import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 import { hiveService } from '../../../services/hive.service';
 import { useLocalSearchParams } from 'expo-router';
 
@@ -16,6 +18,8 @@ const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 export default function SearchScreen() {
   const params = useLocalSearchParams();
   const colors = useThemeColors();
+  const { t, currentLanguage } = useTranslation();
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
   const [query, setQuery] = useState(params?.q || '');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -77,12 +81,23 @@ export default function SearchScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <BrandLogo style={{ marginBottom: 16 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <BrandLogo />
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}
+              onPress={() => setIsLangModalVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Select language"
+            >
+              <Globe size={16} color={colors.accent} />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{currentLanguage.native}</Text>
+            </TouchableOpacity>
+          </View>
           <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Search size={18} color={colors.subtext} />
             <TextInput
               style={[styles.input, { color: colors.text }]}
-              placeholder="Search HoneyChain"
+              placeholder={t('searchPlaceholder', 'Search HoneyChain')}
               placeholderTextColor={colors.subtext}
               value={query ?? ''}
               onChangeText={setQuery}
@@ -183,6 +198,11 @@ export default function SearchScreen() {
           <View style={{ height: 100 }} />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <LanguageModal 
+        visible={isLangModalVisible}
+        onClose={() => setIsLangModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
