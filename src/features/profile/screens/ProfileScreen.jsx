@@ -13,6 +13,7 @@ import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import TopHeader from '../../../components/navigation/TopHeader';
 import EditProfileModal from '../../../components/profile/EditProfileModal';
 import LogoutConfirmModal from '../../../components/profile/LogoutConfirmModal';
+import ProfileDropdown from '../../../components/profile/ProfileDropdown';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 import { firestoreService } from '../../../services/firestore.service';
@@ -31,6 +32,7 @@ export default function ProfileScreen() {
 
   const [isEditProfileVisible, setIsEditProfileVisible] = useState(false);
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+  const [isProfileHubVisible, setIsProfileHubVisible] = useState(false);
 
   const [profileData, setProfileData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.avatarContainer} 
-            onPress={() => setIsEditProfileVisible(true)}
+            onPress={() => setIsProfileHubVisible(true)}
             activeOpacity={0.85}
           >
             <UserAvatar user={user} size={96} />
@@ -198,6 +200,13 @@ export default function ProfileScreen() {
       </ScrollView>
 
       {/* Modals */}
+      <ProfileDropdown
+        isVisible={isProfileHubVisible}
+        onClose={() => setIsProfileHubVisible(false)}
+        onOpenEditProfile={() => setIsEditProfileVisible(true)}
+        onOpenLogout={() => setIsLogoutVisible(true)}
+      />
+
       <EditProfileModal
         isVisible={isEditProfileVisible}
         onClose={() => setIsEditProfileVisible(false)}
