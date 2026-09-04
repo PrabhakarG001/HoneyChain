@@ -5,6 +5,16 @@ export const batchService = {
     const response = await api.post('/batches', batchData);
     return response.data;
   },
+
+  mergeBatches: async (mergeData) => {
+    const response = await api.post('/batches/merge', mergeData);
+    return response.data;
+  },
+
+  transferCustody: async (batchId, toOwner) => {
+    const response = await api.post(`/batches/${batchId}/transfer`, { to_owner: toOwner });
+    return response.data;
+  },
   
   getBatch: async (batchId) => {
     const response = await api.get(`/batches/${batchId}`);

@@ -12,19 +12,23 @@ def verify_product(verification_id: str, response: Response, db: Session = Depen
     Supports lookup by verification ID or batch ID.
     Strips all private beekeeper PII while returning provenance, blockchain hash, and status.
     """
+    # 0. Look up by product ID
+    product = db.query(models.Product).filter(models.Product.id == verification_id).first()
+    target_batch_id = product.batch_id if product else verification_id
+
     # 1. Look up by verification ID
-    record = db.query(models.VerificationRecord).filter(models.VerificationRecord.id == verification_id).first()
+    record = db.query(models.VerificationRecord).filter(models.VerificationRecord.id == target_batch_id).first()
     
     # 2. Fallback: look up by batch ID
     if not record:
-        record = db.query(models.VerificationRecord).filter(models.VerificationRecord.batch_id == verification_id).first()
+        record = db.query(models.VerificationRecord).filter(models.VerificationRecord.batch_id == target_batch_id).first()
 
     batch = None
     if record:
         batch = db.query(models.Batch).filter(models.Batch.id == record.batch_id).first()
     else:
         # 3. Direct Batch lookup
-        batch = db.query(models.Batch).filter(models.Batch.id == verification_id).first()
+        batch = db.query(models.Batch).filter(models.Batch.id == target_batch_id).first()
         if batch:
             record = models.VerificationRecord(
                 id=f"VR_{batch.id}",
@@ -32,6 +36,7 @@ def verify_product(verification_id: str, response: Response, db: Session = Depen
                 tx_hash=batch.document_hash or f"0x_verified_{batch.id}",
                 created_at=batch.created_at
             )
+
 
     if not record or not batch:
         raise HTTPException(

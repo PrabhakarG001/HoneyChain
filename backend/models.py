@@ -101,4 +101,26 @@ class VerificationRecord(Base):
     batch = relationship("Batch")
     transaction = relationship("BlockchainTransaction")
 
+class CustodyTransfer(Base):
+    __tablename__ = "custody_transfers"
+    id = Column(String, primary_key=True, index=True)
+    batch_id = Column(String, ForeignKey("batches.id"), index=True)
+    from_owner = Column(String, index=True)
+    to_owner = Column(String, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    tx_hash = Column(String, nullable=True)
+
+    batch = relationship("Batch")
+
+class Product(Base):
+    __tablename__ = "products"
+    id = Column(String, primary_key=True, index=True)
+    batch_id = Column(String, ForeignKey("batches.id"), index=True)
+    name = Column(String)
+    qr_code = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    batch = relationship("Batch")
+
+
 

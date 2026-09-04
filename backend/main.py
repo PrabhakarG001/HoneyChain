@@ -11,7 +11,7 @@ from .auth import create_access_token, get_password_hash, get_current_user
 from .config import settings
 
 # Routers
-from .routers import farms, hives, harvests, batches, verify, websocket, analysis, customer
+from .routers import farms, hives, harvests, batches, products, verify, websocket, analysis, customer
 
 # Services
 from .services.mqtt_worker import mqtt_worker
@@ -58,6 +58,9 @@ app.include_router(harvests.router, prefix="/api")
 app.include_router(batches.router)
 app.include_router(batches.router, prefix="/api")
 
+app.include_router(products.router)
+app.include_router(products.router, prefix="/api")
+
 app.include_router(verify.router)
 app.include_router(verify.router, prefix="/api")
 
@@ -69,6 +72,7 @@ app.include_router(analysis.router, prefix="/api")
 
 app.include_router(customer.router)
 app.include_router(customer.router, prefix="/api")
+
 
 
 

@@ -102,3 +102,36 @@ class BatchResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class BatchCreate(BaseModel):
+    harvest_ids: List[str]
+    status: Optional[str] = "Created"
+
+class CustodyTransferRequest(BaseModel):
+    to_owner: str
+
+class CustodyTransferResponse(BaseModel):
+    id: str
+    batch_id: str
+    from_owner: str
+    to_owner: str
+    timestamp: datetime
+    tx_hash: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class ProductCreate(BaseModel):
+    batch_id: str
+    name: str
+
+class ProductResponse(BaseModel):
+    id: str
+    batch_id: str
+    name: str
+    qr_code: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
