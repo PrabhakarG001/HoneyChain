@@ -180,7 +180,92 @@ To comply with data privacy standards and optimize gas consumption, HoneyChain s
 
 ---
 
-## 📊 6. Overall Completion & Module Breakdown
+## 🌳 6. Honey Batch Genealogy & Lineage Engine (Part 14 Implemented)
+
+HoneyChain implements a high-performance, non-N+1 Batch Genealogy Engine in `backend/services/genealogy.py` and `backend/routers/genealogy.py`.
+
+### Lineage Traversal Model
+```text
+Harvest A ──┐
+Harvest B ──┼──► Processing Batch X (Parent)
+Harvest C ──┘           │
+                        ├── Merge / Split Transformation
+                        ▼
+                 Processing Batch Y (Child) ──► Product Units (PROD_0001 ... PROD_0480)
+```
+
+### Parent / Child Batch Transformations
+* **Merge**: Combines multiple harvest events or parent batches into a single processed batch.
+* **Split**: Divides a large processed batch into smaller sub-batches.
+* **Genealogy Persistence**: Preserved in `batch_sources` and `batch_transformations` tables without deleting historical relationships.
+* **Query Performance**: Uses SQLAlchemy `joinedload` and bulk `in_` queries to eliminate N+1 overhead.
+
+---
+
+## 📱 7. QR Code System & Public Verification (Part 15 Implemented)
+
+### End-to-End Consumer Verification Flow
+1. **Packaging**: Processor generates unique product QR codes encoding opaque verification URLs (`https://honeychain.app/verify/PROD_0001`).
+2. **Public Endpoint**: `GET /verify/{verification_id}` returns public-safe verification payloads.
+3. **PII Protection**: Strips all sensitive beekeeper details (passwords, emails, phone numbers, exact residential coordinates).
+4. **Landing Page**: React Native / Expo screen (`app/verify/[productId].jsx`) displays:
+   * Traceability Confidence Score (100% Complete Chain of Custody).
+   * Verified Badge & Polygon Amoy Blockchain transaction link (`https://amoy.polygonscan.com/tx/`).
+   * Interactive SVG mini genealogy graph (`MiniGenealogyGraph`).
+   * Lab Test Results (Pollen purity, moisture content, compliance cert hash).
+
+---
+
+## 👤 8. Application Design & Role-Based Control (Part 16 Implemented)
+
+HoneyChain features five role-specific interfaces integrated with JWT authentication (`HS256`) and role enforcement (`require_role`):
+
+| Role Interface | Primary Responsibilities & Features | Access Control |
+| --- | --- | --- |
+| **Beekeeper Portal** | Hive list, digital twin, live WebSocket sensor telemetry, harvest recording | `role == "beekeeper"` |
+| **Collection Center** | Scan/enter batch code, verify harvest origin, transfer custody on-chain | `role in ["collection_center", "processor"]` |
+| **Processor Dashboard** | Batch merge/split, record pasteurization/filtering, bottling & QR label generation | `role == "processor"` |
+| **Government / Admin** | System-wide analytics, hive health distribution, regional yield forecasting, audit logs | `role == "admin"` |
+| **Consumer Portal** | Public QR scanning, batch genealogy DAG, lab certificate lookup, blockchain proof | `Public (No Login)` |
+
+---
+
+## 🏗️ 9. Complete End-to-End System Architecture (Part 17 Implemented)
+
+### Master End-to-End Data Pipeline
+```text
+ ┌───────────────────────┐
+ │ ESP32 IoT Sensors     │ (Temp, Humidity, Load Cell Weight, Acoustic)
+ └───────────┬───────────┘
+             │ Wi-Fi / MQTT
+             ▼
+ ┌───────────────────────┐
+ │ Eclipse Mosquitto     │ (MQTT Broker: port 1883)
+ └───────────┬───────────┘
+             │ Paho-MQTT Thread
+             ▼
+ ┌───────────────────────┐       ┌────────────────────────┐
+ │ FastAPI Backend Engine│──────►│ SQLAlchemy PostgreSQL  │
+ └─────┬───────────┬─────┘       └────────────────────────┘
+       │           │
+       │           ├────────────► ┌────────────────────────┐
+       │           │              │ Local AI/ML Stack      │ (Isolation Forest, RF Yield, Librosa)
+       │           │              └────────────────────────┘
+       │           │
+       │           └────────────► ┌────────────────────────┐
+       │                          │ Polygon Amoy / Hardhat │ (HoneyChain.sol Smart Contract)
+       │                          └────────────────────────┘
+       │ WebSockets / REST
+       ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ Expo React Native Mobile & Web App                      │
+ │ (Beekeeper, Collection Center, Processor, Admin, QR)   │
+ └────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📊 10. Overall Completion & Module Breakdown
 
 ### Overall Project Completion: **100%**
 
@@ -208,7 +293,7 @@ To comply with data privacy standards and optimize gas consumption, HoneyChain s
 
 ---
 
-## ⚙️ 7. Running Migrations & Executing Tests
+## ⚙️ 11. Running Migrations & Executing Tests
 
 ### Running Full Test Suite
 
@@ -216,11 +301,11 @@ To comply with data privacy standards and optimize gas consumption, HoneyChain s
 # Set PYTHONPATH to project root
 $env:PYTHONPATH="."
 
-# Run full pytest suite across all modules (including Blockchain & Part 10 dataset tests)
+# Run full pytest suite across all modules (including Parts 14-17 tests)
 python -m pytest
 
-# Run Part 11-13 blockchain tests specifically
-python -m pytest tests/test_blockchain.py
+# Run Parts 14-17 Genealogy & QR tests specifically
+python -m pytest tests/test_parts14_17_genealogy_qr.py
 ```
 
 ### Database Migration Instructions (Alembic)
@@ -232,8 +317,9 @@ python -m alembic upgrade head
 
 ---
 
-## 📜 8. License & Credits
+## 📜 12. License & Credits
 
 - **License**: MIT License ([LICENSE](file:///c:/Users/Prabh/Downloads/ApiVera/LICENSE))
 - **Team**: Antigravity Senior Engineering Team & HoneyChain Open Source Contributors.
+
 
