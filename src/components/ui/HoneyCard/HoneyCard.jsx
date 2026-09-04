@@ -40,13 +40,11 @@ export default function HoneyCard({
     }).start();
   };
 
-  const toggleSave = (e) => {
-    if (e && e.stopPropagation) e.stopPropagation();
+  const toggleSave = () => {
     setIsSaved(!isSaved);
   };
 
-  const handleMorePress = (e) => {
-    if (e && e.stopPropagation) e.stopPropagation();
+  const handleMorePress = () => {
     Alert.alert('Options', title, [
       { text: isSaved ? 'Remove from Saved' : 'Save to Board', onPress: () => setIsSaved(!isSaved) },
       { text: 'Share Honey Link', onPress: () => {} },
@@ -56,66 +54,75 @@ export default function HoneyCard({
 
   return (
     <Animated.View style={[styles.container, { transform: [{ scale: scaleAnim }] }]}>
-      <TouchableOpacity 
-        activeOpacity={0.9} 
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={{ flex: 1 }}
-        accessibilityRole="button"
-        accessibilityLabel={`${title}, ${subtitle || ''}`}
-      >
-        {/* Card Image Container */}
-        <View style={[styles.imageContainer, { height, backgroundColor: colors.surface }]}>
+      {/* Card Image Container */}
+      <View style={[styles.imageContainer, { height, backgroundColor: colors.surface }]}>
+        <TouchableOpacity 
+          activeOpacity={0.9} 
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={styles.imageClickArea}
+          accessibilityRole="button"
+          accessibilityLabel={`${title}, ${subtitle || ''}`}
+        >
           <Image 
             source={{ uri: imageUrl || FALLBACK_IMAGES[type] || FALLBACK_IMAGES.honey }} 
             style={styles.image}
             resizeMode="cover"
           />
-          
-          <TouchableOpacity 
-            style={[
-              styles.favoriteButton, 
-              { backgroundColor: isSaved ? colors.accent : (colors.isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)') }
-            ]} 
-            onPress={toggleSave}
-            accessibilityRole="button"
-            accessibilityLabel={isSaved ? "Unsave item" : "Save item"}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Heart 
-              size={16} 
-              color={isSaved ? '#000000' : (colors.isDark ? '#FFFFFF' : '#111827')}
-              fill={isSaved ? '#000000' : 'transparent'}
-            />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
         
-        {/* Under Card Title & Three-Dot Menu Row */}
-        <View style={styles.contentRow}>
-          <View style={{ flex: 1, marginRight: 8 }}>
-            <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-              {title}
+        {/* Favorite Bookmark Button (Absolute Sibling) */}
+        <TouchableOpacity 
+          style={[
+            styles.favoriteButton, 
+            { backgroundColor: isSaved ? colors.accent : (colors.isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)') }
+          ]} 
+          onPress={toggleSave}
+          accessibilityRole="button"
+          accessibilityLabel={isSaved ? "Unsave item" : "Save item"}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Heart 
+            size={16} 
+            color={isSaved ? '#000000' : (colors.isDark ? '#FFFFFF' : '#111827')}
+            fill={isSaved ? '#000000' : 'transparent'}
+          />
+        </TouchableOpacity>
+      </View>
+      
+      {/* Under Card Title & Three-Dot Menu Row */}
+      <View style={styles.contentRow}>
+        <TouchableOpacity 
+          activeOpacity={0.9} 
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={styles.titleClickArea}
+          accessibilityRole="button"
+          accessibilityLabel={`${title}, ${subtitle || ''}`}
+        >
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text style={[styles.subtitle, { color: colors.subtext }]} numberOfLines={1}>
+              {subtitle}
             </Text>
-            {subtitle && (
-              <Text style={[styles.subtitle, { color: colors.subtext }]} numberOfLines={1}>
-                {subtitle}
-              </Text>
-            )}
-          </View>
+          )}
+        </TouchableOpacity>
 
-          {/* Three-Dot Menu Button */}
-          <TouchableOpacity 
-            style={styles.moreBtn} 
-            onPress={handleMorePress}
-            accessibilityRole="button"
-            accessibilityLabel="More options"
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <MoreHorizontal size={18} color={colors.subtext} />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+        {/* Three-Dot Menu Button (Sibling) */}
+        <TouchableOpacity 
+          style={styles.moreBtn} 
+          onPress={handleMorePress}
+          accessibilityRole="button"
+          accessibilityLabel="More options"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <MoreHorizontal size={18} color={colors.subtext} />
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
@@ -129,6 +136,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
+  },
+  imageClickArea: {
+    width: '100%',
+    height: '100%',
   },
   image: {
     width: '100%',
@@ -156,6 +167,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 8,
     paddingHorizontal: 2,
+  },
+  titleClickArea: {
+    flex: 1,
+    marginRight: 8,
   },
   title: {
     fontSize: 14,
