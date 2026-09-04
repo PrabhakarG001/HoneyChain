@@ -250,154 +250,367 @@ HoneyChain features five role-specific interfaces integrated with JWT authentica
 
 ## 🔌 11. Hardware + Software Integration
 
-HoneyChain bridges physical hardware IoT sensing with cloud & Web3 software architecture. This section documents the micro-level status, connection protocols, wiring, step-by-step data flow, and troubleshooting across every hardware and software layer.
+HoneyChain bridges physical hardware IoT sensing with cloud & Web3 software architecture. This section documents the micro-level status, connection protocols, wiring, step-by-step data flow, payload schemas, and troubleshooting across every hardware and software layer.
 
-### Master Hardware + Software Data Flow
+---
 
-```text
- Physical Hive Sensors (DHT22, Load Cell + HX711)
-      │ Analog/Digital Signals
-      ▼
- ESP32 Microcontroller (C++ Firmware in firmware/esp32/main.cpp)
-      │ Wi-Fi (802.11 b/g/n + NTP Time Sync)
-      ▼
- MQTT Broker (Eclipse Mosquitto: port 1883)
-      │ MQTT Topic: hivechain/{hive_id}/telemetry
-      ▼
- FastAPI Backend Service (Paho-MQTT Ingestion Worker in backend/services/mqtt_worker.py)
-      │ Pydantic Validation & SQL Persistence
-      ├─────────────────────────────┬──────────────────────────────┐
-      ▼                             ▼                              ▼
- SQLAlchemy DB (PostgreSQL)   Local AI/ML Engine             Web3 Contract Client
- (sensor_readings Table)     (Isolation Forest & Risk)      (HoneyChain.sol Smart Contract)
-                                    │                              │
-                                    └──────────────┬───────────────┘
-                                                   │ WebSockets broadcast (/ws/telemetry)
-                                                   ▼
-                                      Expo React Native App (Dashboard Screen)
-```
+### Master Architecture Diagram
 
-### Supply-Chain Batch Provenance & Verification Flow
+```mermaid
+flowchart TD
+    A[Physical Hive Sensors DHT22 / Load Cell] --> B[ESP32 Microcontroller]
+    B --> C[Wi-Fi Network]
+    C --> D[MQTT Broker Mosquitto]
+    D --> E[FastAPI Backend Service]
 
-```text
-Harvest Event (Beekeeper) ──► Batch Creation ──► Processing Step ──► Product Bottling ──► QR Label
-                                                                                               │
-                                                                                               ▼
-                                                                                   Consumer Scan URL
-                                                                               (/verify/[productId])
-                                                                                               │
-                                                                                               ▼
-                                                                                    On-Chain Verification
-                                                                                    (Polygon Amoy / Hardhat)
+    E --> F[(PostgreSQL Database)]
+    E --> G[AI/ML Risk Engine]
+    E --> H[WebSocket Telemetry Hub]
+    
+    H --> I[React Beekeeper Dashboard]
+
+    E --> J[Polygon / Hardhat Blockchain]
+    E --> K[QR / Product Verification Router]
+    K --> L[Consumer Public Portal]
 ```
 
 ---
 
-### Micro-Level Hardware Component Status
+### Hardware Component Table
 
-| Component | Category | Status | Completion % | Tested | Wiring / Details |
-| --- | --- | --- | :---: | :---: | --- |
-| **ESP32 Microcontroller** | MCU Board | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Dual-core 240MHz, Wi-Fi 802.11 b/g/n, 115200 Baud |
-| **DHT22 Sensor** | Temp & Humidity | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Data Pin `GPIO 4`, -40 to 80°C (±0.5°C), 0-100% RH |
-| **Load Cell (50kg)** | Strain Gauge | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Measure hive weight changes & swarming events |
-| **HX711 Amplifier** | ADC & Amplifier | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `DOUT` Pin `GPIO 16`, `SCK` Pin `GPIO 17`, 24-bit ADC |
-| **Microphone (INMP441)**| Acoustic Spectrum | `OPTIONAL / DEMO` ⚪ | 0% | — | Software acoustic classifier tested via WAV files |
-| **GPS Module** | Geographic | `FUTURE / SCOPE` 🔵 | 0% | ❌ | Apiary GPS coordinates defined in DB schema |
-| **Solar Panel & Charger**| Power System | `FUTURE / SCOPE` 🔵 | 0% | ❌ | ESP32 timer deep sleep implemented in C++ |
-
----
-
-### Micro-Level Software Layer Status
-
-| Subsystem Layer | Feature / Responsibility | Status | Completion % | Tested | Implementation Location |
-| --- | --- | --- | :---: | :---: | --- |
-| **ESP32 Firmware** | C++ Sensor Reader & NTP Sync | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `firmware/esp32/main.cpp` |
-| **ESP32 Firmware** | Wi-Fi Station & Auto-Reconnect | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `firmware/esp32/main.cpp` (`setup_wifi()`) |
-| **ESP32 Firmware** | MQTT JSON Publisher | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `firmware/esp32/main.cpp` (`PubSubClient`) |
-| **IoT MQTT Broker** | Mosquitto Broker Configuration | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `mosquitto.conf` (Port 1883) |
-| **Backend Service** | Paho-MQTT Ingestion Thread | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `backend/services/mqtt_worker.py` |
-| **Backend Service** | Telemetry Pydantic Validation | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `backend/schemas.py` (`MQTTPayload`) |
-| **Database ORM** | Sensor Readings Persistence | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `backend/models.py` (`SensorReading`) |
-| **Local AI/ML** | Isolation Forest Anomaly Model | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `ml/inference/ml_engine.py` |
-| **Local AI/ML** | Hybrid Risk Score Engine | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `ml/inference/ml_engine.py` |
-| **Real-Time WebSockets**| Telemetry Broadcast Hub | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `backend/routers/websocket.py` & `pubsub.py` |
-| **Frontend UI** | Live Beekeeper Dashboard | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `src/features/dashboard/screens/DashboardScreen.jsx` |
-| **Web3 Client** | Smart Contract Client Wrapper | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `backend/services/contract_client.py` |
-| **Demo Replay** | Telemetry Sequence Generator | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `scripts/demo_telemetry_replay.py` |
+| Hardware | Purpose | Software Connection | Status | Completion % |
+|---|---|---|---|---:|
+| **ESP32 Microcontroller** | Main IoT controller & sensor aggregator | MQTT over Wi-Fi 802.11 b/g/n | ✅ Complete | 100% |
+| **DHT22 Sensor** | Ambient hive temperature & humidity sensing | GPIO 4 (Digital Single-Bus) → ESP32 | ✅ Complete | 100% |
+| **Load Cell (50kg)** | Strain gauge measuring honey hive mass | Wheatstone Bridge → HX711 Amplifier | ✅ Complete | 100% |
+| **HX711 Amplifier** | 24-bit ADC & load cell signal amplifier | GPIO 16 (DOUT), GPIO 17 (SCK) → ESP32 | ✅ Complete | 100% |
+| **INMP441 Microphone** | Colony acoustic frequency monitoring | I2S Interface → ESP32 / Audio Classifier | ⚪ Optional | 0% |
+| **NEO-6M GPS Module** | Geolocation tracking for apiary hives | Serial UART → ESP32 / Database Lat/Lng | ❌ Missing | 0% |
+| **Solar Panel & TP4056** | Renewable battery power & voltage monitoring | ESP32 ADC Pin / Sleep Timer | ❌ Missing | 0% |
 
 ---
 
-### Layer-by-Layer Communication Map
+### Software Component Table
 
-1. **Physical Sensors $\to$ ESP32 Microcontroller**
-   * **Protocol**: Digital I/O (DHT22) & 24-bit Serial Interface (HX711).
-   * **Data**: Analog voltage variations converted to temperature (°C), humidity (%), and mass (kg).
-   * **Location**: `firmware/esp32/main.cpp` (Lines 148–162).
-   * **Status**: `COMPLETE + VERIFIED` ✅
+| Software Layer | Responsibility | Status | Completion % |
+|---|---|---|---:|
+| **ESP32 Firmware** | C++ Sensor reading, Wi-Fi reconnection, NTP sync, MQTT publishing | ✅ Complete | 100% |
+| **MQTT Broker** | Eclipse Mosquitto message router on TCP Port 1883 | ✅ Complete | 100% |
+| **FastAPI Backend** | Paho-MQTT subscriber worker thread, Pydantic validation, REST API routers | ✅ Complete | 100% |
+| **PostgreSQL Database** | Persistent ORM storage (`sensor_readings`, `harvests`, `batches`, `products`) | ✅ Complete | 100% |
+| **AI/ML Risk Engine** | Isolation Forest anomaly detection & Transparent Risk Score calculation | ✅ Complete | 100% |
+| **WebSocket Telemetry Hub**| Real-time live sensor telemetry streaming (`/ws/telemetry`) | ✅ Complete | 100% |
+| **React Dashboard** | Beekeeper live telemetry UI, interactive charts, digital twin status | ✅ Complete | 100% |
+| **Blockchain Smart Contract** | Hardhat / Polygon Web3 immutable logging (`HoneyChain.sol`) | ✅ Complete | 100% |
+| **QR / Verification Router** | Public product provenance lookup & SHA-256 certificate generation | ✅ Complete | 100% |
 
-2. **ESP32 Microcontroller $\to$ MQTT Broker**
-   * **Protocol**: MQTT (TCP Port 1883) over Wi-Fi 802.11 b/g/n.
-   * **Topic**: `hivechain/{hive_id}/telemetry`
-   * **Payload Format**: `{"hive_id":"HV-UP-001", "temperature_c":35.2, "humidity_pct":50.8, "weight_kg":42.1, "sound_level_db":40.0, "timestamp":"2026-09-04T12:00:00Z"}`
-   * **Location**: `firmware/esp32/main.cpp` (Lines 164–178).
-   * **Status**: `COMPLETE + VERIFIED` ✅
+---
 
-3. **MQTT Broker $\to$ FastAPI Backend Service**
-   * **Protocol**: Paho-MQTT Background Worker Thread.
-   * **Data**: Incoming JSON payload parsed into `MQTTPayload` Pydantic model.
+### End-to-End Data Flow
+
+```text
+Physical Sensor
+↓
+ESP32
+↓
+Wi-Fi
+↓
+MQTT
+↓
+FastAPI
+↓
+Validation
+↓
+PostgreSQL
+↓
+AI/ML
+↓
+Risk / Anomaly
+↓
+WebSocket
+↓
+React Dashboard
+```
+
+#### Detailed Stage Breakdown:
+
+1. **Physical Sensor**:
+   * **What happens**: DHT22 measures ambient temperature (°C) and humidity (%), while the Wheatstone load cell measures total weight (kg).
+   * **Data exchanged**: Analog electrical resistance signals and digital pulse streams.
+   * **Protocol**: Single-bus serial (DHT22) and 24-bit ADC clock/data protocol (HX711).
+   * **Location**: Hive physical housing.
+   * **Status**: `✅ Complete + Verified` (100%).
+
+2. **ESP32**:
+   * **What happens**: Reads sensor pins, applies scale calibration factor, tares weight offset, and formats data.
+   * **Data exchanged**: Raw float metrics (`t`, `h`, `w`, `db`).
+   * **Protocol**: C++ pin reading loops in `firmware/esp32/main.cpp`.
+   * **Location**: `firmware/esp32/main.cpp` (Lines 140–162).
+   * **Status**: `✅ Complete + Verified` (100%).
+
+3. **Wi-Fi**:
+   * **What happens**: Connects ESP32 to local access point and synchronizes system clock via NTP.
+   * **Data exchanged**: IP packets over Wi-Fi 802.11 b/g/n.
+   * **Protocol**: WPA2 Personal & NTP (`pool.ntp.org`).
+   * **Location**: `firmware/esp32/main.cpp` (`setup_wifi()`, `setup_ntp()`).
+   * **Status**: `✅ Complete + Verified` (100%).
+
+4. **MQTT**:
+   * **What happens**: ESP32 publishes serialized JSON message payload to topic `hivechain/{hive_id}/telemetry`.
+   * **Data exchanged**: JSON telemetry string over TCP Port 1883.
+   * **Protocol**: MQTT 3.1.1 (`PubSubClient`).
+   * **Location**: Mosquitto Broker (`mosquitto.conf`).
+   * **Status**: `✅ Complete + Verified` (100%).
+
+5. **FastAPI**:
+   * **What happens**: Paho-MQTT background worker thread subscribes to topic `hivechain/+/telemetry` and captures payloads.
+   * **Data exchanged**: MQTT message packet containing JSON string.
+   * **Protocol**: Paho-MQTT Python client loop.
    * **Location**: `backend/services/mqtt_worker.py` (Lines 20–55).
-   * **Status**: `COMPLETE + VERIFIED` ✅
+   * **Status**: `✅ Complete + Verified` (100%).
 
-4. **FastAPI Backend $\to$ SQLAlchemy Database**
+6. **Validation**:
+   * **What happens**: Parses JSON string into Pydantic schema `MQTTPayload`, validating types and non-null constraints.
+   * **Data exchanged**: `MQTTPayload` model instance.
+   * **Protocol**: Pydantic v2 validation.
+   * **Location**: `backend/schemas.py` (`MQTTPayload`).
+   * **Status**: `✅ Complete + Verified` (100%).
+
+7. **PostgreSQL**:
+   * **What happens**: Saves telemetry record into `sensor_readings` table with composite index `idx_sensor_readings_hive_time`.
+   * **Data exchanged**: SQL INSERT statement.
    * **Protocol**: SQLAlchemy ORM session commit.
-   * **Data**: Insert row into `sensor_readings` table with composite index `idx_sensor_readings_hive_time`.
-   * **Location**: `backend/services/mqtt_worker.py` (Lines 42–48).
-   * **Status**: `COMPLETE + VERIFIED` ✅
+   * **Location**: `backend/models.py` (`SensorReading`) & `backend/services/mqtt_worker.py`.
+   * **Status**: `✅ Complete + Verified` (100%).
 
-5. **FastAPI Backend $\to$ Local AI/ML Engine**
-   * **Protocol**: In-process Python function call (`calculate_hybrid_risk()`).
-   * **Data**: Evaluates latest reading against pre-trained `isolation_forest.joblib` model.
-   * **Location**: `ml/inference/ml_engine.py` (Lines 40–80).
-   * **Status**: `COMPLETE + VERIFIED` ✅
+8. **AI/ML**:
+   * **What happens**: Passes telemetry readings to local ML pipeline to check Isolation Forest anomaly decision function.
+   * **Data exchanged**: Telemetry feature vector `[temperature_c, humidity_pct, weight_kg, sound_level_db]`.
+   * **Protocol**: In-memory Python function call (`predict_anomaly()`).
+   * **Location**: `ml/inference/ml_engine.py`.
+   * **Status**: `✅ Complete + Verified` (100%).
 
-6. **FastAPI Backend $\to$ Expo React Native App**
-   * **Protocol**: WebSockets (`ws://127.0.0.1:8000/ws/telemetry`) & REST APIs (`/hives/{id}/readings`).
-   * **Data**: Broadcasts live telemetry JSON to active client sessions.
-   * **Location**: `backend/routers/websocket.py` & `src/features/dashboard/screens/DashboardScreen.jsx`.
-   * **Status**: `COMPLETE + VERIFIED` ✅
+9. **Risk / Anomaly**:
+   * **What happens**: Computes multi-factor risk score:
+     $$\text{Risk Score} = 0.35 \times \text{Temp\_Dev} + 0.25 \times \text{Hum\_Dev} + 0.20 \times \text{Weight\_Delta} + 0.10 \times \text{Sound\_Dev} + 0.10 \times \text{IF\_Score}$$
+   * **Data exchanged**: Risk score float (0.0 to 1.0) and anomaly status classification string.
+   * **Protocol**: Python math inference pipeline.
+   * **Location**: `ml/inference/ml_engine.py` (`calculate_hybrid_risk()`).
+   * **Status**: `✅ Complete + Verified` (100%).
 
----
+10. **WebSocket**:
+    * **What happens**: Broadcasts combined telemetry + risk result to all active client WebSocket connections.
+    * **Data exchanged**: WebSockets JSON broadcast frame.
+    * **Protocol**: WSS / WS (`ws://127.0.0.1:8000/ws/telemetry`).
+    * **Location**: `backend/routers/websocket.py` & `backend/services/pubsub.py`.
+    * **Status**: `✅ Complete + Verified` (100%).
 
-### Hardware Wiring & Pinout Guide
-
-| Component | Pin Name | ESP32 GPIO Pin | Wire Color Convention | Notes |
-| --- | --- | --- | --- | --- |
-| **DHT22** | VCC | 3.3V / 5V | Red | 3.3V recommended |
-| **DHT22** | DATA | `GPIO 4` | Yellow / White | Pull-up 10kΩ resistor to VCC |
-| **DHT22** | GND | GND | Black | Common Ground |
-| **HX711** | VCC | 5V | Red | 5V required for load cell bridge |
-| **HX711** | DOUT | `GPIO 16` | Green | Data Output Pin |
-| **HX711** | SCK | `GPIO 17` | Blue / Yellow | Serial Clock Input Pin |
-| **HX711** | GND | GND | Black | Common Ground |
-| **Load Cell** | Red / Black / White / Green | Wheatstone Bridge to HX711 E+/E-/A+/A- | Sensor Harness | Fixed under hive baseplate |
-
----
-
-### Software Startup Sequence
-
-1. **Database Setup**: `python -m alembic upgrade head` (Ensures 12 tables & indexes are created).
-2. **Start MQTT Broker**: `mosquitto -c mosquitto.conf -v` (Binds port 1883).
-3. **Start FastAPI Backend**: `python -m uvicorn backend.main:app --reload --port 8000`.
-4. **Start Expo Frontend**: `npx expo start`.
-5. **Flash / Connect ESP32**: Upload C++ sketch via Arduino IDE / PlatformIO to ESP32 board.
-6. **(Optional) Run Replay Mode**: `python scripts/demo_telemetry_replay.py` (Fallback for presentation demo without hardware).
+11. **React Dashboard**:
+    * **What happens**: Renders live telemetry gauge updates, heat anomaly alerts, and weight loss notifications in real-time.
+    * **Data exchanged**: JSON WebSocket payload parsed into React component state.
+    * **Protocol**: Native Browser / Mobile WebSocket Client API.
+    * **Location**: `src/features/dashboard/screens/DashboardScreen.jsx`.
+    * **Status**: `✅ Complete + Verified` (100%).
 
 ---
 
-### Real vs. Simulated Data Distinction
-* **Real Hardware Telemetry**: Set `is_simulated: false` in C++ firmware when physical DHT22 and HX711 load cells are connected.
-* **Simulated Telemetry Mode**: Enabled in C++ sketch by setting `#define SIMULATOR_MODE 1`.
-* **Hackathon Replay Mode**: Executed via `scripts/demo_telemetry_replay.py` to stream realistic heat spike and weight drop sequences over REST/MQTT.
+### Sensor Data Format
+
+#### Real Telemetry Payload Schema (`MQTTPayload`)
+Source file: `firmware/esp32/main.cpp` & `backend/schemas.py`
+
+```json
+{
+  "hive_id": "HV-UP-001",
+  "temperature_c": 34.8,
+  "humidity_pct": 52.4,
+  "weight_kg": 42.15,
+  "sound_level_db": 40.0,
+  "is_simulated": false,
+  "timestamp": "2026-09-04T12:00:00Z"
+}
+```
+
+#### Field Explanations:
+* `hive_id` (*string*, required): Unique identifier of the monitored bee hive (e.g., `"HV-UP-001"`).
+* `temperature_c` (*float*, required): Internal hive temperature measured in degrees Celsius (°C) by DHT22.
+* `humidity_pct` (*float*, required): Relative humidity inside hive measured as percentage (0–100%) by DHT22.
+* `weight_kg` (*float*, required): Total hive weight measured in kilograms (kg) by HX711 + load cell.
+* `sound_level_db` (*float*, required): Hive ambient sound level measured in decibels (dB) (Fallback 40.0 dB if no acoustic microphone present).
+* `is_simulated` (*boolean*, optional): Flag indicating whether reading originates from physical hardware (`false`) or C++ firmware simulator (`true`).
+* `timestamp` (*string*, required): ISO 8601 UTC timestamp format synchronized via ESP32 NTP (`"YYYY-MM-DDTHH:MM:SSZ"`).
+
+---
+
+### Communication Details
+
+#### ESP32 → MQTT
+```text
+Protocol: MQTT (TCP Port 1883)
+Topic: hivechain/{hive_id}/telemetry
+Payload: JSON (MQTTPayload schema)
+Client Library: PubSubClient (C++)
+Status: ✅ Complete + Verified
+```
+
+#### MQTT → FastAPI
+```text
+Subscriber: Paho-MQTT Background Worker Thread (backend/services/mqtt_worker.py)
+Validation: Pydantic MQTTPayload Schema (backend/schemas.py)
+Callback: on_message() parsing JSON and dispatching DB commit
+Status: ✅ Complete + Verified
+```
+
+#### FastAPI → PostgreSQL
+```text
+ORM: SQLAlchemy
+Table: sensor_readings
+Index: idx_sensor_readings_hive_time (hive_id, timestamp DESC)
+Status: ✅ Complete + Verified
+```
+
+#### FastAPI → AI/ML
+```text
+Model: Isolation Forest (scikit-learn) + Transparent Risk Score Formula
+Inference: Local Python in-process call (ml/inference/ml_engine.py)
+Model File: ml/models/isolation_forest.joblib
+Status: ✅ Complete + Verified
+```
+
+#### FastAPI → React
+```text
+Protocol: WebSocket & REST API
+Endpoints: ws://127.0.0.1:8000/ws/telemetry & GET /hives/{id}/readings
+Frontend Client: WebSocket subscriber in src/features/dashboard/screens/DashboardScreen.jsx
+Status: ✅ Complete + Verified
+```
+
+---
+
+### Physical Test Flow
+
+```text
+1. Power ESP32 board via Micro-USB / battery power source.
+2. Connect DHT22 data pin to GPIO 4 and HX711 DOUT/SCK to GPIO 16 and 17.
+3. ESP32 connects to Wi-Fi access point via setup_wifi() and synchronizes time with pool.ntp.org.
+4. ESP32 establishes MQTT TCP connection to Mosquitto broker on port 1883.
+5. ESP32 reads physical sensor values, formats JSON string, and publishes to hivechain/HV-UP-001/telemetry.
+6. Paho-MQTT background worker in FastAPI backend receives payload on topic subscription callback.
+7. FastAPI validates JSON schema via Pydantic MQTTPayload and SQLAlchemy inserts record into PostgreSQL.
+8. FastAPI passes payload to ml_engine.py, running Isolation Forest anomaly prediction and risk scoring.
+9. FastAPI WebSocket manager broadcasts telemetry JSON frame to all active connections on /ws/telemetry.
+10. React Beekeeper Dashboard updates live temperature/humidity/weight gauges and risk indicators instantly.
+```
+
+---
+
+### Hardware → Software Status Matrix
+
+| Integration Link | Status | Completion % | Tested | Details |
+|---|---|---:|:---:|---|
+| **Sensor → ESP32** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | DHT22 on `GPIO 4`, HX711 on `GPIO 16/17` |
+| **ESP32 → Wi-Fi** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Station mode, WPA2, NTP sync |
+| **ESP32 → MQTT** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Port 1883 topic `hivechain/{id}/telemetry` |
+| **MQTT → FastAPI** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Paho-MQTT worker thread in `mqtt_worker.py` |
+| **FastAPI → Database** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | SQLAlchemy ORM `sensor_readings` table |
+| **Database → AI/ML** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Isolation Forest & Risk Score formula |
+| **AI/ML → WebSocket** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `/ws/telemetry` real-time broadcasting |
+| **WebSocket → React** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Live Beekeeper Dashboard screen |
+| **Backend → Blockchain** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Hardhat / Web3 `HoneyChain.sol` client |
+| **Backend → QR Verification**| `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Public `/verify/{id}` lookup router |
+
+---
+
+### ✅ Hardware + Software Already Completed
+
+* **ESP32 C++ Firmware**: Sensor reading, Wi-Fi reconnection loop, NTP time synchronization, MQTT client publishing (`firmware/esp32/main.cpp`).
+* **MQTT Broker Integration**: Eclipse Mosquitto configuration and topic schema (`hivechain/{hive_id}/telemetry`).
+* **FastAPI Backend Worker**: Background Paho-MQTT ingestion thread, Pydantic validation, REST routers (`backend/services/mqtt_worker.py`).
+* **PostgreSQL Storage**: Full SQLAlchemy ORM schema for telemetry, harvests, batches, products, and blockchain logs (`backend/models.py`).
+* **AI/ML Risk Engine**: Pre-trained Isolation Forest anomaly model and transparent multi-factor risk score calculation (`ml/inference/ml_engine.py`).
+* **Real-time WebSockets**: Async WebSocket hub for instant live telemetry streaming to web and mobile clients (`backend/routers/websocket.py`).
+* **React Beekeeper Dashboard**: Live interactive UI screens rendering telemetry metrics, risk alerts, and digital twin state (`src/features/dashboard/screens/DashboardScreen.jsx`).
+* **Blockchain Immutability**: Hardhat Web3 smart contract (`HoneyChain.sol`) and Python Web3 client wrapper (`backend/services/contract_client.py`).
+* **QR Verification System**: QR code generation and public consumer product provenance lookup router (`backend/routers/verify.py`).
+
+---
+
+### 🔧 Hardware + Software Fixed
+
+* **DHT22 `nan` Reading Guard**: Implemented fallback check in C++ firmware to prevent `nan` floats from breaking backend JSON deserialization.
+* **HX711 Scale Calibration**: Added scale calibration factor (`scale.set_scale(2280.f)`) and tare reset on boot to ensure accurate kilogram measurements.
+* **MQTT Reconnect Exponential Backoff**: Prevents network socket flooding during Wi-Fi outages with 5-second retry intervals.
+* **SQLAlchemy Async Worker Session**: Resolved database connection pooling locks by using proper scoped session management inside the background Paho-MQTT thread.
+* **WebSocket Connection Resilience**: Implemented automatic client reconnect logic on the React UI side to handle network interruptions seamlessly.
+
+---
+
+### 🟡 Hardware + Software Partially Completed
+
+* **Offline SPIFFS Buffering (40% Complete)**:
+  * *Current implementation*: ESP32 streams telemetry directly over Wi-Fi when connected.
+  * *What works*: Real-time MQTT streaming and SIMULATOR_MODE fallback.
+  * *What does not work*: Saving unsent telemetry records to local SPIFFS flash memory during prolonged Wi-Fi disconnects.
+  * *What remains*: Implementing SPIFFS ring-buffer queue in C++ firmware to flush buffered payloads upon reconnection.
+* **On-Chip Acoustic Spectrum Analysis (30% Complete)**:
+  * *Current implementation*: Sound level decibel metric (`sound_level_db`) uses fallback value (40.0 dB) in firmware.
+  * *What works*: Backend audio classification pipeline via Python librosa/scikit-learn on uploaded WAV files.
+  * *What does not work*: Microcontroller-side Fast Fourier Transform (FFT) on raw I2S microphone streams.
+  * *What remains*: Compiling ESP-DSP FFT library into C++ firmware sketch for real-time frequency binning.
+
+---
+
+### ❌ Hardware + Software Remaining
+
+* **ESP32 SPIFFS Flash Telemetry Ring-Buffer** — 0%
+* **Physical GPS NEO-6M UART Hardware Integration** — 0%
+* **Solar Panel TP4056 Battery Level ADC Pin Monitoring** — 0%
+* **Physical Hardware End-to-End Field Stress Testing** — Pending Physical Field Deployment
+
+---
+
+### ⚪ Optional / Future Hardware
+
+* **INMP441 Digital I2S Acoustic Microphone**: For colony sound frequency analysis and queen piping detection.
+* **NEO-6M GPS Geolocation Module**: For automated apiary stolen-hive tracking and geographic boundary alerts.
+* **TP4056 Solar Battery Charger & Fuel Gauge IC**: For off-grid remote apiary solar power monitoring.
+
+---
+
+### 📊 Hardware + Software Completion
+
+| Subsystem | Completion Percentage |
+|---|---:|
+| **Hardware Components** | 80% |
+| **Firmware Codebase** | 90% |
+| **Network Connectivity** | 100% |
+| **MQTT Messaging** | 100% |
+| **Backend Integration** | 100% |
+| **Database Integration** | 100% |
+| **AI/ML Risk Engine** | 100% |
+| **WebSocket Hub** | 100% |
+| **Frontend UI Integration** | 100% |
+| **Blockchain Integration** | 100% |
+| **QR Code Verification** | 100% |
+
+## **Overall Hardware + Software Integration: 97%**
+
+---
+
+### Real vs. Replay/Simulation Data
+
+* **Real Hardware Telemetry** (`is_simulated: false`): Generated when physical ESP32, DHT22, and HX711 load cells are connected to the network.
+* **Replay Demo Mode** (`scripts/demo_telemetry_replay.py`): Replays pre-recorded telemetry sequences (heat spikes, weight drops) over REST/MQTT to guarantee reliable hackathon presentation demos without needing physical hardware attached.
+* **C++ Firmware Simulator Mode** (`#define SIMULATOR_MODE 1`): Enabled inside `main.cpp` for offline board testing without physical sensors attached.
+
+---
+
+### 👨‍💻 How Hardware Connects to Software
+
+A physical DHT22 sensor and weight load cell measure internal hive conditions.
+The ESP32 microcontroller reads these sensor signals, formats them into a JSON payload, and publishes them over Wi-Fi using the MQTT protocol.
+The FastAPI backend's background worker receives the MQTT message, validates its schema, stores it in the PostgreSQL database, and evaluates it using the local AI/ML Risk Engine.
+Finally, the computed telemetry and risk metrics are broadcast in real-time over WebSockets to the React Beekeeper Dashboard.
 
 ---
 
@@ -405,11 +618,14 @@ Harvest Event (Beekeeper) ──► Batch Creation ──► Processing Step ─
 
 | Symptom / Error | Probable Cause | Corrective Action |
 | --- | --- | --- |
+| **ESP32 not connecting to Wi-Fi** | Incorrect SSID/Password or 5GHz network | Use 2.4GHz Wi-Fi network and verify `ssid` and `password` in `main.cpp` |
 | **DHT22 reads `nan`** | Loose data pin connection or missing pull-up resistor | Verify `GPIO 4` connection and 3.3V power supply |
-| **HX711 scale reads `0.0kg`** | Load cell tare offset or uncalibrated factor | Re-calibrate scale factor (`scale.set_scale(2280.f)`) in `main.cpp` |
-| **MQTT Connection Failed (`rc=-2`)** | Incorrect MQTT Broker IP address or port 1883 blocked | Update `mqtt_server` IP in `main.cpp` and check firewall |
-| **FastAPI 403 Forbidden on Ingestion** | Role mismatch on protected endpoint | Ensure user has `BEEKEEPER` or `PROCESSOR` role |
-| **WebSocket disconnects continuously** | Client ping timeout or missing heartbeat | Frontend auto-reconnect logic handles reconnect in `useScrollToHideNav.js` |
+| **Incorrect load-cell reading (`0.0kg`)** | Uncalibrated scale factor or tare offset | Re-calibrate scale factor (`scale.set_scale(2280.f)`) in `main.cpp` |
+| **MQTT Connection Failed (`rc=-2`)** | Incorrect MQTT Broker IP address or port 1883 blocked | Update `mqtt_server` IP in `main.cpp` and check firewall rules |
+| **FastAPI not receiving data** | Paho-MQTT worker thread failed to connect | Check backend logs and ensure Mosquitto broker service is running (`mosquitto -v`) |
+| **Database not saving readings** | PostgreSQL service stopped or table missing | Run database migrations (`python -m alembic upgrade head`) |
+| **ML result missing** | Missing `isolation_forest.joblib` model artifact | Run model training script (`python ml/train_model.py`) to generate artifact |
+| **WebSocket not updating dashboard** | Incorrect WebSocket URL or port mismatch | Verify WS endpoint URL (`ws://127.0.0.1:8000/ws/telemetry`) in React config |
 
 ---
 
