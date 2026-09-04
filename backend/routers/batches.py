@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/batches", tags=["Batches"])
 
+@router.post("", response_model=schemas.BatchResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.BatchResponse, status_code=status.HTTP_201_CREATED)
 def create_batch(
     batch_req: schemas.BatchCreate, 
@@ -283,6 +284,7 @@ def transfer_custody(
 
     return transfer_record
 
+@router.get("", response_model=List[schemas.BatchResponse])
 @router.get("/", response_model=List[schemas.BatchResponse])
 def get_batches(db: Session = Depends(get_db)):
     return db.query(models.Batch).order_by(models.Batch.created_at.desc()).all()

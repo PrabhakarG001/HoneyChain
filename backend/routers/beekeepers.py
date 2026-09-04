@@ -10,6 +10,7 @@ from ..auth import require_role, get_current_user
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/beekeepers", tags=["Beekeepers"])
 
+@router.post("", response_model=schemas.BeekeeperResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.BeekeeperResponse, status_code=status.HTTP_201_CREATED)
 def create_beekeeper(
     bk_req: schemas.BeekeeperCreate,
@@ -38,6 +39,7 @@ def create_beekeeper(
     logger.info(f"Beekeeper profile '{beekeeper_id}' created for user '{current_user.username}'.")
     return new_bk
 
+@router.get("", response_model=List[schemas.BeekeeperResponse])
 @router.get("/", response_model=List[schemas.BeekeeperResponse])
 def get_beekeepers(
     db: Session = Depends(get_db),

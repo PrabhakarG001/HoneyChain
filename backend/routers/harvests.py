@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/harvests", tags=["Harvests"])
 
+@router.post("", response_model=schemas.HarvestResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.HarvestResponse, status_code=status.HTTP_201_CREATED)
 def create_harvest(
     harvest: schemas.HarvestCreate, 
@@ -135,6 +136,7 @@ def create_harvest(
         )
     )
 
+@router.get("", response_model=List[schemas.HarvestDetailResponse])
 @router.get("/", response_model=List[schemas.HarvestDetailResponse])
 def get_harvests(
     hive_id: Optional[str] = None, 

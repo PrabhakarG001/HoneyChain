@@ -14,6 +14,7 @@ import InsightCard from '../../../components/ui/InsightCard/InsightCard';
 import HumanizedStat from '../../../components/ui/HumanizedStat/HumanizedStat';
 import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import TopHeader from '../../../components/navigation/TopHeader';
 import ProtocolOverview from '../../../components/ui/ProtocolOverview/ProtocolOverview';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
@@ -48,16 +49,13 @@ export default function DashboardScreen() {
       setError(null);
 
       if (isCustomer) {
-        // Customers don't own hives; they view verified batches & transparency hub
         setHives([]);
       } else {
-        // Beekeepers fetch their hives
         const hivesData = await hiveService.getAllHives();
         setHives(hivesData || []);
       }
     } catch (err) {
       if (err.response?.status === 403) {
-        // Customer tried accessing beekeeper API (or vice versa), backend correctly rejected with 403
         setHives([]);
       } else {
         console.error('Failed to fetch dashboard data:', err);
@@ -76,14 +74,6 @@ export default function DashboardScreen() {
     } else if (item.type === 'hive') {
       router.push(`/hives/${item.id}`);
     }
-  };
-
-  const openSearch = () => {
-    router.push('/(app)/(tabs)/explore');
-  };
-
-  const openProfile = () => {
-    router.push('/(app)/(tabs)/profile');
   };
 
   const renderMasonryItem = ({ item }) => (
@@ -118,16 +108,7 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.compactHeader}>
-        <BrandLogo style={styles.logoContainer} />
-        <TouchableOpacity style={styles.searchBarButton} onPress={openSearch} activeOpacity={0.8}>
-          <Search size={18} color={theme.colors.text.secondary} />
-          <Text style={styles.searchPlaceholder}>Search batches, farms...</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={openProfile}>
-          <UserAvatar user={user} size={36} />
-        </TouchableOpacity>
-      </View>
+      <TopHeader />
 
       <ScrollView 
         showsVerticalScrollIndicator={false}

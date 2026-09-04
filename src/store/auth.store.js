@@ -31,6 +31,15 @@ export const useAuthStore = create((set) => ({
     });
   },
 
+  updateUser: (updatedFields) => {
+    set((state) => {
+      if (!state.user) return state;
+      const newUser = { ...state.user, ...updatedFields };
+      setItemAsync('user', JSON.stringify(newUser));
+      return { user: newUser };
+    });
+  },
+
   restoreSession: async () => {
     try {
       const token = await getItemAsync('access_token');

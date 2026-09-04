@@ -9,6 +9,10 @@ const getDefaultApiUrl = () => {
   if (Platform.OS === 'android') {
     return 'http://10.0.2.2:8000/api';
   }
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    const hostname = window.location.hostname || 'localhost';
+    return `http://${hostname}:8000/api`;
+  }
   return 'http://localhost:8000/api';
 };
 
@@ -30,11 +34,15 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response && error.response.status === 401) {
-      const { useAuthStore } = require('../store/auth.store');
-      await useAuthStore.getState().logout();
-    } else if (!error.response || error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+    if (error.response) {
+      if (error.response.status === 401) {
+        const { useAuthStore } = require('../store/auth.store');
+        await useAuthStore.getState().logout();
+      }
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_CONNECTION_REFUSED') {
       error.message = `Cannot connect to HoneyChain backend server at ${API_URL}. Please start the backend server (python -m uvicorn backend.main:app --port 8000).`;
+    } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+      error.message = `Network error connecting to ${API_URL}. Please verify network settings and CORS configuration.`;
     }
     return Promise.reject(error);
   }

@@ -9,16 +9,25 @@ import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 import { hiveService } from '../../../services/hive.service';
 
+import { useLocalSearchParams } from 'expo-router';
+
 const RECENT_SEARCHES = ['Acacia Honey', 'Varanasi Farms', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
 const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 
 export default function SearchScreen() {
-  const [query, setQuery] = useState('');
+  const params = useLocalSearchParams();
+  const [query, setQuery] = useState(params?.q || '');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
+
+  useEffect(() => {
+    if (params?.q) {
+      setQuery(params.q);
+    }
+  }, [params?.q]);
 
   useEffect(() => {
     if (query.length > 2) {

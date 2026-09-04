@@ -38,7 +38,8 @@ export const authService = {
           username: userResponse.data.username,
           name: userResponse.data.name || userResponse.data.username,
           role: userResponse.data.role,
-          avatarUrl: userResponse.data.avatar_url || null
+          avatarUrl: userResponse.data.avatar_url || null,
+          bio: userResponse.data.bio || ''
         },
         accessToken: token
       };
@@ -51,6 +52,29 @@ export const authService = {
     try {
       const response = await api.get('/users/me');
       return response.data;
+    } catch (err) {
+      throw new Error(parseAuthError(err));
+    }
+  },
+
+  updateProfile: async (updateData) => {
+    try {
+      const response = await api.put('/users/me', {
+        name: updateData.name,
+        username: updateData.username,
+        avatar_url: updateData.avatarUrl !== undefined ? updateData.avatarUrl : updateData.avatar_url,
+        bio: updateData.bio
+      });
+      const data = response.data;
+      return {
+        id: data.id || data.username,
+        email: data.username,
+        username: data.username,
+        name: data.name || data.username,
+        role: data.role,
+        avatarUrl: data.avatar_url || null,
+        bio: data.bio || ''
+      };
     } catch (err) {
       throw new Error(parseAuthError(err));
     }

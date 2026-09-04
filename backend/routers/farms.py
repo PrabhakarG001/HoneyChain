@@ -8,6 +8,7 @@ import uuid
 
 router = APIRouter(prefix="/farms", tags=["Farms"])
 
+@router.post("")
 @router.post("/")
 def create_farm(farm_data: dict, db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
     farm_id = farm_data.get("id") or f"farm-{uuid.uuid4().hex[:8]}"
@@ -27,6 +28,7 @@ def create_farm(farm_data: dict, db: Session = Depends(get_db), current_user = D
     db.refresh(db_farm)
     return db_farm
 
+@router.get("")
 @router.get("/")
 def get_farms(db: Session = Depends(get_db), current_user = Depends(require_role(["beekeeper", "admin"]))):
     return db.query(models.Farm).filter(models.Farm.owner_id == current_user.id).all()

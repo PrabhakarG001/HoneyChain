@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
+@router.post("", response_model=schemas.ProductResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.ProductResponse, status_code=status.HTTP_201_CREATED)
 def create_product(
     prod_req: schemas.ProductCreate, 
@@ -67,6 +68,7 @@ def create_product(
 
     return new_product
 
+@router.get("", response_model=List[schemas.ProductResponse])
 @router.get("/", response_model=List[schemas.ProductResponse])
 def get_products(db: Session = Depends(get_db)):
     return db.query(models.Product).order_by(models.Product.created_at.desc()).all()

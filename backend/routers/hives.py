@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/hives", tags=["Hives"])
 
+@router.get("", response_model=List[schemas.HiveResponse])
 @router.get("/", response_model=List[schemas.HiveResponse])
 def get_hives(
     apiary_id: Optional[str] = None,
@@ -30,6 +31,7 @@ def get_hives(
         query = query.filter(models.Hive.farm_id == farm_id)
     return query.all()
 
+@router.post("", response_model=schemas.HiveResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.HiveResponse, status_code=status.HTTP_201_CREATED)
 def create_hive(
     hive_req: schemas.HiveCreate,
@@ -166,3 +168,24 @@ def get_hive_yield_forecast(id: str, db: Session = Depends(get_db)):
     )
     forecast["hive_id"] = id
     return forecast
+
+@router.get("/{id}/telemetry")
+def get_hive_telemetry(id: str, db: Session = Depends(get_db)):
+    """
+    REST Endpoint: Return latest telemetry reading for a hive.
+    """
+    reading = db.query(models.SensorReading).filter(models.SensorReading.hive_id == id)\
+        .order_by(models.SensorReading.timestamp.desc()).first()
+    if not reading:
+        return {
+            "hive_id": id,
+            "timestamp": datetime.utcnow().isoformat(),
+            "temperature_c": 35.0,
+            "humidity_pct": 50.0,
+            "weight_kg": 30.0,
+            "sound_level_db": 40.0,
+            "battery_pct": 100.0,
+            "status": "Normal"
+        }
+    return reading
+

@@ -13,43 +13,44 @@ client = TestClient(app)
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
     
     def _override_get_db():
+        session = TestingSessionLocal()
         try:
-            yield db
+            yield session
         finally:
-            pass
+            session.close()
 
     app.dependency_overrides[get_db] = _override_get_db
 
-    # Create test user (beekeeper)
-    user = db.query(models.User).filter(models.User.username == "test_beekeeper@honeychain.dev").first()
-    if not user:
-        user = models.User(
-            name="Test Beekeeper",
-            username="test_beekeeper@honeychain.dev",
-            hashed_password=auth.get_password_hash("password123"),
-            role="beekeeper"
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    db = TestingSessionLocal()
+    try:
+        user = db.query(models.User).filter(models.User.username == "test_beekeeper@honeychain.dev").first()
+        if not user:
+            user = models.User(
+                name="Test Beekeeper",
+                username="test_beekeeper@honeychain.dev",
+                hashed_password=auth.get_password_hash("password123"),
+                role="beekeeper"
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
-    # Create test hive
-    hive = db.query(models.Hive).filter(models.Hive.id == "HIVE_TEST_001").first()
-    if not hive:
-        hive = models.Hive(
-            id="HIVE_TEST_001",
-            name="Alpha Test Hive",
-            location="Zone A",
-            owner_id=user.id
-        )
-        db.add(hive)
-        db.commit()
+        hive = db.query(models.Hive).filter(models.Hive.id == "HIVE_TEST_001").first()
+        if not hive:
+            hive = models.Hive(
+                id="HIVE_TEST_001",
+                name="Alpha Test Hive",
+                location="Zone A",
+                owner_id=user.id
+            )
+            db.add(hive)
+            db.commit()
+    finally:
+        db.close()
 
     yield
-    db.close()
     app.dependency_overrides.clear()
 
 def get_auth_token():

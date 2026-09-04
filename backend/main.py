@@ -29,6 +29,24 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up FastAPI application...")
     from .database import engine as db_engine
     models.Base.metadata.create_all(bind=db_engine)
+    
+    # Ensure avatar_url and bio columns exist in SQLite database
+    try:
+        with db_engine.connect() as conn:
+            from sqlalchemy import text
+            res = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+            cols = [r[1] for r in res]
+            if "avatar_url" not in cols:
+                logger.info("Adding column avatar_url to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN avatar_url VARCHAR"))
+                conn.commit()
+            if "bio" not in cols:
+                logger.info("Adding column bio to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN bio VARCHAR"))
+                conn.commit()
+    except Exception as e:
+        logger.warning(f"DB auto-migration error: {e}")
+
     mqtt_worker.start()
     
     yield
@@ -40,10 +58,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
-# CORS
+# CORS configuration supporting credentials and flexible origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -153,6 +171,55 @@ def refresh_token(current_user: models.User = Depends(get_current_user)):
 def read_users_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
+@app.put("/users/me", response_model=schemas.UserResponse)
+@app.put("/api/users/me", response_model=schemas.UserResponse)
+def update_users_me(user_update: schemas.UserUpdate, current_user: models.User = Depends(get_current_user), db = Depends(get_db)):
+    if user_update.username and user_update.username != current_user.username:
+        existing = db.query(models.User).filter(models.User.username == user_update.username).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Username already taken")
+        current_user.username = user_update.username
+
+    if user_update.name is not None:
+        current_user.name = user_update.name
+    if user_update.avatar_url is not None:
+        current_user.avatar_url = user_update.avatar_url
+    if user_update.bio is not None:
+        current_user.bio = user_update.bio
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@app.post("/telemetry/bulk")
+@app.post("/api/telemetry/bulk")
+def receive_bulk_telemetry(readings: list, db = Depends(get_db)):
+    """Bulk offline telemetry ingest endpoint."""
+    count = 0
+    for item in readings:
+        try:
+            r = models.SensorReading(
+                hive_id=item.get("hive_id") or item.get("hiveId"),
+                timestamp=item.get("timestamp"),
+                temperature_c=item.get("temperature_c") or item.get("temperature"),
+                humidity_pct=item.get("humidity_pct") or item.get("humidity"),
+                weight_kg=item.get("weight_kg") or item.get("weight"),
+                sound_level_db=item.get("sound_level_db") or item.get("sound_level"),
+                battery_pct=item.get("battery_pct") or item.get("battery"),
+                lat=item.get("lat"),
+                lng=item.get("lng")
+            )
+            db.add(r)
+            count += 1
+        except Exception:
+            pass
+    db.commit()
+    return {"status": "success", "processed_count": count}
+
 @app.get("/")
+@app.get("/api")
+@app.get("/health")
+@app.get("/api/health")
 def read_root():
-    return {"message": "Welcome to HoneyChain Backend"}
+    return {"status": "ok", "message": "Welcome to HoneyChain Backend"}
+

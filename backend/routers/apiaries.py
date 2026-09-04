@@ -10,6 +10,7 @@ from ..auth import require_role, get_current_user
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/apiaries", tags=["Apiaries"])
 
+@router.post("", response_model=schemas.ApiaryResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.ApiaryResponse, status_code=status.HTTP_201_CREATED)
 def create_apiary(
     apiary_req: schemas.ApiaryCreate,
@@ -60,6 +61,7 @@ def create_apiary(
     logger.info(f"Apiary '{apiary_id}' created successfully.")
     return new_apiary
 
+@router.get("", response_model=List[schemas.ApiaryResponse])
 @router.get("/", response_model=List[schemas.ApiaryResponse])
 def get_apiaries(
     db: Session = Depends(get_db),

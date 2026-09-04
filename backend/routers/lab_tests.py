@@ -10,6 +10,7 @@ from ..auth import require_role, get_current_user
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/lab-tests", tags=["Lab Tests"])
 
+@router.post("", response_model=schemas.LabTestResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=schemas.LabTestResponse, status_code=status.HTTP_201_CREATED)
 def create_lab_test(
     test_req: schemas.LabTestCreate,
@@ -36,6 +37,7 @@ def create_lab_test(
     logger.info(f"Lab test '{test_id}' attached to batch '{batch.id}' by '{current_user.username}'.")
     return new_test
 
+@router.get("", response_model=List[schemas.LabTestResponse])
 @router.get("/", response_model=List[schemas.LabTestResponse])
 def get_lab_tests(
     db: Session = Depends(get_db),

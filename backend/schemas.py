@@ -7,9 +7,17 @@ class UserBase(BaseModel):
     username: str
     role: str
     name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    username: Optional[str] = None
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int
@@ -172,9 +180,9 @@ class ProductCreate(BaseModel):
 class ProductResponse(BaseModel):
     id: str
     batch_id: str
-    product_code: str
+    product_code: Optional[str] = None
     name: str
-    bottle_date: datetime
+    bottle_date: Optional[datetime] = None
     qr_code: Optional[str] = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
