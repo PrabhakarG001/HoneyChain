@@ -118,19 +118,23 @@ export default function TopHeader({ onSearchQueryChange }) {
 
         {/* Right Actions: Plus (+) Button, Chat & Avatar */}
         <View style={styles.rightActions}>
-          <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: colors.surface }]}
-            onPress={() => setIsCreateMenuVisible(true)}
-          >
-            <Plus size={20} color={colors.text} strokeWidth={2.5} />
-          </TouchableOpacity>
+          {(user?.role || '').toUpperCase() !== 'CUSTOMER' && (
+            <TouchableOpacity 
+              style={[styles.actionBtn, { backgroundColor: colors.surface }]}
+              onPress={() => setIsCreateMenuVisible(true)}
+            >
+              <Plus size={20} color={colors.text} strokeWidth={2.5} />
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: colors.surface }]}
-            onPress={() => router.push('/(app)/(tabs)/notifications')}
-          >
-            <MessageSquare size={20} color={colors.text} />
-          </TouchableOpacity>
+          {(user?.role || '').toUpperCase() !== 'CUSTOMER' && (
+            <TouchableOpacity 
+              style={[styles.actionBtn, { backgroundColor: colors.surface }]}
+              onPress={() => router.push('/(app)/(tabs)/notifications')}
+            >
+              <MessageSquare size={20} color={colors.text} />
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity 
             onPress={() => setIsDropdownVisible(true)}

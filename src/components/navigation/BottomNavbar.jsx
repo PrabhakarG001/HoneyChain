@@ -44,6 +44,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
       ]}>
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null;
+          if (userRole === 'CUSTOMER' && route.name === 'explore') return null;
 
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
