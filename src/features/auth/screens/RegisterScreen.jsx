@@ -426,6 +426,7 @@ export default function RegisterScreen() {
                 >
                   <Text style={styles.footerLink}>Sign In</Text>
                 </TouchableOpacity>
+              </View>
             </View>
 
           </View>

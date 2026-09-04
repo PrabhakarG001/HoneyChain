@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
-import { Bell, Plus, MessageSquare } from 'lucide-react-native';
+import { View, TouchableOpacity, StyleSheet, useWindowDimensions, Text } from 'react-native';
+import { Bell, Plus, MessageSquare, Globe } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useTranslation } from '../../hooks/useTranslation';
 import BrandLogo from '../ui/BrandLogo/BrandLogo';
 import UserAvatar from '../ui/UserAvatar/UserAvatar';
 import ProfileDropdown from '../profile/ProfileDropdown';
 import EditProfileModal from '../profile/EditProfileModal';
 import LogoutConfirmModal from '../profile/LogoutConfirmModal';
 import CreateMenu from '../ui/CreateMenu/CreateMenu';
+import LanguageModal from '../ui/LanguageModal/LanguageModal';
 
 export default function TopHeader() {
   const { user } = useAuthStore();
   const router = useRouter();
   const colors = useThemeColors();
+  const { t, currentLanguage } = useTranslation();
   const { width } = useWindowDimensions();
 
   const isPhone = width < 768;
@@ -29,6 +32,7 @@ export default function TopHeader() {
   const [isEditProfileVisible, setIsEditProfileVisible] = useState(false);
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   const [isCreateMenuVisible, setIsCreateMenuVisible] = useState(false);
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
 
   return (
     <>
@@ -66,6 +70,16 @@ export default function TopHeader() {
               <MessageSquare size={20} color={colors.text} />
             </TouchableOpacity>
           )}
+
+          {/* Language Selector Globe Icon */}
+          <TouchableOpacity 
+            style={[styles.actionBtn, { backgroundColor: colors.surface }]}
+            onPress={() => setIsLangModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Select language"
+          >
+            <Globe size={20} color={colors.accent} />
+          </TouchableOpacity>
 
           {/* Requirement 2: Notification Bell Icon in top navbar */}
           <TouchableOpacity 
@@ -111,6 +125,11 @@ export default function TopHeader() {
       <LogoutConfirmModal
         isVisible={isLogoutVisible}
         onClose={() => setIsLogoutVisible(false)}
+      />
+
+      <LanguageModal
+        visible={isLangModalVisible}
+        onClose={() => setIsLangModalVisible(false)}
       />
     </>
   );
