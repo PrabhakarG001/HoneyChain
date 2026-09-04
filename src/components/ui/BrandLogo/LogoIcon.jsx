@@ -1,32 +1,42 @@
 import React from 'react';
-import Svg, { Rect, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 /**
- * Premium HoneyChain Brand Icon: White "H" on a Honey/Golden Squircle Badge
+ * Custom Minimalist Geometric Hexagon (Honeycomb) interlaced with an Oval Chain Link
  */
 export default function LogoIcon({ 
   size = 32, 
-  badgeColor = '#F4B942', // Warm Honey Gold
-  hColor = '#FFFFFF',      // Crisp White H
+  color,
+  accentColor = '#F4B942',
   style 
 }) {
+  const strokeColor = color || '#000000';
+
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" style={style} fill="none">
-      {/* Honey Golden Squircle Container */}
-      <Rect
-        x="4"
-        y="4"
-        width="92"
-        height="92"
-        rx="26"
-        ry="26"
-        fill={badgeColor}
+      {/* Outer Hexagon (Honeycomb Cell) */}
+      <Path
+        d="M 50 8 L 88 30 L 88 70 L 50 92 L 12 70 L 12 30 Z"
+        stroke={strokeColor}
+        strokeWidth="6"
+        strokeLinejoin="round"
+        fill="none"
       />
 
-      {/* Clean, Modern, Minimal White H Symbol */}
+      {/* Interlaced Oval Chain Link Left */}
       <Path
-        d="M 26 28 C 26 25.8 27.8 24 30 24 L 35 24 C 37.2 24 39 25.8 39 28 L 39 43.5 L 61 43.5 L 61 28 C 61 25.8 62.8 24 65 24 L 70 24 C 72.2 24 74 25.8 74 28 L 74 72 C 74 74.2 72.2 76 70 76 L 65 76 C 62.8 76 61 74.2 61 72 L 61 56.5 L 39 56.5 L 39 72 C 39 74.2 37.2 76 35 76 L 30 76 C 27.8 76 26 74.2 26 72 Z"
-        fill={hColor}
+        d="M 32 40 C 32 30, 48 30, 48 40 L 48 60 C 48 70, 32 70, 32 60 Z"
+        stroke={accentColor}
+        strokeWidth="5"
+        fill="none"
+      />
+
+      {/* Interlaced Oval Chain Link Right */}
+      <Path
+        d="M 52 40 C 52 30, 68 30, 68 40 L 68 60 C 68 70, 52 70, 52 60 Z"
+        stroke={strokeColor}
+        strokeWidth="5"
+        fill="none"
       />
     </Svg>
   );

@@ -8,14 +8,12 @@ export default function BrandLogo({
   iconSize = 32, 
   textStyle,
   showText = true,
-  badgeColor,
 }) {
   const colors = useThemeColors();
-  const effectiveBadgeColor = badgeColor || colors.accent || '#F4B942';
 
   return (
     <View style={[styles.container, style]}>
-      <LogoIcon size={iconSize} badgeColor={effectiveBadgeColor} hColor="#FFFFFF" />
+      <LogoIcon size={iconSize} color={colors.text} accentColor={colors.accent || '#F4B942'} />
       {showText && (
         <Text style={[styles.logoText, { color: colors.text }, textStyle]}>
           HoneyChain

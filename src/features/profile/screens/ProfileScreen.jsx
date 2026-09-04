@@ -3,7 +3,7 @@ import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicat
 import { Edit3, LogOut, Share2 } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { hiveService } from '../../../services/hive.service';
-import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 import styles from './ProfileScreen.styles';
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
@@ -27,6 +27,7 @@ const SAMPLE_PROFILE_HIVES = [
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
+  const colors = useThemeColors();
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
 
@@ -78,11 +79,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <TopHeader />
 
       <ScrollView 
-        style={styles.flex1} 
+        style={[styles.flex1, { backgroundColor: colors.background }]} 
         showsVerticalScrollIndicator={false}
         onScroll={onScroll}
         scrollEventThrottle={scrollEventThrottle}
@@ -93,15 +94,17 @@ export default function ProfileScreen() {
             style={styles.avatarContainer} 
             onPress={() => setIsProfileHubVisible(true)}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Open profile hub"
           >
             <UserAvatar user={user} size={96} />
-            <View style={styles.editAvatarBadge}>
-              <Edit3 size={16} color={theme.colors.charcoal} />
+            <View style={[styles.editAvatarBadge, { backgroundColor: colors.accent, borderColor: colors.background }]}>
+              <Edit3 size={16} color="#000000" />
             </View>
           </TouchableOpacity>
 
-          <Text style={styles.name}>{user?.name || user?.username || 'HoneyChain User'}</Text>
-          <Text style={styles.username}>@{user?.username || 'username'}</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{user?.name || user?.username || 'HoneyChain User'}</Text>
+          <Text style={[styles.username, { color: colors.subtext }]}>@{user?.username || 'username'}</Text>
 
           <View style={styles.badgeRow}>
             <VerificationBadge 
@@ -111,44 +114,51 @@ export default function ProfileScreen() {
             />
           </View>
 
-          <Text style={styles.bio}>
+          <Text style={[styles.bio, { color: colors.subtext }]}>
             {user?.bio || 'HoneyChain Beekeeping & Blockchain Honey Supply Chain Member.'}
           </Text>
 
           {/* Action Buttons Row */}
           <View style={styles.actionButtonsRow}>
             <TouchableOpacity 
-              style={styles.editProfileBtn} 
+              style={[styles.editProfileBtn, { backgroundColor: colors.accent }]} 
               onPress={() => setIsEditProfileVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Edit Profile Details"
             >
-              <Edit3 size={16} color={theme.colors.charcoal} />
-              <Text style={styles.editProfileText}>Edit Profile</Text>
+              <Edit3 size={16} color="#000000" />
+              <Text style={[styles.editProfileText, { color: '#000000' }]}>Edit Profile</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.logoutBtn} 
+              style={[
+                styles.logoutBtn, 
+                { backgroundColor: colors.isDark ? '#371B1B' : '#FEE2E2' }
+              ]} 
               onPress={() => setIsLogoutVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Log Out"
             >
-              <LogOut size={16} color="#E53E3E" />
-              <Text style={styles.logoutText}>Log Out</Text>
+              <LogOut size={16} color={colors.status.error} />
+              <Text style={[styles.logoutText, { color: colors.status.error }]}>Log Out</Text>
             </TouchableOpacity>
           </View>
 
           {/* Stats Bar */}
-          <View style={styles.statsRow}>
+          <View style={[styles.statsRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userStats.hives}</Text>
-              <Text style={styles.statLabel}>Hives</Text>
+              <Text style={[styles.statNumber, { color: colors.text }]}>{userStats.hives}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Hives</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userStats.verifications}</Text>
-              <Text style={styles.statLabel}>Verifications</Text>
+              <Text style={[styles.statNumber, { color: colors.text }]}>{userStats.verifications}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Verifications</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>100%</Text>
-              <Text style={styles.statLabel}>Purity Score</Text>
+              <Text style={[styles.statNumber, { color: colors.accent }]}>100%</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Purity Score</Text>
             </View>
           </View>
         </View>
@@ -171,13 +181,13 @@ export default function ProfileScreen() {
         {/* Tab Content Grid */}
         <View style={styles.contentContainer}>
           {isLoading ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 20 }} />
           ) : error ? (
-            <Text style={{ textAlign: 'center', color: theme.colors.status.error, marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', color: colors.status.error, marginTop: 20 }}>
               {error}
             </Text>
           ) : profileData.length === 0 ? (
-            <Text style={{ textAlign: 'center', color: theme.colors.text.secondary, marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', color: colors.subtext, marginTop: 20 }}>
               No items to display for {activeTab}.
             </Text>
           ) : (
