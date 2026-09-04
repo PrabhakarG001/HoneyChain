@@ -43,12 +43,14 @@ import GoogleIcon from '../../../components/ui/GoogleIcon';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './RegisterScreen.styles';
 import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
   const { isAuthenticated, isLoading: storeIsLoading } = useAuthStore();
   const { t, currentLanguage } = useTranslation();
+  const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
 
@@ -185,47 +187,48 @@ export default function RegisterScreen() {
             )}
 
             {/* Registration Form Card */}
-            <View style={[styles.card, isDesktop && styles.desktopCard]}>
+            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }, isDesktop && styles.desktopCard]}>
               <View style={styles.header}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
                   <BrandLogo style={styles.logoStyle} iconSize={36} />
                   <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background }}
                     onPress={() => setIsLangModalVisible(true)}
                     accessibilityRole="button"
                     accessibilityLabel="Select language"
                   >
-                    <Globe size={16} color="#D97706" />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A' }}>{currentLanguage.native}</Text>
+                    <Globe size={16} color={colors.accent} />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{currentLanguage.native}</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text style={styles.title}>{t('createAccount', 'Create Account')}</Text>
-                <Text style={styles.subtitle}>{t('joinSubtitle', 'Join the HoneyChain Web3 Ecosystem')}</Text>
+                <Text style={[styles.title, { color: colors.text }]}>{t('createAccount', 'Create Account')}</Text>
+                <Text style={[styles.subtitle, { color: colors.subtext }]}>{t('joinSubtitle', 'Join the HoneyChain Web3 Ecosystem')}</Text>
               </View>
 
               {/* Error Box */}
               {globalError ? (
-                <View style={styles.errorBox}>
-                  <AlertCircle size={20} color={theme.colors.status.error} style={{ marginRight: 8 }} />
-                  <Text style={styles.errorText}>{globalError}</Text>
+                <View style={[styles.errorBox, { backgroundColor: colors.isDark ? '#371B1B' : '#FEE2E2', borderColor: colors.status.error + '44' }]}>
+                  <AlertCircle size={20} color={colors.status.error} style={{ marginRight: 8 }} />
+                  <Text style={[styles.errorText, { color: colors.status.error }]}>{globalError}</Text>
                 </View>
               ) : null}
 
               {/* Success Box */}
               {successMsg ? (
-                <View style={styles.successBox}>
-                  <CheckCircle2 size={20} color={theme.colors.status.success} style={{ marginRight: 8 }} />
-                  <Text style={styles.successText}>{successMsg}</Text>
+                <View style={[styles.successBox, { backgroundColor: colors.isDark ? '#14291F' : '#DCFCE7', borderColor: colors.status.success + '44' }]}>
+                  <CheckCircle2 size={20} color={colors.status.success} style={{ marginRight: 8 }} />
+                  <Text style={[styles.successText, { color: colors.status.success }]}>{successMsg}</Text>
                 </View>
               ) : null}
 
               {/* Account Type / Role Selector */}
-              <Text style={styles.roleLabel}>Account Type</Text>
+              <Text style={[styles.roleLabel, { color: colors.subtext }]}>Account Type</Text>
               <View style={styles.roleContainer}>
                 <TouchableOpacity 
                   style={[
                     styles.roleCard, 
+                    { backgroundColor: colors.background, borderColor: selectedRole === USER_ROLES.BEEKEEPER ? colors.accent : colors.border },
                     selectedRole === USER_ROLES.BEEKEEPER && styles.roleCardActive
                   ]}
                   onPress={() => setValue('role', USER_ROLES.BEEKEEPER)}
@@ -236,17 +239,19 @@ export default function RegisterScreen() {
                   <View style={styles.roleTextContainer}>
                     <Text style={[
                       styles.roleTitle, 
-                      selectedRole === USER_ROLES.BEEKEEPER && styles.roleTitleActive
+                      { color: colors.text },
+                      selectedRole === USER_ROLES.BEEKEEPER && { color: colors.accent }
                     ]}>
                       Beekeeper
                     </Text>
-                    <Text style={styles.roleDesc}>Apiary & Harvest Producer</Text>
+                    <Text style={[styles.roleDesc, { color: colors.subtext }]}>Apiary & Harvest Producer</Text>
                   </View>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
                   style={[
                     styles.roleCard, 
+                    { backgroundColor: colors.background, borderColor: selectedRole === USER_ROLES.CUSTOMER ? colors.accent : colors.border },
                     selectedRole === USER_ROLES.CUSTOMER && styles.roleCardActive
                   ]}
                   onPress={() => setValue('role', USER_ROLES.CUSTOMER)}
@@ -257,11 +262,12 @@ export default function RegisterScreen() {
                   <View style={styles.roleTextContainer}>
                     <Text style={[
                       styles.roleTitle, 
-                      selectedRole === USER_ROLES.CUSTOMER && styles.roleTitleActive
+                      { color: colors.text },
+                      selectedRole === USER_ROLES.CUSTOMER && { color: colors.accent }
                     ]}>
                       Customer
                     </Text>
-                    <Text style={styles.roleDesc}>Honey Buyer & Verifier</Text>
+                    <Text style={[styles.roleDesc, { color: colors.subtext }]}>Honey Buyer & Verifier</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -274,7 +280,7 @@ export default function RegisterScreen() {
                   <Input 
                     label="Full Name" 
                     placeholder="John Doe" 
-                    leftIcon={<User size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<User size={20} color={colors.subtext} />}
                     onBlur={onBlur} 
                     onChangeText={onChange} 
                     value={value ?? ''} 
@@ -293,7 +299,7 @@ export default function RegisterScreen() {
                     placeholder="you@example.com" 
                     autoCapitalize="none" 
                     keyboardType="email-address" 
-                    leftIcon={<Mail size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Mail size={20} color={colors.subtext} />}
                     onBlur={onBlur} 
                     onChangeText={onChange} 
                     value={value ?? ''} 
@@ -311,7 +317,7 @@ export default function RegisterScreen() {
                     label="Phone Number (Optional)" 
                     placeholder="+1 555-0199" 
                     keyboardType="phone-pad" 
-                    leftIcon={<Phone size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Phone size={20} color={colors.subtext} />}
                     onBlur={onBlur} 
                     onChangeText={onChange} 
                     value={value ?? ''} 
@@ -325,22 +331,22 @@ export default function RegisterScreen() {
                 control={control}
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <Input 
-                    label="Password" 
-                    placeholder="••••••••" 
-                    isPassword={true} 
-                    leftIcon={<Lock size={20} color={theme.colors.text.secondary} />}
-                    onBlur={onBlur} 
-                    onChangeText={onChange} 
-                    value={value ?? ''} 
-                    error={errors.password?.message} 
-                    accessibilityLabel="Password"
-                  />
+                  <View>
+                    <Input 
+                      label="Password" 
+                      placeholder="••••••••" 
+                      isPassword={true} 
+                      leftIcon={<Lock size={20} color={colors.subtext} />}
+                      onBlur={onBlur} 
+                      onChangeText={onChange} 
+                      value={value ?? ''} 
+                      error={errors.password?.message} 
+                      accessibilityLabel="Password"
+                    />
+                    <PasswordStrengthIndicator password={passwordValue} />
+                  </View>
                 )}
               />
-
-              {/* Password Strength Indicator */}
-              <PasswordStrengthIndicator password={passwordValue} />
 
               <Controller
                 control={control}
@@ -350,7 +356,7 @@ export default function RegisterScreen() {
                     label="Confirm Password" 
                     placeholder="••••••••" 
                     isPassword={true} 
-                    leftIcon={<Lock size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Lock size={20} color={colors.subtext} />}
                     onBlur={onBlur} 
                     onChangeText={onChange} 
                     value={value ?? ''} 
@@ -369,12 +375,12 @@ export default function RegisterScreen() {
                 accessibilityLabel="I agree to Terms & Conditions"
               >
                 {termsAccepted ? (
-                  <CheckSquare size={20} color={theme.colors.primaryDark} />
+                  <CheckSquare size={20} color={colors.accent} />
                 ) : (
-                  <Square size={20} color={theme.colors.text.muted} />
+                  <Square size={20} color={colors.subtext} />
                 )}
-                <Text style={styles.termsText}>
-                  I agree to the <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>
+                <Text style={[styles.termsText, { color: colors.subtext }]}>
+                  I agree to the <Text style={[styles.termsLink, { color: colors.accent }]}>Terms of Service</Text> and <Text style={[styles.termsLink, { color: colors.accent }]}>Privacy Policy</Text>
                 </Text>
               </TouchableOpacity>
               {errors.termsAccepted?.message ? (
@@ -387,44 +393,48 @@ export default function RegisterScreen() {
                   title="Create Account" 
                   onPress={handleSubmit(onSubmit)} 
                   isLoading={isSubmitting} 
-                  icon={<ArrowRight size={18} color="#FFFFFF" />}
+                  icon={<ArrowRight size={18} color="#000000" />}
                 />
               </View>
 
               {/* Divider */}
               <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-                <View style={styles.dividerLine} />
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.dividerText, { color: colors.subtext }]}>OR CONTINUE WITH</Text>
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
               {/* Google Sign-In Button */}
               <TouchableOpacity
-                style={[styles.googleBtn, (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled]}
+                style={[
+                  styles.googleBtn, 
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled
+                ]}
                 onPress={handleGoogleLogin}
                 disabled={isGoogleLoading || isSubmitting}
                 accessibilityRole="button"
                 accessibilityLabel="Continue with Google"
               >
                 {isGoogleLoading ? (
-                  <ActivityIndicator size="small" color={theme.colors.charcoal} />
+                  <ActivityIndicator size="small" color={colors.text} />
                 ) : (
                   <View style={styles.googleBtnContent}>
                     <GoogleIcon size={20} style={{ marginRight: 10 }} />
-                    <Text style={styles.googleBtnText}>Continue with Google</Text>
+                    <Text style={[styles.googleBtnText, { color: colors.text }]}>Continue with Google</Text>
                   </View>
                 )}
               </TouchableOpacity>
               
               {/* Footer Login Link */}
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Already have an account? </Text>
+                <Text style={[styles.footerText, { color: colors.subtext }]}>Already have an account? </Text>
                 <TouchableOpacity 
                   onPress={() => router.replace('/(auth)/login')}
                   accessibilityRole="link"
                   accessibilityLabel="Sign In"
                 >
-                  <Text style={styles.footerLink}>Sign In</Text>
+                  <Text style={[styles.footerLink, { color: colors.accent }]}>Sign In</Text>
                 </TouchableOpacity>
               </View>
             </View>

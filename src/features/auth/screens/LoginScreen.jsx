@@ -43,6 +43,7 @@ import GoogleIcon from '../../../components/ui/GoogleIcon';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './LoginScreen.styles';
 import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function LoginScreen() {
   const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
   const { isAuthenticated, isLoading: storeIsLoading, updateUser } = useAuthStore();
   const { t, currentLanguage } = useTranslation();
+  const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
   
@@ -230,38 +232,38 @@ export default function LoginScreen() {
             )}
 
             {/* Auth Form Card */}
-            <View style={[styles.card, isDesktop && styles.desktopCard]}>
+            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }, isDesktop && styles.desktopCard]}>
               <View style={styles.header}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
                   <BrandLogo style={styles.logoStyle} iconSize={36} />
                   <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background }}
                     onPress={() => setIsLangModalVisible(true)}
                     accessibilityRole="button"
                     accessibilityLabel="Select language"
                   >
-                    <Globe size={16} color="#D97706" />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A' }}>{currentLanguage.native}</Text>
+                    <Globe size={16} color={colors.accent} />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{currentLanguage.native}</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text style={styles.title}>{t('welcomeBack', 'Welcome Back')}</Text>
-                <Text style={styles.subtitle}>{t('signInSubtitle', 'Sign in to your HoneyChain account')}</Text>
+                <Text style={[styles.title, { color: colors.text }]}>{t('welcomeBack', 'Welcome Back')}</Text>
+                <Text style={[styles.subtitle, { color: colors.subtext }]}>{t('signInSubtitle', 'Sign in to your HoneyChain account')}</Text>
               </View>
 
               {/* Error Feedback Banner */}
               {globalError ? (
-                <View style={styles.errorBox}>
-                  <AlertCircle size={20} color={theme.colors.status.error} style={{ marginRight: 8 }} />
-                  <Text style={styles.errorText}>{globalError}</Text>
+                <View style={[styles.errorBox, { backgroundColor: colors.isDark ? '#371B1B' : '#FEE2E2', borderColor: colors.status.error + '44' }]}>
+                  <AlertCircle size={20} color={colors.status.error} style={{ marginRight: 8 }} />
+                  <Text style={[styles.errorText, { color: colors.status.error }]}>{globalError}</Text>
                 </View>
               ) : null}
 
               {/* Success Feedback Banner */}
               {successMsg ? (
-                <View style={styles.successBox}>
-                  <CheckCircle2 size={20} color={theme.colors.status.success} style={{ marginRight: 8 }} />
-                  <Text style={styles.successText}>{successMsg}</Text>
+                <View style={[styles.successBox, { backgroundColor: colors.isDark ? '#14291F' : '#DCFCE7', borderColor: colors.status.success + '44' }]}>
+                  <CheckCircle2 size={20} color={colors.status.success} style={{ marginRight: 8 }} />
+                  <Text style={[styles.successText, { color: colors.status.success }]}>{successMsg}</Text>
                 </View>
               ) : null}
 
@@ -274,7 +276,7 @@ export default function LoginScreen() {
                     placeholder="beekeeper@honeychain.dev"
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    leftIcon={<Mail size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Mail size={20} color={colors.subtext} />}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value ?? ''}
@@ -292,7 +294,7 @@ export default function LoginScreen() {
                     label="Password"
                     placeholder="••••••••"
                     isPassword={true}
-                    leftIcon={<Lock size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Lock size={20} color={colors.subtext} />}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value ?? ''}
@@ -312,11 +314,11 @@ export default function LoginScreen() {
                   accessibilityLabel="Remember me"
                 >
                   {rememberMeValue ? (
-                    <CheckSquare size={18} color={theme.colors.primaryDark} />
+                    <CheckSquare size={18} color={colors.accent} />
                   ) : (
-                    <Square size={18} color={theme.colors.text.muted} />
+                    <Square size={18} color={colors.subtext} />
                   )}
-                  <Text style={styles.rememberMeText}>Remember me</Text>
+                  <Text style={[styles.rememberMeText, { color: colors.subtext }]}>Remember me</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
@@ -324,7 +326,7 @@ export default function LoginScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Forgot password"
                 >
-                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                  <Text style={[styles.forgotPasswordText, { color: colors.accent }]}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
 
@@ -334,30 +336,34 @@ export default function LoginScreen() {
                 onPress={handleSubmit(onSubmit)} 
                 isLoading={isSubmitting} 
                 style={styles.submitBtn}
-                icon={<ArrowRight size={18} color="#FFFFFF" />}
+                icon={<ArrowRight size={18} color="#000000" />}
               />
 
               {/* Divider */}
               <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-                <View style={styles.dividerLine} />
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.dividerText, { color: colors.subtext }]}>OR CONTINUE WITH</Text>
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
               {/* Google Sign-In Button */}
               <TouchableOpacity
-                style={[styles.googleBtn, (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled]}
+                style={[
+                  styles.googleBtn, 
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled
+                ]}
                 onPress={handleGoogleLogin}
                 disabled={isGoogleLoading || isSubmitting}
                 accessibilityRole="button"
                 accessibilityLabel="Continue with Google"
               >
                 {isGoogleLoading ? (
-                  <ActivityIndicator size="small" color={theme.colors.charcoal} />
+                  <ActivityIndicator size="small" color={colors.text} />
                 ) : (
                   <View style={styles.googleBtnContent}>
                     <GoogleIcon size={20} style={{ marginRight: 10 }} />
-                    <Text style={styles.googleBtnText}>Continue with Google</Text>
+                    <Text style={[styles.googleBtnText, { color: colors.text }]}>Continue with Google</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -366,13 +372,13 @@ export default function LoginScreen() {
 
               {/* Sign Up Link */}
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Don't have an account? </Text>
+                <Text style={[styles.footerText, { color: colors.subtext }]}>Don't have an account? </Text>
                 <TouchableOpacity 
                   onPress={() => router.push('/(auth)/register')}
                   accessibilityRole="link"
                   accessibilityLabel="Create Account"
                 >
-                  <Text style={styles.footerLink}>Create Account</Text>
+                  <Text style={[styles.footerLink, { color: colors.accent }]}>Create Account</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -388,24 +394,24 @@ export default function LoginScreen() {
           onRequestClose={() => setForgotModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
               <TouchableOpacity 
                 style={styles.modalCloseBtn}
                 onPress={() => setForgotModalVisible(false)}
               >
-                <X size={20} color={theme.colors.text.secondary} />
+                <X size={20} color={colors.subtext} />
               </TouchableOpacity>
 
               <BrandLogo iconSize={32} style={{ marginBottom: 12 }} />
-              <Text style={styles.modalTitle}>Reset Password</Text>
-              <Text style={styles.modalSubtitle}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Reset Password</Text>
+              <Text style={[styles.modalSubtitle, { color: colors.subtext }]}>
                 Enter your account email to receive instructions to reset your password.
               </Text>
 
               {resetSent ? (
-                <View style={styles.successBox}>
-                  <CheckCircle2 size={20} color={theme.colors.status.success} style={{ marginRight: 8 }} />
-                  <Text style={styles.successText}>Password reset instructions sent to your email!</Text>
+                <View style={[styles.successBox, { backgroundColor: colors.isDark ? '#14291F' : '#DCFCE7' }]}>
+                  <CheckCircle2 size={20} color={colors.status.success} style={{ marginRight: 8 }} />
+                  <Text style={[styles.successText, { color: colors.status.success }]}>Password reset instructions sent to your email!</Text>
                 </View>
               ) : (
                 <>
@@ -414,7 +420,7 @@ export default function LoginScreen() {
                     placeholder="you@example.com"
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    leftIcon={<Mail size={20} color={theme.colors.text.secondary} />}
+                    leftIcon={<Mail size={20} color={colors.subtext} />}
                     value={resetEmail}
                     onChangeText={setResetEmail}
                   />
