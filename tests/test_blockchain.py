@@ -1,10 +1,18 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from backend.services.contract_client import ContractClient
+from backend.services.contract_client import ContractClient, hash_document
 
 def test_contract_client_offline_behavior():
     client = ContractClient()
     client.contract = None  # Force offline
+
+    info = client.get_network_info()
+    assert info["is_connected"] is False
+    assert "mode" in info
+
+    doc_hash = hash_document("Honey Lab Report PDF Content")
+    assert len(doc_hash) == 32
+    assert isinstance(doc_hash, bytes)
 
     with pytest.raises(RuntimeError) as exc_info:
         client.create_batch("BATCH_001", ["H1", "H2"])
@@ -12,7 +20,8 @@ def test_contract_client_offline_behavior():
 
     # verify_product should return error payload when offline
     result = client.verify_product("PROD_001")
-    assert result == {"error": "Web3 offline"}
+    assert result["error"] == "Web3 offline"
+    assert "network" in result
 
 def test_contract_client_tx_execution_with_mocked_contract(db):
     client = ContractClient()
@@ -39,3 +48,4 @@ def test_contract_client_tx_execution_with_mocked_contract(db):
     record = db.query(BlockchainTransaction).filter_by(tx_hash="0x123456789abcdef0").first()
     assert record is not None
     assert record.action_type == "CREATE_BATCH"
+

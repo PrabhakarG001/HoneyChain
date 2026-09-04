@@ -135,7 +135,52 @@ data/
 
 ---
 
-## 📊 5. Overall Completion & Module Breakdown
+## 🔗 5. Blockchain Architecture & Smart Contracts (Parts 11–13 Implemented)
+
+HoneyChain integrates an immutable smart contract layer on the **Polygon Amoy Testnet** (Chain ID `80002`) with automatic fallback to a **Local Hardhat Node** (Chain ID `31337`) or local cryptographic proof hashing.
+
+### Network Architecture & Dual-Mode Configuration
+* **Primary Target**: Polygon Amoy Testnet (`https://rpc-amoy.polygon.technology`)
+* **Local Fallback**: Hardhat Node (`http://127.0.0.1:8545`)
+* **Mode Switcher**: Controlled via environment variable `BLOCKCHAIN_MODE` (`polygon` | `local` | `auto`).
+* **Contract Client**: `backend/services/contract_client.py` via `web3.py`.
+
+### On-Chain vs. Off-Chain Data Separation (Privacy & Security)
+
+To comply with data privacy standards and optimize gas consumption, HoneyChain strictly segregates sensitive PII off-chain:
+
+| Data Attribute | Storage Location | Representation / Security |
+| --- | --- | --- |
+| **Beekeeper Name, Email, Password, Phone** | Off-Chain SQL DB | Hashed/Encrypted SQL |
+| **Apiary Location & Telemetry** | Off-Chain SQL DB | 32-Byte `apiaryHash` SHA-256 On-Chain |
+| **Batch ID & Lineage Tree** | Dual (SQL & Smart Contract) | Opaque ID String (`BATCH_2026_001`) |
+| **Lab Purity Reports (PDF/JSON)** | Off-Chain DB / File Storage | 32-Byte `labTestHash` SHA-256 On-Chain |
+| **Processing Step Details** | Off-Chain DB | 32-Byte `processStepHash` SHA-256 On-Chain |
+| **Public Verification Lookup** | On-Chain Smart Contract | 0-Gas Read-Only `verifyProduct(productId)` |
+
+### Smart Contract Specification (`blockchain/contracts/HoneyChain.sol`)
+
+| Function Name | State / Visibility | Arguments | Event Emitted |
+| --- | --- | --- | --- |
+| `registerHive` | `nonpayable` | `hiveId`, `apiaryHash` | `HiveRegistered` |
+| `createHarvest` | `nonpayable` | `hiveId`, `harvestId`, `timestamp`, `quantityKg` | `HarvestCreated` |
+| `createBatch` | `nonpayable` | `batchId`, `harvestIds` | `BatchCreated` |
+| `transferCustody` | `nonpayable` | `batchId`, `toOwner` | `CustodyTransferred` |
+| `mergeBatches` | `nonpayable` | `newBatchId`, `parentBatchIds` | `BatchesMerged` |
+| `recordProcessing` | `nonpayable` | `batchId`, `processStepHash` | `ProcessingRecorded` |
+| `recordLabTest` | `nonpayable` | `batchId`, `labTestHash`, `passed` | `LabTestRecorded` |
+| `createProduct` | `nonpayable` | `productId`, `batchId` | `ProductCreated` |
+| `verifyProduct` | `view` (0-Gas) | `productId` | *None (Read-Only)* |
+
+### End-to-End Consumer QR Verification Flow
+1. Consumer scans product QR code on honey jar leading to `/verify/[productId]`.
+2. Frontend queries FastAPI `/api/v1/products/{productId}/verify`.
+3. Backend invokes smart contract `verifyProduct(productId)` via `ContractClient.call()`.
+4. Returns batch genealogy, off-chain lab test certificates, and on-chain immutability proof without requiring any crypto wallet or gas fees.
+
+---
+
+## 📊 6. Overall Completion & Module Breakdown
 
 ### Overall Project Completion: **100%**
 
@@ -163,7 +208,7 @@ data/
 
 ---
 
-## ⚙️ 6. Running Migrations & Executing Tests
+## ⚙️ 7. Running Migrations & Executing Tests
 
 ### Running Full Test Suite
 
@@ -171,11 +216,11 @@ data/
 # Set PYTHONPATH to project root
 $env:PYTHONPATH="."
 
-# Run full pytest suite across all modules (including Part 10 dataset tests)
+# Run full pytest suite across all modules (including Blockchain & Part 10 dataset tests)
 python -m pytest
 
-# Run Part 10 dataset tests specifically
-python -m pytest tests/test_part10_datasets.py
+# Run Part 11-13 blockchain tests specifically
+python -m pytest tests/test_blockchain.py
 ```
 
 ### Database Migration Instructions (Alembic)
@@ -187,7 +232,8 @@ python -m alembic upgrade head
 
 ---
 
-## 📜 7. License & Credits
+## 📜 8. License & Credits
 
 - **License**: MIT License ([LICENSE](file:///c:/Users/Prabh/Downloads/ApiVera/LICENSE))
 - **Team**: Antigravity Senior Engineering Team & HoneyChain Open Source Contributors.
+
