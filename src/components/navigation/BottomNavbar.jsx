@@ -5,10 +5,12 @@ import { Home, Search, Plus, User, MapPin, QrCode, Bookmark, Box, ShoppingBag } 
 import { useUIStore } from '../../store/ui.store';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function BottomNavbar({ state, descriptors, navigation, onCreatePress }) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
 
   const isPhone = width < 768;
@@ -109,13 +111,13 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           };
 
           const getLabel = () => {
-            if (isCenterAction) return userRole === 'CUSTOMER' ? 'Scan' : 'Create';
+            if (isCenterAction) return userRole === 'CUSTOMER' ? t('scan', 'Scan') : t('create', 'Create');
             switch (route.name) {
-              case 'index': return 'Home';
-              case 'explore': return 'Discover';
-              case 'map': return userRole === 'CUSTOMER' ? 'Store' : 'Apiaries';
-              case 'notifications': return 'Saved';
-              case 'profile': return 'Profile';
+              case 'index': return t('home', 'Home');
+              case 'explore': return t('discover', 'Discover');
+              case 'map': return userRole === 'CUSTOMER' ? t('store', 'Store') : t('apiaries', 'Apiaries');
+              case 'notifications': return t('saved', 'Saved');
+              case 'profile': return t('profile', 'Profile');
               default: return route.name;
             }
           };

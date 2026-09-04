@@ -11,6 +11,8 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
+import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
+import { useTranslation } from '../../../hooks/useTranslation';
 import { 
   User, 
   Mail, 
@@ -23,7 +25,8 @@ import {
   Sparkles, 
   ArrowRight, 
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Globe
 } from 'lucide-react-native';
 
 import Input from '../../../components/ui/Input/Input';
@@ -45,6 +48,7 @@ export default function RegisterScreen() {
   const router = useRouter();
   const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
   const { isAuthenticated, isLoading: storeIsLoading } = useAuthStore();
+  const { t, currentLanguage } = useTranslation();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
 
@@ -52,6 +56,7 @@ export default function RegisterScreen() {
   const [globalError, setGlobalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -182,9 +187,21 @@ export default function RegisterScreen() {
             {/* Registration Form Card */}
             <View style={[styles.card, isDesktop && styles.desktopCard]}>
               <View style={styles.header}>
-                <BrandLogo style={styles.logoStyle} iconSize={36} />
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Join the HoneyChain Web3 Ecosystem</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+                  <BrandLogo style={styles.logoStyle} iconSize={36} />
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
+                    onPress={() => setIsLangModalVisible(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Select language"
+                  >
+                    <Globe size={16} color="#D97706" />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A' }}>{currentLanguage.native}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.title}>{t('createAccount', 'Create Account')}</Text>
+                <Text style={styles.subtitle}>{t('joinSubtitle', 'Join the HoneyChain Web3 Ecosystem')}</Text>
               </View>
 
               {/* Error Box */}
@@ -409,12 +426,16 @@ export default function RegisterScreen() {
                 >
                   <Text style={styles.footerLink}>Sign In</Text>
                 </TouchableOpacity>
-              </View>
             </View>
 
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <LanguageModal 
+        visible={isLangModalVisible}
+        onClose={() => setIsLangModalVisible(false)}
+      />
     </AuthBackground>
   );
 }

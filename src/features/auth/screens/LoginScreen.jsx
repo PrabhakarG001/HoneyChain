@@ -13,6 +13,8 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
+import { useTranslation } from '../../../hooks/useTranslation';
 import { 
   Mail, 
   Lock, 
@@ -21,7 +23,8 @@ import {
   ArrowRight, 
   AlertCircle,
   CheckCircle2,
-  X
+  X,
+  Globe
 } from 'lucide-react-native';
 
 import { FaFileContract, FaMicrochip } from 'react-icons/fa';
@@ -46,6 +49,7 @@ export default function LoginScreen() {
   const { role: paramRole } = useLocalSearchParams();
   const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
   const { isAuthenticated, isLoading: storeIsLoading, updateUser } = useAuthStore();
+  const { t, currentLanguage } = useTranslation();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
   
@@ -54,6 +58,7 @@ export default function LoginScreen() {
   const [successMsg, setSuccessMsg] = useState('');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [forgotModalVisible, setForgotModalVisible] = useState(false);
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
@@ -227,9 +232,21 @@ export default function LoginScreen() {
             {/* Auth Form Card */}
             <View style={[styles.card, isDesktop && styles.desktopCard]}>
               <View style={styles.header}>
-                <BrandLogo style={styles.logoStyle} iconSize={40} />
-                <Text style={styles.title}>Welcome Back</Text>
-                <Text style={styles.subtitle}>Sign in to your HoneyChain account</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+                  <BrandLogo style={styles.logoStyle} iconSize={36} />
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
+                    onPress={() => setIsLangModalVisible(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Select language"
+                  >
+                    <Globe size={16} color="#D97706" />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A' }}>{currentLanguage.native}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.title}>{t('welcomeBack', 'Welcome Back')}</Text>
+                <Text style={styles.subtitle}>{t('signInSubtitle', 'Sign in to your HoneyChain account')}</Text>
               </View>
 
               {/* Error Feedback Banner */}
@@ -411,6 +428,12 @@ export default function LoginScreen() {
             </View>
           </View>
         </Modal>
+
+        {/* Language Selection Modal */}
+        <LanguageModal
+          isVisible={isLangModalVisible}
+          onClose={() => setIsLangModalVisible(false)}
+        />
 
       </KeyboardAvoidingView>
     </AuthBackground>

@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ShieldCheck, ArrowRight } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight, Globe } from 'lucide-react-native';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
+import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 import { useThemeColors } from '../../../hooks/useThemeColors';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export default function RoleSelectionScreen() {
   const router = useRouter();
   const colors = useThemeColors();
+  const { t, currentLanguage } = useTranslation();
   const { width } = useWindowDimensions();
   const isTabletOrDesktop = width >= 768;
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
 
   const handleSelectRole = (role) => {
     router.push({
@@ -21,13 +25,26 @@ export default function RoleSelectionScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Top Header Row with Language Button */}
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={[styles.langBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => setIsLangModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Select language"
+        >
+          <Globe size={16} color={colors.accent} />
+          <Text style={[styles.langBtnText, { color: colors.text }]}>{currentLanguage.native}</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.contentWrapper, isTabletOrDesktop && styles.tabletContentWrapper]}>
           {/* Header */}
           <View style={styles.header}>
             <BrandLogo style={{ alignSelf: 'center', marginBottom: 16 }} iconSize={44} />
-            <Text style={[styles.title, { color: colors.text }]}>Welcome to HoneyChain</Text>
-            <Text style={[styles.subtitle, { color: colors.subtext }]}>How do you want to use HoneyChain?</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{t('welcome', 'Welcome to HoneyChain')}</Text>
+            <Text style={[styles.subtitle, { color: colors.subtext }]}>{t('roleTitle', 'How do you want to use HoneyChain?')}</Text>
           </View>
 
           {/* Role Options */}
@@ -47,9 +64,9 @@ export default function RoleSelectionScreen() {
                 <Text style={styles.emojiIcon}>🐝</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={[styles.roleTitle, { color: colors.text }]}>Beekeeper & Producer</Text>
+                <Text style={[styles.roleTitle, { color: colors.text }]}>{t('beekeeperRoleTitle', 'Beekeeper & Producer')}</Text>
                 <Text style={[styles.roleDesc, { color: colors.subtext }]}>
-                  Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.
+                  {t('beekeeperRoleDesc', 'Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.')}
                 </Text>
               </View>
               <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
@@ -72,9 +89,9 @@ export default function RoleSelectionScreen() {
                 <Text style={styles.emojiIcon}>🍯</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={[styles.roleTitle, { color: colors.text }]}>Customer & Buyer</Text>
+                <Text style={[styles.roleTitle, { color: colors.text }]}>{t('customerRoleTitle', 'Customer & Buyer')}</Text>
                 <Text style={[styles.roleDesc, { color: colors.subtext }]}>
-                  Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.
+                  {t('customerRoleDesc', 'Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.')}
                 </Text>
               </View>
               <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
@@ -86,10 +103,16 @@ export default function RoleSelectionScreen() {
           {/* Trust Badge */}
           <View style={styles.trustFooter}>
             <ShieldCheck size={18} color={colors.accent} />
-            <Text style={[styles.trustText, { color: colors.subtext }]}>On-Chain Provenance • Lab Quality Verified</Text>
+            <Text style={[styles.trustText, { color: colors.subtext }]}>{t('onChainTrust', 'On-Chain Provenance • Lab Quality Verified')}</Text>
           </View>
         </View>
       </ScrollView>
+
+      {/* Language Selection Modal */}
+      <LanguageModal 
+        isVisible={isLangModalVisible} 
+        onClose={() => setIsLangModalVisible(false)} 
+      />
     </SafeAreaView>
   );
 }
@@ -98,6 +121,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FDFBF7',
+  },
+  topBar: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    alignItems: 'flex-end',
+    zIndex: 10,
+  },
+  langBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  langBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
   scrollContent: {
     flexGrow: 1,

@@ -6,12 +6,14 @@ import {
 import { 
   User, Edit3, ShieldCheck, LogOut, QrCode, Award, 
   Sparkles, Box, ChevronRight, Copy, Check, 
-  Bell, RefreshCw, X, CheckCircle2, Zap, Sun, Moon, Smartphone
+  Bell, RefreshCw, X, CheckCircle2, Zap, Sun, Moon, Smartphone, Globe
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useTranslation } from '../../hooks/useTranslation';
+import LanguageModal from '../ui/LanguageModal/LanguageModal';
 import UserAvatar from '../ui/UserAvatar/UserAvatar';
 import VerificationBadge from '../ui/VerificationBadge/VerificationBadge';
 
@@ -30,11 +32,13 @@ const THEME_OPTIONS = [
 export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile, onOpenLogout }) {
   const { user, updateUser } = useAuthStore();
   const { themeMode, setThemeMode } = useThemeStore();
+  const { t, currentLanguage } = useTranslation();
   const router = useRouter();
   const colors = useThemeColors();
 
   const [copiedWallet, setCopiedWallet] = useState(false);
   const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [isLangModalOpen, setIsLangModalOpen] = useState(false);
 
   if (!isVisible) return null;
 
@@ -115,7 +119,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
 
                 {/* Appearance / Theme Switcher Card */}
                 <View style={[styles.sectionBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Text style={[styles.boxTitle, { color: colors.subtext }]}>THEME MODE</Text>
+                  <Text style={[styles.boxTitle, { color: colors.subtext }]}>{t('themeMode', 'THEME MODE')}</Text>
                   <View style={styles.themeToggleRow}>
                     {THEME_OPTIONS.map(({ id, label, Icon }) => {
                       const isSelected = themeMode === id;
@@ -140,6 +144,23 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                     })}
                   </View>
                 </View>
+
+                {/* App Language Card */}
+                <TouchableOpacity 
+                  style={[styles.sectionBox, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+                  onPress={() => setIsLangModalOpen(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Select language"
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Globe size={18} color={colors.accent} />
+                    <View>
+                      <Text style={[styles.boxTitle, { color: colors.subtext, marginBottom: 2 }]}>{t('language', 'APP LANGUAGE')}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{currentLanguage.native} ({currentLanguage.name})</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={18} color={colors.subtext} />
+                </TouchableOpacity>
 
                 {/* Role Switcher Pill */}
                 <View style={[styles.roleSwitchCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -299,6 +320,11 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
+
+      <LanguageModal 
+        visible={isLangModalOpen}
+        onClose={() => setIsLangModalOpen(false)}
+      />
     </Modal>
   );
 }

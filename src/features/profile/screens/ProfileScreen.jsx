@@ -4,6 +4,7 @@ import { Edit3, LogOut, Share2 } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { hiveService } from '../../../services/hive.service';
 import { useThemeColors } from '../../../hooks/useThemeColors';
+import { useTranslation } from '../../../hooks/useTranslation';
 import styles from './ProfileScreen.styles';
 import CategoryChip from '../../../components/ui/CategoryChip/CategoryChip';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
@@ -18,11 +19,11 @@ import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 import { firestoreService } from '../../../services/firestore.service';
 
-const TABS = ['My Hives', 'Quality Reports', 'Activity'];
-
 export default function ProfileScreen() {
   const { user } = useAuthStore();
   const colors = useThemeColors();
+  const { t } = useTranslation();
+  const TABS = [t('myHives', 'My Hives'), t('qualityReports', 'Quality Reports'), t('activity', 'Activity')];
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
 
