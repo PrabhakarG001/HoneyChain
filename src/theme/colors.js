@@ -1,7 +1,7 @@
 export const colors = {
-  primary: '#E6A740', // Rich honey/amber
-  primaryDark: '#B87A22',
-  primaryLight: '#FAEDCD',
+  primary: '#F4B942', // Premium Honey Gold Accent
+  primaryDark: '#D99B26',
+  primaryLight: '#FEF3C7',
   charcoal: '#1F1A17', // Deep earthy charcoal/brown
   white: '#ffffff',
   background: '#FDFBF7', // Warm premium off-white/cream

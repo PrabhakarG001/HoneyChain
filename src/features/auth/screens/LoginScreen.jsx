@@ -180,7 +180,7 @@ export default function LoginScreen() {
             {isDesktop && (
               <View style={styles.showcaseSide}>
                 <View style={styles.showcaseBadge}>
-                  <SiEthereum size={12} color="#E6A740" style={{ marginRight: 6 }} />
+                  <SiEthereum size={12} color="#F4B942" style={{ marginRight: 6 }} />
                   <Text style={styles.showcaseBadgeText}>HoneyChain Protocol v2.4</Text>
                 </View>
 
@@ -194,7 +194,7 @@ export default function LoginScreen() {
 
                 <View style={styles.featureList}>
                   <View style={styles.featureItem}>
-                    <FaFileContract size={18} color="#E6A740" style={styles.featureIcon} />
+                    <FaFileContract size={18} color="#F4B942" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
                       <Text style={styles.featureTitle}>Blockchain Passports</Text>
                       <Text style={styles.featureDesc}>Timestamped and verifiable honey batch records secured by smart contracts.</Text>
@@ -202,7 +202,7 @@ export default function LoginScreen() {
                   </View>
 
                   <View style={styles.featureItem}>
-                    <FaMicrochip size={18} color="#E6A740" style={styles.featureIcon} />
+                    <FaMicrochip size={18} color="#F4B942" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
                       <Text style={styles.featureTitle}>Hive Telemetry</Text>
                       <Text style={styles.featureDesc}>Monitor temperature, humidity, and hive sound data from connected IoT devices.</Text>
@@ -210,7 +210,7 @@ export default function LoginScreen() {
                   </View>
 
                   <View style={styles.featureItem}>
-                    <MdVerified size={20} color="#E6A740" style={styles.featureIcon} />
+                    <MdVerified size={20} color="#F4B942" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
                       <Text style={styles.featureTitle}>On-Chain Verification</Text>
                       <Text style={styles.featureDesc}>Verify batch history and provenance without relying on a centralized database.</Text>

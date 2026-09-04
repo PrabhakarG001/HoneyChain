@@ -5,17 +5,22 @@ import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function BrandLogo({ 
   style, 
-  iconSize = 30, 
-  textStyle
+  iconSize = 32, 
+  textStyle,
+  showText = true,
+  badgeColor,
 }) {
   const colors = useThemeColors();
+  const effectiveBadgeColor = badgeColor || colors.accent || '#F4B942';
 
   return (
     <View style={[styles.container, style]}>
-      <LogoIcon size={iconSize} color={colors.text} accentColor={colors.accent} />
-      <Text style={[styles.logoText, { color: colors.text }, textStyle]}>
-        Honeychain
-      </Text>
+      <LogoIcon size={iconSize} badgeColor={effectiveBadgeColor} hColor="#FFFFFF" />
+      {showText && (
+        <Text style={[styles.logoText, { color: colors.text }, textStyle]}>
+          HoneyChain
+        </Text>
+      )}
     </View>
   );
 }

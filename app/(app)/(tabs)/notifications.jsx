@@ -19,18 +19,18 @@ export default function NotificationsScreen() {
   const getIcon = (type) => {
     switch (type) {
       case 'attention': return <AlertTriangle size={22} color={colors.status.error} />;
-      case 'success': return <CheckCircle size={22} color={colors.status.success} />;
+      case 'success': return <CheckCircle size={22} color={colors.accent} />;
       case 'system': return <Activity size={22} color={colors.accent} />;
-      default: return <Info size={22} color="#2563EB" />;
+      default: return <Info size={22} color={colors.accent} />;
     }
   };
 
   const getBgColor = (type) => {
     switch (type) {
       case 'attention': return colors.isDark ? '#371B1B' : '#FEF2F2';
-      case 'success': return colors.isDark ? '#142E25' : '#ECFDF5';
+      case 'success': return colors.isDark ? '#2E2211' : '#FEF3C7';
       case 'system': return colors.isDark ? '#2E2211' : '#FEF3C7';
-      default: return colors.isDark ? '#1E293B' : '#EFF6FF';
+      default: return colors.isDark ? '#1F2937' : '#F3F4F6';
     }
   };
 
@@ -75,6 +75,8 @@ export default function NotificationsScreen() {
         style={styles.deleteItemBtn}
         onPress={() => handleDeleteNotification(item.id)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        accessibilityRole="button"
+        accessibilityLabel="Delete notification"
       >
         <X size={16} color={colors.subtext} />
       </TouchableOpacity>
@@ -96,6 +98,8 @@ export default function NotificationsScreen() {
           <TouchableOpacity 
             style={[styles.clearAllBtn, { backgroundColor: colors.isDark ? '#371B1B' : '#FEF2F2' }]} 
             onPress={handleClearAll}
+            accessibilityRole="button"
+            accessibilityLabel="Clear all notifications"
           >
             <Trash2 size={16} color={colors.status.error} />
             <Text style={[styles.clearAllText, { color: colors.status.error }]}>Clear All</Text>

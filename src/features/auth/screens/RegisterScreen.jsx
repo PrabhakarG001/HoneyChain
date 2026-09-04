@@ -143,7 +143,7 @@ export default function RegisterScreen() {
             {isDesktop && (
               <View style={styles.showcaseSide}>
                 <View style={styles.showcaseBadge}>
-                  <Hexagon size={18} color="#E6A740" fill="#E6A74022" />
+                  <Hexagon size={18} color="#F4B942" fill="#F4B94222" />
                   <Text style={styles.showcaseBadgeText}>HoneyChain Network Join</Text>
                 </View>
 
@@ -157,7 +157,7 @@ export default function RegisterScreen() {
 
                 <View style={styles.featureList}>
                   <View style={styles.featureItem}>
-                    <ShieldCheck size={22} color="#E6A740" style={styles.featureIcon} />
+                    <ShieldCheck size={22} color="#F4B942" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
                       <Text style={styles.featureTitle}>Beekeeper Ecosystem</Text>
                       <Text style={styles.featureDesc}>Manage hives, register harvests, and issue verifiable batch passports</Text>
@@ -165,7 +165,7 @@ export default function RegisterScreen() {
                   </View>
 
                   <View style={styles.featureItem}>
-                    <Sparkles size={22} color="#E6A740" style={styles.featureIcon} />
+                    <Sparkles size={22} color="#F4B942" style={styles.featureIcon} />
                     <View style={styles.featureTextGroup}>
                       <Text style={styles.featureTitle}>Consumer Verification</Text>
                       <Text style={styles.featureDesc}>Scan QR codes to inspect laboratory reports & blockchain hashes</Text>

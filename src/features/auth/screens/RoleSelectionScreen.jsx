@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Compass, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight } from 'lucide-react-native';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
-import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function RoleSelectionScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const isTabletOrDesktop = width >= 768;
 
@@ -19,63 +20,73 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.contentWrapper, isTabletOrDesktop && styles.tabletContentWrapper]}>
           {/* Header */}
           <View style={styles.header}>
-            <BrandLogo style={{ alignSelf: 'center', marginBottom: 16 }} />
-            <Text style={styles.title}>Welcome to HoneyChain</Text>
-            <Text style={styles.subtitle}>How do you want to use HoneyChain?</Text>
+            <BrandLogo style={{ alignSelf: 'center', marginBottom: 16 }} iconSize={44} />
+            <Text style={[styles.title, { color: colors.text }]}>Welcome to HoneyChain</Text>
+            <Text style={[styles.subtitle, { color: colors.subtext }]}>How do you want to use HoneyChain?</Text>
           </View>
 
           {/* Role Options */}
           <View style={[styles.cardGrid, isTabletOrDesktop && styles.tabletCardGrid]}>
             {/* Beekeeper Option */}
             <TouchableOpacity
-              style={styles.roleCard}
+              style={[
+                styles.roleCard, 
+                { backgroundColor: colors.surface, borderColor: colors.border }
+              ]}
               onPress={() => handleSelectRole('BEEKEEPER')}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Select Beekeeper and Producer role"
             >
-              <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
+              <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
                 <Text style={styles.emojiIcon}>🐝</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={styles.roleTitle}>Beekeeper & Producer</Text>
-                <Text style={styles.roleDesc}>
+                <Text style={[styles.roleTitle, { color: colors.text }]}>Beekeeper & Producer</Text>
+                <Text style={[styles.roleDesc, { color: colors.subtext }]}>
                   Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.
                 </Text>
               </View>
-              <View style={styles.actionArrow}>
-                <ArrowRight size={20} color="#D97706" />
+              <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
+                <ArrowRight size={20} color={colors.accent} />
               </View>
             </TouchableOpacity>
 
             {/* Customer Option */}
             <TouchableOpacity
-              style={styles.roleCard}
+              style={[
+                styles.roleCard, 
+                { backgroundColor: colors.surface, borderColor: colors.border }
+              ]}
               onPress={() => handleSelectRole('CUSTOMER')}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Select Customer and Buyer role"
             >
-              <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}>
+              <View style={[styles.iconBox, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
                 <Text style={styles.emojiIcon}>🍯</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={styles.roleTitle}>Customer & Buyer</Text>
-                <Text style={styles.roleDesc}>
+                <Text style={[styles.roleTitle, { color: colors.text }]}>Customer & Buyer</Text>
+                <Text style={[styles.roleDesc, { color: colors.subtext }]}>
                   Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.
                 </Text>
               </View>
-              <View style={styles.actionArrow}>
-                <ArrowRight size={20} color="#059669" />
+              <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
+                <ArrowRight size={20} color={colors.accent} />
               </View>
             </TouchableOpacity>
           </View>
 
           {/* Trust Badge */}
           <View style={styles.trustFooter}>
-            <ShieldCheck size={18} color="#64748B" />
-            <Text style={styles.trustText}>On-Chain Provenance • Lab Quality Verified</Text>
+            <ShieldCheck size={18} color={colors.accent} />
+            <Text style={[styles.trustText, { color: colors.subtext }]}>On-Chain Provenance • Lab Quality Verified</Text>
           </View>
         </View>
       </ScrollView>

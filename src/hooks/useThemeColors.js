@@ -13,7 +13,7 @@ export function useThemeColors() {
 
   const isDark = themeMode === 'dark' || (themeMode === 'system' && systemScheme === 'dark');
 
-  const accent = '#F59E0B'; // Unified Honey Gold Accent
+  const accent = '#F4B942'; // Premium Honey Gold Accent
 
   if (isDark) {
     return {
@@ -33,8 +33,8 @@ export function useThemeColors() {
       buttonText: '#000000',
       accentButtonBg: accent,
       accentButtonText: '#000000',
-      badgeBg: 'rgba(245, 158, 11, 0.15)',
-      badgeBorder: 'rgba(245, 158, 11, 0.35)',
+      badgeBg: 'rgba(244, 185, 66, 0.15)',
+      badgeBorder: 'rgba(244, 185, 66, 0.35)',
       badgeText: accent,
       status: {
         success: accent,            // Verification uses Honey Gold
@@ -62,8 +62,8 @@ export function useThemeColors() {
     buttonText: '#FFFFFF',
     accentButtonBg: accent,
     accentButtonText: '#000000',
-    badgeBg: 'rgba(245, 158, 11, 0.12)',
-    badgeBorder: 'rgba(245, 158, 11, 0.3)',
+    badgeBg: 'rgba(244, 185, 66, 0.12)',
+    badgeBorder: 'rgba(244, 185, 66, 0.3)',
     badgeText: accent,
     status: {
       success: accent,              // Verification uses Honey Gold
