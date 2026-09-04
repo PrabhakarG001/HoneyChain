@@ -73,6 +73,10 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           const color = isFocused ? activeColor : inactiveColor;
           const strokeWidth = isFocused ? 2.5 : 2;
 
+          // Center button dynamic active/inactive states
+          const centerBgColor = isFocused ? colors.accent : colors.surface;
+          const centerIconColor = isFocused ? '#FFFFFF' : inactiveColor;
+
           const renderIcon = () => {
             switch (route.name) {
               case 'index':
@@ -85,8 +89,8 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
                 return <Search size={22} color={color} strokeWidth={strokeWidth} />;
               case 'create':
                 return userRole === 'CUSTOMER'
-                  ? <QrCode size={24} color="#FFFFFF" strokeWidth={2.5} />
-                  : <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />;
+                  ? <QrCode size={22} color={centerIconColor} strokeWidth={strokeWidth} />
+                  : <Plus size={22} color={centerIconColor} strokeWidth={strokeWidth} />;
               case 'notifications':
                 return <Bookmark size={22} color={color} strokeWidth={strokeWidth} />;
               case 'profile':
@@ -118,7 +122,11 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
               activeOpacity={0.8}
             >
               {isCenterAction ? (
-                <View style={[styles.centerBtn, { backgroundColor: colors.accent }]}>
+                <View style={[
+                  styles.centerBtn, 
+                  { backgroundColor: centerBgColor, borderColor: colors.cardBorder },
+                  isFocused && styles.centerBtnFocused
+                ]}>
                   {renderIcon()}
                 </View>
               ) : (
@@ -151,7 +159,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    borderRadius: 9999, // Pill-shaped dock
+    borderRadius: 9999,
     height: 60,
     width: '100%',
     maxWidth: 420,
@@ -182,14 +190,22 @@ const styles = StyleSheet.create({
     top: -10,
   },
   centerBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    elevation: 2,
+    shadowColor: '#000000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  centerBtnFocused: {
     elevation: 6,
     shadowColor: '#F59E0B',
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
