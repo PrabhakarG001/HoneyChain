@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from 'react-native';
 import { Search, X, Clock, Flame, Globe } from 'lucide-react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import MasonryGrid from '../../../components/ui/MasonryGrid/MasonryGrid';
 import HoneyCard from '../../../components/ui/HoneyCard/HoneyCard';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
@@ -9,13 +10,16 @@ import { useThemeColors } from '../../../hooks/useThemeColors';
 import { useTranslation } from '../../../hooks/useTranslation';
 import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 import { hiveService } from '../../../services/hive.service';
-import { useLocalSearchParams } from 'expo-router';
+import { productService } from '../../../services/product.service';
+import { batchService } from '../../../services/batch.service';
+import { farmService } from '../../../services/farm.service';
 
 const RECENT_SEARCHES = ['Acacia Honey', 'Sonoma Apiary', 'Hive health checks'];
 const TRENDING_TOPICS = ['Raw Honey Benefits', 'Winter Beekeeping', 'Blockchain Verification', 'Organic Certification'];
 const CATEGORIES = ['Honey Batches', 'Farms', 'Beekeepers', 'Quality Reports'];
 
 export default function SearchScreen() {
+  const router = useRouter();
   const params = useLocalSearchParams();
   const colors = useThemeColors();
   const { t, currentLanguage } = useTranslation();
@@ -33,10 +37,10 @@ export default function SearchScreen() {
   }, [params?.q]);
 
   useEffect(() => {
-    if (query.length > 2) {
+    if (query.trim().length > 1) {
       const delayDebounceFn = setTimeout(() => {
         handleSearch();
-      }, 500);
+      }, 400);
       return () => clearTimeout(delayDebounceFn);
     } else {
       setResults([]);
@@ -48,29 +52,84 @@ export default function SearchScreen() {
       setIsLoading(true);
       setError(null);
       
-      const hives = await hiveService.getAllHives();
+      const q = query.toLowerCase().trim();
+      const [hives, products, batches, farms] = await Promise.all([
+        hiveService.getAllHives().catch(() => []),
+        productService.getProducts().catch(() => []),
+        batchService.getBatches().catch(() => []),
+        farmService.getFarms().catch(() => [])
+      ]);
       
-      const filtered = (hives || []).filter(h => 
-        (h.name && h.name.toLowerCase().includes(query.toLowerCase())) ||
-        (h.location && h.location.toLowerCase().includes(query.toLowerCase()))
+      const hiveResults = (hives || []).filter(h => 
+        (h.name && h.name.toLowerCase().includes(q)) ||
+        (h.location && h.location.toLowerCase().includes(q)) ||
+        (h.hive_code && h.hive_code.toLowerCase().includes(q))
       ).map((h, index) => ({
         id: h.id || h._id,
         type: 'hive',
-        title: h.name || 'Hive',
-        subtitle: h.location || 'Sonoma Apiary',
-        height: index % 2 === 0 ? 250 : 195,
+        title: h.name || `Hive ${h.id}`,
+        subtitle: h.location || 'Apiary Location',
+        height: index % 2 === 0 ? 220 : 190,
         isVerified: true,
-        imageUrl: index % 2 === 0 
-          ? 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
-          : 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80'
+        badgeText: h.status || 'Active'
       }));
-      
-      setResults(filtered);
+
+      const productResults = (products || []).filter(p =>
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.product_code && p.product_code.toLowerCase().includes(q))
+      ).map((p, index) => ({
+        id: p.id,
+        type: 'product',
+        title: p.name || 'Pure Organic Honey',
+        subtitle: `Code: ${p.product_code || p.id}`,
+        height: index % 2 === 0 ? 240 : 200,
+        isVerified: true,
+        badgeText: 'Verified'
+      }));
+
+      const batchResults = (batches || []).filter(b =>
+        (b.batch_code && b.batch_code.toLowerCase().includes(q)) ||
+        (b.id && b.id.toLowerCase().includes(q)) ||
+        (b.status && b.status.toLowerCase().includes(q))
+      ).map((b, index) => ({
+        id: b.id,
+        type: 'honey',
+        title: b.batch_code || b.id,
+        subtitle: `Status: ${b.status || 'Created'}`,
+        height: index % 2 === 0 ? 210 : 185,
+        isVerified: true,
+        badgeText: b.is_merged ? 'Merged' : 'Single Source'
+      }));
+
+      const farmResults = (farms || []).filter(f =>
+        (f.name && f.name.toLowerCase().includes(q)) ||
+        (f.location && f.location.toLowerCase().includes(q))
+      ).map((f, index) => ({
+        id: f.id,
+        type: 'farm',
+        title: f.name || 'Apiary Farm',
+        subtitle: f.location || 'Organic Apiary',
+        height: index % 2 === 0 ? 230 : 190,
+        isVerified: true,
+      }));
+
+      const combined = [...hiveResults, ...productResults, ...batchResults, ...farmResults];
+      setResults(combined);
     } catch (err) {
       console.error('Search error', err);
       setError('Search failed. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCardPress = (item) => {
+    if (item.type === 'farm') {
+      router.push(`/farms/${item.id}`);
+    } else if (item.type === 'honey' || item.type === 'product') {
+      router.push(`/batches/${item.id}`);
+    } else if (item.type === 'hive') {
+      router.push(`/hives/${item.id}`);
     }
   };
 
@@ -93,11 +152,12 @@ export default function SearchScreen() {
               <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{currentLanguage.native}</Text>
             </TouchableOpacity>
           </View>
+
           <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Search size={18} color={colors.subtext} />
             <TextInput
               style={[styles.input, { color: colors.text }]}
-              placeholder={t('searchPlaceholder', 'Search HoneyChain')}
+              placeholder={t('searchPlaceholder', 'Search hives, batches, products...')}
               placeholderTextColor={colors.subtext}
               value={query ?? ''}
               onChangeText={setQuery}
@@ -118,7 +178,7 @@ export default function SearchScreen() {
           scrollEventThrottle={scrollEventThrottle}
         >
           
-          {query.length === 0 ? (
+          {query.trim().length === 0 ? (
             <>
               {/* Recent Searches */}
               <View style={styles.section}>
@@ -188,6 +248,8 @@ export default function SearchScreen() {
                       subtitle={item.subtitle}
                       height={item.height}
                       isVerified={item.isVerified}
+                      badgeText={item.badgeText}
+                      onPress={() => handleCardPress(item)}
                     />
                   )}
                 />

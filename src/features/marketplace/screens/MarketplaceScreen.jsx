@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Alert, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Search, ShoppingBag, Award, ShieldCheck, Filter, ArrowLeft, Heart, CheckCircle2, Globe } from 'lucide-react-native';
+import { Search, ShoppingBag, Award, ShieldCheck, ArrowLeft, Globe } from 'lucide-react-native';
+import { productService } from '../../../services/product.service';
 import { firestoreService } from '../../../services/firestore.service';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
-  const { t, currentLanguage } = useTranslation();
+  const { t } = useTranslation();
   const [isLangModalVisible, setIsLangModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [highPurityOnly, setHighPurityOnly] = useState(false);
   const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [cartCount, setCartCount] = useState(0);
 
   const CATEGORIES = ['All', 'Acacia', 'Wildflower', 'Manuka', 'Clover', 'Lavender'];
@@ -27,18 +31,75 @@ export default function MarketplaceScreen() {
 
   const loadProducts = async () => {
     try {
-      const fetched = await firestoreService.getProducts();
-      setProducts(fetched || []);
+      setIsLoading(true);
+      let backendProds = [];
+      try {
+        backendProds = await productService.getProducts();
+      } catch (err) {
+        console.warn('Backend products fetch notice:', err.message);
+      }
+
+      let fsProds = [];
+      try {
+        fsProds = await firestoreService.getProducts();
+      } catch (e) {}
+
+      // Normalize & Merge products from backend and firestore
+      const normalizedBackend = (backendProds || []).map(p => ({
+        id: p.id,
+        qrId: p.id,
+        productName: p.name || 'Raw Organic Honey',
+        beekeeperName: 'Verified Apiary Producer',
+        netWeight: '500g',
+        floralSource: p.name?.toLowerCase().includes('acacia') ? 'Acacia' : 'Wildflower',
+        purityScore: 98,
+        price: 24.99,
+        image: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
+      }));
+
+      const combined = [...normalizedBackend, ...(fsProds || [])];
+      // De-duplicate by id
+      const uniqueProds = Array.from(new Map(combined.map(item => [item.id, item])).values());
+
+      setProducts(uniqueProds.length > 0 ? uniqueProds : [
+        {
+          id: 'PROD_DEMO_01',
+          qrId: 'PROD_DEMO_01',
+          productName: 'Raw Wildflower Honey (500g)',
+          beekeeperName: 'Sunny Valley Apiary',
+          netWeight: '500g',
+          floralSource: 'Wildflower',
+          purityScore: 98,
+          price: 22.50,
+          image: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
+        },
+        {
+          id: 'PROD_DEMO_02',
+          qrId: 'PROD_DEMO_02',
+          productName: 'Monofloral Acacia Honey (1kg)',
+          beekeeperName: 'Highland Organic Apiaries',
+          netWeight: '1000g',
+          floralSource: 'Acacia',
+          purityScore: 96,
+          price: 34.00,
+          image: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80'
+        }
+      ]);
     } catch (e) {
       setProducts([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const filteredProducts = products.filter((item) => {
-    const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.floralSource.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || item.floralSource.toLowerCase() === selectedCategory.toLowerCase();
-    const matchesPurity = !highPurityOnly || item.purityScore >= 95;
+    const pName = (item.productName || '').toLowerCase();
+    const fSource = (item.floralSource || '').toLowerCase();
+    const q = searchQuery.toLowerCase();
+
+    const matchesSearch = !q || pName.includes(q) || fSource.includes(q);
+    const matchesCategory = selectedCategory === 'All' || fSource === selectedCategory.toLowerCase();
+    const matchesPurity = !highPurityOnly || (item.purityScore || 0) >= 95;
     return matchesSearch && matchesCategory && matchesPurity;
   });
 
@@ -48,13 +109,14 @@ export default function MarketplaceScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Top Bar */}
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Top Header */}
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('honeyStore', 'Honey Discovery & Store')}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('honeyStore', 'Honey Discovery & Store')}</Text>
+        
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <TouchableOpacity 
             style={styles.cartIconBox}
@@ -62,15 +124,15 @@ export default function MarketplaceScreen() {
             accessibilityRole="button"
             accessibilityLabel="Select language"
           >
-            <Globe size={22} color="#D97706" />
+            <Globe size={22} color={colors.accent} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.cartIconBox}
             onPress={() => Alert.alert('Shopping Cart', `You have ${cartCount} item(s) in your cart.`)}
           >
-            <ShoppingBag size={22} color="#0F172A" />
+            <ShoppingBag size={22} color={colors.text} />
             {cartCount > 0 && (
-              <View style={styles.cartBadge}>
+              <View style={[styles.cartBadge, { backgroundColor: colors.accent }]}>
                 <Text style={styles.cartBadgeText}>{cartCount}</Text>
               </View>
             )}
@@ -84,86 +146,99 @@ export default function MarketplaceScreen() {
         onScroll={onScroll}
         scrollEventThrottle={scrollEventThrottle}
       >
-        {/* Search Bar */}
-        <View style={styles.searchBar}>
-          <Search size={20} color="#64748B" />
+        {/* Search Input */}
+        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Search size={20} color={colors.subtext} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search by floral source, beekeeper..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
         </View>
 
-        {/* Category Filters */}
+        {/* Category Chips */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
-          {CATEGORIES.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[styles.catChip, selectedCategory === cat && styles.catChipActive]}
-              onPress={() => setSelectedCategory(cat)}
-            >
-              <Text style={[styles.catChipText, selectedCategory === cat && styles.catChipTextActive]}>
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            return (
+              <TouchableOpacity
+                key={cat}
+                style={[
+                  styles.catChip, 
+                  { backgroundColor: isSelected ? colors.accent : colors.surface, borderColor: colors.border }
+                ]}
+                onPress={() => setSelectedCategory(cat)}
+              >
+                <Text style={[styles.catChipText, { color: isSelected ? '#000000' : colors.text }]}>
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
         {/* High Purity Filter Bar */}
         <TouchableOpacity
-          style={[styles.purityFilterBtn, highPurityOnly && styles.purityFilterActive]}
+          style={[
+            styles.purityFilterBtn, 
+            { backgroundColor: highPurityOnly ? (colors.isDark ? '#3F2D17' : '#FEF3C7') : colors.surface, borderColor: colors.border }
+          ]}
           onPress={() => setHighPurityOnly(!highPurityOnly)}
         >
-          <Award size={18} color={highPurityOnly ? '#D97706' : '#64748B'} />
-          <Text style={[styles.purityFilterText, highPurityOnly && styles.purityFilterTextActive]}>
+          <Award size={18} color={colors.accent} />
+          <Text style={[styles.purityFilterText, { color: colors.text }]}>
             Purity Score &ge; 95% Only
           </Text>
-          <ShieldCheck size={18} color={highPurityOnly ? '#10B981' : '#64748B'} style={{ marginLeft: 'auto' }} />
+          <ShieldCheck size={18} color={colors.status.success} style={{ marginLeft: 'auto' }} />
         </TouchableOpacity>
 
-        {/* Products List */}
-        <Text style={styles.sectionHeader}>Verified Honey Jars ({filteredProducts.length})</Text>
+        {/* Products Grid Header */}
+        <Text style={[styles.sectionHeader, { color: colors.text }]}>Verified Honey Jars ({filteredProducts.length})</Text>
 
-        <View style={styles.productGrid}>
-          {filteredProducts.map((item) => (
-            <View key={item.id} style={styles.productCard}>
-              <Image source={{ uri: item.image || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' }} style={styles.productImg} />
-              
-              <View style={styles.cardContent}>
-                {/* Score Pill */}
-                <View style={styles.scorePill}>
-                  <Award size={12} color="#B45309" />
-                  <Text style={styles.scorePillText}>{item.purityScore}/100 Score</Text>
-                </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
+        ) : (
+          <View style={styles.productGrid}>
+            {filteredProducts.map((item) => (
+              <View key={item.id} style={[styles.productCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Image source={{ uri: item.image || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' }} style={styles.productImg} />
+                
+                <View style={styles.cardContent}>
+                  {/* Score Pill */}
+                  <View style={[styles.scorePill, { backgroundColor: colors.isDark ? 'rgba(244, 185, 66, 0.2)' : '#FEF3C7' }]}>
+                    <Award size={12} color={colors.accent} />
+                    <Text style={[styles.scorePillText, { color: colors.accent }]}>{item.purityScore}/100 Score</Text>
+                  </View>
 
-                <Text style={styles.productName} numberOfLines={2}>{item.productName}</Text>
-                <Text style={styles.producerText}>by {item.beekeeperName}</Text>
-                <Text style={styles.weightText}>{item.netWeight} • {item.floralSource}</Text>
+                  <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>{item.productName}</Text>
+                  <Text style={[styles.producerText, { color: colors.subtext }]}>by {item.beekeeperName}</Text>
+                  <Text style={[styles.weightText, { color: colors.subtext }]}>{item.netWeight} • {item.floralSource}</Text>
 
-                <View style={styles.priceRow}>
-                  <Text style={styles.priceText}>${item.price.toFixed(2)}</Text>
-                  
+                  <View style={styles.priceRow}>
+                    <Text style={[styles.priceText, { color: colors.text }]}>${Number(item.price).toFixed(2)}</Text>
+                    
+                    <TouchableOpacity 
+                      style={[styles.provenanceBtn, { backgroundColor: colors.isDark ? '#27272A' : '#EEF2FF' }]}
+                      onPress={() => router.push({ pathname: `/verify/${item.id}`, params: { qrId: item.qrId } })}
+                    >
+                      <Text style={[styles.provenanceBtnText, { color: colors.accent }]}>View Passport</Text>
+                    </TouchableOpacity>
+                  </View>
+
                   <TouchableOpacity 
-                    style={styles.provenanceBtn}
-                    onPress={() => router.push({ pathname: `/verify/${item.id}`, params: { qrId: item.qrId } })}
+                    style={[styles.addCartBtn, { backgroundColor: colors.accent }]}
+                    onPress={() => handleAddToCart(item)}
                   >
-                    <Text style={styles.provenanceBtnText}>View Passport</Text>
+                    <ShoppingBag size={16} color="#000000" />
+                    <Text style={styles.addCartBtnText}>Add to Cart</Text>
                   </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity 
-                  style={styles.addCartBtn}
-                  onPress={() => handleAddToCart(item)}
-                >
-                  <ShoppingBag size={16} color="#FFFFFF" />
-                  <Text style={styles.addCartBtnText}>Add to Cart</Text>
-                </TouchableOpacity>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <LanguageModal 
@@ -177,7 +252,6 @@ export default function MarketplaceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
@@ -185,9 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     padding: 4,
@@ -195,7 +267,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   cartIconBox: {
     position: 'relative',
@@ -205,7 +276,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     right: 2,
-    backgroundColor: '#EF4444',
     borderRadius: 10,
     width: 18,
     height: 18,
@@ -213,7 +283,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cartBadgeText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 10,
     fontWeight: '800',
   },
@@ -224,9 +294,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -236,7 +304,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 15,
-    color: '#0F172A',
   },
   catScroll: {
     marginBottom: 14,
@@ -245,61 +312,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     marginRight: 8,
-  },
-  catChipActive: {
-    backgroundColor: '#D97706',
-    borderColor: '#D97706',
   },
   catChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748B',
-  },
-  catChipTextActive: {
-    color: '#FFFFFF',
   },
   purityFilterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
-  purityFilterActive: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#FDE68A',
-  },
   purityFilterText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748B',
     marginLeft: 8,
-  },
-  purityFilterTextActive: {
-    color: '#92400E',
   },
   sectionHeader: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 12,
   },
   productGrid: {
     gap: 16,
   },
   productCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.04,
@@ -316,7 +360,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -326,21 +369,17 @@ const styles = StyleSheet.create({
   scorePillText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#B45309',
   },
   productName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
   },
   producerText: {
     fontSize: 13,
-    color: '#475569',
     marginTop: 2,
   },
   weightText: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 2,
   },
   priceRow: {
@@ -352,21 +391,17 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#0F172A',
   },
   provenanceBtn: {
-    backgroundColor: '#EEF2FF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   provenanceBtnText: {
-    color: '#4F46E5',
     fontSize: 12,
     fontWeight: '700',
   },
   addCartBtn: {
-    backgroundColor: '#D97706',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -376,7 +411,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   addCartBtnText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '700',
   },

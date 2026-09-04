@@ -12,7 +12,20 @@ export const hiveService = {
   },
 
   createHive: async (hiveData) => {
-    const response = await api.post('/hives', hiveData);
+    const hiveId = hiveData.id || `HV_${Date.now().toString().slice(-6)}`;
+    const farmId = hiveData.farm_id || hiveData.farmId;
+
+    const payload = {
+      id: hiveId,
+      name: hiveData.name || `Hive ${hiveId}`,
+      hive_code: hiveData.hive_code || hiveData.hiveCode || `HC-${hiveId}`,
+      location: hiveData.location || 'Apiary Location',
+      farm_id: farmId || undefined,
+      apiary_id: hiveData.apiary_id || farmId || undefined,
+      install_date: hiveData.install_date || new Date().toISOString()
+    };
+
+    const response = await api.post('/hives', payload);
     return response.data;
   },
 

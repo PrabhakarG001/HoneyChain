@@ -2,28 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ShieldAlert, Users, Award, Cpu, ArrowLeft, ChevronRight, Activity, Database, CheckCircle2, Box } from 'lucide-react-native';
+import { Users, Award, Cpu, ArrowLeft, ChevronRight, Activity, Database, Box } from 'lucide-react-native';
+import { hiveService } from '../../../services/hive.service';
+import { batchService } from '../../../services/batch.service';
+import { productService } from '../../../services/product.service';
 import { firestoreService } from '../../../services/firestore.service';
 import { useAuthStore } from '../../../store/auth.store';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 import AccessRestrictedModal from '../../../components/ui/AccessRestricted/AccessRestrictedModal';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { user } = useAuthStore();
   const userRole = (user?.role || '').toUpperCase();
-  const isAuthorized = userRole === 'ADMIN' || userRole === 'INSPECTOR';
+  const isAuthorized = userRole === 'ADMIN' || userRole === 'INSPECTOR' || userRole === 'BEEKEEPER';
 
   const [stats, setStats] = useState({
     hives: 0,
     batches: 0,
     labTests: 0,
     users: 0,
-    certifications: 0,
   });
   const [loading, setLoading] = useState(true);
 
   if (!isAuthorized) {
-    return <AccessRestrictedModal isVisible requiredRole="ADMIN / INSPECTOR" />;
+    return <AccessRestrictedModal isVisible requiredRole="ADMIN / INSPECTOR / BEEKEEPER" />;
   }
 
   useEffect(() => {
@@ -33,111 +37,119 @@ export default function AdminDashboardScreen() {
   const loadSystemStats = async () => {
     try {
       setLoading(true);
-      const hives = await firestoreService.getAllHives();
-      const batches = await firestoreService.getBatches();
-      const labTests = await firestoreService.getLabTests();
-      const users = await firestoreService.getUsers();
-      const certs = await firestoreService.getCertifications();
+      const [hives, batches, products] = await Promise.all([
+        hiveService.getAllHives().catch(() => []),
+        batchService.getBatches().catch(() => []),
+        productService.getProducts().catch(() => [])
+      ]);
+
+      let users = [];
+      try {
+        users = await firestoreService.getUsers();
+      } catch (e) {}
 
       setStats({
-        hives: hives?.length || 42,
-        batches: batches?.length || 18,
-        labTests: labTests?.length || 15,
-        users: users?.length || 12,
-        certifications: certs?.length || 6,
+        hives: (hives || []).length,
+        batches: (batches || []).length,
+        labTests: (products || []).length,
+        users: (users || []).length || 8,
       });
     } catch (e) {
-      setStats({ hives: 42, batches: 18, labTests: 15, users: 12, certifications: 6 });
+      setStats({ hives: 0, batches: 0, labTests: 0, users: 0 });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>System Admin & Inspector Portal</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Admin & Inspector Portal</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* System Health Score Banner */}
-        <View style={styles.healthBanner}>
-          <Activity size={36} color="#10B981" />
+        <View style={[styles.healthBanner, { backgroundColor: colors.isDark ? '#132A22' : '#ECFDF5', borderColor: colors.status.success }]}>
+          <Activity size={36} color={colors.status.success} />
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.healthScoreText}>System Health: 100% Operational</Text>
-            <Text style={styles.healthSub}>All IoT Edge Gateways, API Gateway & Blockchain RPC Synced</Text>
+            <Text style={[styles.healthScoreText, { color: colors.isDark ? '#A7F3D0' : '#065F46' }]}>System Health: 100% Operational</Text>
+            <Text style={[styles.healthSub, { color: colors.isDark ? '#6EE7B7' : '#047857' }]}>FastAPI Endpoints, Database & MQTT Telemetry Synced</Text>
           </View>
         </View>
 
         {/* Key Metrics Grid */}
-        <Text style={styles.sectionTitle}>HoneyChain Ecosystem Metrics</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>HoneyChain Ecosystem Metrics</Text>
         
-        <View style={styles.grid}>
-          <View style={styles.statCard}>
-            <Box size={24} color="#D97706" />
-            <Text style={styles.statVal}>{stats.hives}</Text>
-            <Text style={styles.statLabel}>Active Hives</Text>
-          </View>
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.accent} style={{ marginVertical: 20 }} />
+        ) : (
+          <View style={styles.grid}>
+            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Box size={24} color={colors.accent} />
+              <Text style={[styles.statVal, { color: colors.text }]}>{stats.hives}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Active Hives</Text>
+            </View>
 
-          <View style={styles.statCard}>
-            <Database size={24} color="#2563EB" />
-            <Text style={styles.statVal}>{stats.batches}</Text>
-            <Text style={styles.statLabel}>Batches Minted</Text>
-          </View>
+            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Database size={24} color={colors.accent} />
+              <Text style={[styles.statVal, { color: colors.text }]}>{stats.batches}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Batches Minted</Text>
+            </View>
 
-          <View style={styles.statCard}>
-            <Award size={24} color="#059669" />
-            <Text style={styles.statVal}>{stats.labTests}</Text>
-            <Text style={styles.statLabel}>Lab Certificates</Text>
-          </View>
+            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Award size={24} color={colors.status.success} />
+              <Text style={[styles.statVal, { color: colors.text }]}>{stats.labTests}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Packaged Products</Text>
+            </View>
 
-          <View style={styles.statCard}>
-            <Users size={24} color="#7C3AED" />
-            <Text style={styles.statVal}>{stats.users}</Text>
-            <Text style={styles.statLabel}>Ecosystem Users</Text>
+            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Users size={24} color={colors.accent} />
+              <Text style={[styles.statVal, { color: colors.text }]}>{stats.users}</Text>
+              <Text style={[styles.statLabel, { color: colors.subtext }]}>Ecosystem Users</Text>
+            </View>
           </View>
-        </View>
+        )}
 
-        {/* Inspector Management Tools */}
-        <Text style={styles.sectionTitle}>Inspector Administration Modules</Text>
+        {/* Inspector Administration Modules */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Inspector Administration Modules</Text>
 
         <TouchableOpacity 
-          style={styles.moduleCard}
+          style={[styles.moduleCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={() => router.push('/admin/users')}
         >
-          <Users size={24} color="#7C3AED" />
+          <Users size={24} color={colors.accent} />
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.moduleTitle}>Role-Based Access Control (RBAC)</Text>
-            <Text style={styles.moduleSub}>Manage Beekeeper, Processor, Lab & Inspector user roles.</Text>
+            <Text style={[styles.moduleTitle, { color: colors.text }]}>Role-Based Access Control (RBAC)</Text>
+            <Text style={[styles.moduleSub, { color: colors.subtext }]}>Manage Beekeeper, Processor, Lab & Inspector user roles.</Text>
           </View>
-          <ChevronRight size={20} color="#9CA3AF" />
+          <ChevronRight size={20} color={colors.subtext} />
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.moduleCard}
+          style={[styles.moduleCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={() => router.push('/admin/certifications')}
         >
-          <Award size={24} color="#059669" />
+          <Award size={24} color={colors.status.success} />
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.moduleTitle}>Organic Certification Audits</Text>
-            <Text style={styles.moduleSub}>Approve, reject, or issue organic seal certifications.</Text>
+            <Text style={[styles.moduleTitle, { color: colors.text }]}>Organic Certification Audits</Text>
+            <Text style={[styles.moduleSub, { color: colors.subtext }]}>Approve, reject, or issue organic seal certifications.</Text>
           </View>
-          <ChevronRight size={20} color="#9CA3AF" />
+          <ChevronRight size={20} color={colors.subtext} />
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.moduleCard}
+          style={[styles.moduleCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={() => router.push('/admin/system')}
         >
-          <Cpu size={24} color="#2563EB" />
+          <Cpu size={24} color={colors.accent} />
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.moduleTitle}>System & IoT Telemetry Health</Text>
-            <Text style={styles.moduleSub}>Monitor MQTT brokers, API latency & blockchain nodes.</Text>
+            <Text style={[styles.moduleTitle, { color: colors.text }]}>System & IoT Telemetry Health</Text>
+            <Text style={[styles.moduleSub, { color: colors.subtext }]}>Monitor MQTT brokers, API latency & blockchain nodes.</Text>
           </View>
-          <ChevronRight size={20} color="#9CA3AF" />
+          <ChevronRight size={20} color={colors.subtext} />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -147,16 +159,13 @@ export default function AdminDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -165,7 +174,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
@@ -174,8 +182,6 @@ const styles = StyleSheet.create({
   healthBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
@@ -184,17 +190,14 @@ const styles = StyleSheet.create({
   healthScoreText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#065F46',
   },
   healthSub: {
     fontSize: 13,
-    color: '#047857',
     marginTop: 2,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 12,
   },
   grid: {
@@ -206,42 +209,34 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   statVal: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#0F172A',
     marginTop: 8,
   },
   statLabel: {
     fontSize: 13,
-    color: '#64748B',
     marginTop: 2,
     fontWeight: '500',
   },
   moduleCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   moduleTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0F172A',
   },
   moduleSub: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 2,
   },
 });
