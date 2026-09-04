@@ -1,10 +1,19 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useUIStore } from '../store/ui.store';
 
 export function useScrollToHideNav() {
   const setNavbarVisible = useUIStore(state => state.setNavbarVisible);
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef(null);
+
+  useEffect(() => {
+    // Explicitly guarantee bottom navbar is visible when screen mounts
+    setNavbarVisible(true);
+    return () => {
+      setNavbarVisible(true);
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    };
+  }, []);
 
   const handleScroll = (event) => {
     if (!event || !event.nativeEvent) return;

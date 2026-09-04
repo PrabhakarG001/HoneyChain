@@ -9,7 +9,7 @@ export default function AccessRestrictedModal({ isVisible = true, onClose, requi
 
   const handleGoHome = () => {
     if (onClose) onClose();
-    router.replace('/(app)/dashboard');
+    router.replace('/(app)/(tabs)');
   };
 
   if (!isVisible) return null;

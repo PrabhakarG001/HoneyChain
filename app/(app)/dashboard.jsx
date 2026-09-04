@@ -1,2 +1,6 @@
-import DashboardScreen from '../../src/features/dashboard/screens/DashboardScreen';
-export default DashboardScreen;
+import React from 'react';
+import { Redirect } from 'expo-router';
+
+export default function DashboardRedirect() {
+  return <Redirect href="/(app)/(tabs)" />;
+}

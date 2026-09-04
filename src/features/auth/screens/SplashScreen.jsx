@@ -24,8 +24,7 @@ export default function SplashScreen() {
     ]).start();
 
     const timer = setTimeout(() => {
-      // DEV BYPASS: Redirect to dashboard directly instead of login
-      router.replace('/(app)/dashboard');
+      router.replace('/(app)/(tabs)');
     }, 2500);
 
     return () => clearTimeout(timer);

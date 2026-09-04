@@ -60,7 +60,7 @@ export default function LoginScreen() {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!storeIsLoading && isAuthenticated) {
-      router.replace('/(app)/dashboard');
+      router.replace('/(app)/(tabs)');
     }
   }, [isAuthenticated, storeIsLoading]);
 
@@ -113,7 +113,7 @@ export default function LoginScreen() {
       }
 
       setTimeout(() => {
-        router.replace('/(app)/dashboard');
+        router.replace('/(app)/(tabs)');
       }, 500);
     } catch (err) {
       setGlobalError(err.message || 'Login failed. Please check your credentials.');
@@ -136,7 +136,7 @@ export default function LoginScreen() {
         firestoreService.updateUserRole(gUser.uid, userRole).catch(() => {});
       }
 
-      router.replace('/(app)/dashboard');
+      router.replace('/(app)/(tabs)');
     } catch (err) {
       // Don't show error if user cancelled popup
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {

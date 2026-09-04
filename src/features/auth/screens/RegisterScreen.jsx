@@ -56,7 +56,7 @@ export default function RegisterScreen() {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!storeIsLoading && isAuthenticated) {
-      router.replace('/(app)/dashboard');
+      router.replace('/(app)/(tabs)');
     }
   }, [isAuthenticated, storeIsLoading]);
   
@@ -94,7 +94,7 @@ export default function RegisterScreen() {
       await login(res.user, res.accessToken);
 
       setTimeout(() => {
-        router.replace('/(app)/dashboard');
+        router.replace('/(app)/(tabs)');
       }, 500);
     } catch (err) {
       setGlobalError(err.message || 'Registration failed. Please try again.');
@@ -112,7 +112,7 @@ export default function RegisterScreen() {
       setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
 
       setTimeout(() => {
-        router.replace('/(app)/dashboard');
+        router.replace('/(app)/(tabs)');
       }, 500);
     } catch (err) {
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
