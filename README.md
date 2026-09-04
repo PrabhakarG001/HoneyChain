@@ -4,11 +4,44 @@
 [![Smart Contract Tests](https://img.shields.io/badge/Hardhat-5%2F5%20Passed-blue)](blockchain)
 [![Backend Status](https://img.shields.io/badge/Backend-FastAPI%200.115-009688)](backend)
 [![Database Status](https://img.shields.io/badge/Database-SQLAlchemy%20%7C%20Alembic-blue)](backend)
-[![Frontend Status](https://img.shields.io/badge/Frontend-Expo%20SDK%2057-61DAFB)](src)
+[![Frontend Status](https://img.shields.io/badge/Frontend-Expo%20SDK%2057%20%7C%20React%2019-61DAFB)](src)
 [![AI/ML Status](https://img.shields.io/badge/AI%2FML-Local%20Scikit--Learn%20%7C%20Librosa-FF6F00)](ml)
-[![Web3 Status](https://img.shields.io/badge/Blockchain-Polygon%20Amoy-8247E5)](blockchain)
+[![Web3 Status](https://img.shields.io/badge/Blockchain-Polygon%20Amoy%20%7C%20Hardhat-8247E5)](blockchain)
 
 > **Enterprise-grade Web3, IoT, and AI-powered platform ensuring authentic honey supply chain transparency from apiary to consumer.**
+
+---
+
+## ⚡ Quick Start Guide
+
+Clone the repository and launch the full stack in minutes:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/PrabhakarG001/HoneyChain.git
+cd HoneyChain
+
+# 2. Install Frontend & Node dependencies
+npm install
+
+# 3. Install Backend & ML Python dependencies
+pip install -r backend/requirements.txt
+pip install -r ml/requirements.txt
+
+# 4. Copy Environment Variable Template
+cp .env.example .env
+
+# 5. Start Backend FastAPI Server (Port 8000)
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+# 6. In a new terminal, Start Frontend Expo Web App (Port 8081)
+npm run web
+```
+
+Access local endpoints:
+* **Frontend Web App**: `http://localhost:8081` (or `http://localhost:8082`)
+* **FastAPI REST API**: `http://localhost:8000/api`
+* **Swagger API Documentation**: `http://localhost:8000/docs`
 
 ---
 
@@ -75,7 +108,215 @@ Honey is one of the most adulterated food products globally. High-fructose corn 
 
 ---
 
-## 🤖 3. Local AI & Machine Learning Intelligence Architecture
+## 💻 3. Frontend Architecture & Technology Stack
+
+HoneyChain frontend is built with **Expo SDK 57**, **React 19**, and **React Native Web**, delivering a high-performance cross-platform application (iOS, Android, Web) inspired by Pinterest's visual discovery layout.
+
+### Technology Stack
+* **Framework**: Expo SDK 57 with Expo Router v57 (file-based routing under `app/`)
+* **Core Library**: React 19.2.3 & React Native 0.86.3 (`react-native-web` v0.21.2)
+* **Icons**: `lucide-react-native` & `react-icons`
+* **Styling & Design Token Hook**: `useThemeColors` hook returning dynamic Light & Dark mode tokens
+* **State Management**: `zustand` stores (`auth.store.js`, `theme.store.js`)
+* **Authentication**: Firebase Auth v12 (`AuthContext.jsx`) & Google Sign-In Provider
+* **Forms & Validation**: `react-hook-form` v7 with `@hookform/resolvers` & `zod` v4
+* **Data Fetching & Cache**: `@tanstack/react-query` v5 & `axios` client with automatic JWT bearer token interceptors
+* **QR Generation & Scanner**: `react-native-qrcode-svg` & `expo-camera`
+* **Maps**: Interactive Leaflet / `react-native-maps` data-driven apiary location renderer
+* **Branding Component**: Custom `LogoIcon.jsx` rendering White "H" on a Honey-Gold Squircle Badge (`#F4B942`)
+
+---
+
+## 📁 4. Project & Frontend Structure
+
+```text
+HoneyChain/
+├── app/                        # Expo Router File-Based Application Routes
+│   ├── (auth)/                 # Authentication Flow Screens
+│   │   ├── login.jsx           # Sign-In Screen with Email & Google Auth
+│   │   ├── register.jsx        # Account Registration & Role Picker
+│   │   ├── role-selection.jsx  # Initial Welcome Role Selector (Beekeeper / Customer)
+│   │   └── splash.jsx          # Animated Launch Splash Screen
+│   ├── (app)/                  # Authenticated Application Layout
+│   │   ├── (tabs)/             # Tab Navigation (Home, Discover, Scan, Profile, Notifications)
+│   │   └── dashboard.jsx       # Main Role-Based Dashboard Controller
+│   └── index.jsx               # Root Route Redirect
+│
+├── src/                        # Main Frontend Source Code
+│   ├── components/             # Reusable UI Components
+│   │   ├── navigation/         # Navigation Components (TopHeader, BottomNavbar)
+│   │   ├── profile/            # Profile Hub, Edit Modal, Theme Toggle & Logout Confirmation
+│   │   └── ui/                 # Atomic UI Components (BrandLogo, LogoIcon, HoneyCard, MasonryGrid, QualityScore)
+│   ├── config/                 # Firebase & Third-Party Configurations (firebase.js)
+│   ├── context/                # React Context Providers (AuthContext.jsx)
+│   ├── features/               # Feature-Specific Screen Implementations
+│   │   ├── auth/               # Auth Screens (LoginScreen, RegisterScreen, SplashScreen, RoleSelectionScreen)
+│   │   ├── batches/            # Honey Batch Passport & Genealogy Screen
+│   │   ├── dashboard/          # Role Dashboards (Beekeeper, Customer, Processor, Lab, Admin)
+│   │   ├── profile/            # User Profile Screen & Stats
+│   │   └── search/             # Visual Discovery & Masonry Search Screen
+│   ├── hooks/                  # Custom Hooks (useThemeColors, useScrollToHideNav)
+│   ├── services/               # API Service Clients (api.js, auth.service.js, hive.service.js, batch.service.js)
+│   ├── store/                  # Global State Stores (auth.store.js, theme.store.js)
+│   ├── theme/                  # Design Tokens & Color Palettes (colors.js, spacing.js, typography.js)
+│   └── utils/                  # Utility Functions & Storage Helpers (storage.js)
+│
+├── backend/                    # FastAPI Backend Engine (Python 3.10+)
+│   ├── main.py                 # FastAPI Application Entry & Middleware
+│   ├── models.py               # SQLAlchemy 2.0 Database Models (12 Entities)
+│   ├── schemas.py              # Pydantic v2 Request/Response Schemas
+│   ├── routers/                # 14 REST API & WebSocket Endpoint Modules
+│   └── services/               # Business Logic, Smart Contract Client & Genealogy Engine
+│
+├── ml/                         # Local AI & Machine Learning Subsystem
+│   ├── models/                 # Pre-trained Joblib Model Artifacts
+│   ├── inference/              # ML Inference Engine (ml_engine.py)
+│   └── datasets/               # HOBOS, USDA, and Acoustic Training Data
+│
+├── blockchain/                 # Hardhat Web3 Smart Contracts (Polygon Amoy / Hardhat)
+│   ├── contracts/              # Solidity Smart Contracts (HoneyChain.sol)
+│   └── scripts/                # Deployment & Testing Scripts
+│
+├── firmware/                   # Hardware IoT Firmware
+│   └── esp32/                  # ESP32 C++ Sensor & MQTT Firmware (main.cpp)
+│
+├── .env.example                # Environment Variable Template File
+├── package.json                # Frontend Node Dependencies & Scripts
+├── alembic.ini                 # Database Migration Configuration
+└── README.md                   # Complete Repository Documentation
+```
+
+---
+
+## 🎨 5. HoneyChain Branding & Global Theme System
+
+HoneyChain features a distinct, technology-focused visual identity that combines Pinterest-inspired visual discovery with HoneyChain's signature honey-gold branding:
+
+### HoneyChain Logo Badge (`LogoIcon.jsx` & `BrandLogo.jsx`)
+* **White "H" Icon**: Modern, minimal, bold white SVG "H" (`#FFFFFF`).
+* **Honey Gold Container**: Premium Squircle Badge filled with Honey Gold (`#F4B942`) in both Light and Dark modes.
+* **Text**: "HoneyChain" title styled with dynamic theme text color.
+
+### Global Theme System (`useThemeColors.js` & `theme.store.js`)
+* **True Global Theme Support**: Every page, screen, modal, card, dropdown, tab bar, header, map, and form dynamically adjusts to the selected mode.
+* **Light Mode**:
+  * Overall Background: `#FFFFFF` (Pure White)
+  * Surface/Cards: `#F8FAFC` (Light Neutral Surface)
+  * Primary Text: `#000000` (Black)
+  * Secondary Text: `#6B7280` (Readable Grey)
+  * Accent: `#F4B942` (Honey Gold)
+* **Dark Mode**:
+  * Overall Background: `#0B0C10` (Deep Black / Near Black)
+  * Surface/Cards: `#16181E` (Dark Neutral Surface)
+  * Primary Text: `#FFFFFF` (Pure White)
+  * Secondary Text: `#9CA3AF` (Light Grey)
+  * Borders: `#27272A` (Subtle Dark Neutral Border)
+  * Accent: `#F4B942` (Honey Gold)
+* **1-Click Theme Toggle**: Located in the Profile Hub dropdown with `Auto` (System), `Light`, and `Dark` options.
+
+---
+
+## 📱 6. Role-Based Navigation & Header Responsiveness
+
+### Customer Mobile Navigation
+For Customer mobile screen sizes (<768px), the bottom dock navigation displays:
+```text
+Home | Discover | Scan | Profile
+```
+* **Saved Functionality**: Fully implemented and preserved in code. Saved items remain accessible via the Profile screen and search discovery feeds.
+
+### Beekeeper Header Responsiveness
+* **Phone View (<768px)**: Shows Brand Logo "H" + "HoneyChain" text on the left, and Notification Bell (`Bell`) + Profile Avatar on the right. Extra action buttons (Plus `+` and Chat `MessageSquare`) are cleanly hidden on phones.
+* **Tablet / Desktop View (≥768px)**: Displays Plus (`+`), Chat (`MessageSquare`), Notification Bell (`Bell`), and Profile Avatar in the top header.
+* **Search Integration**: The search input has been moved from the header navbar into a dedicated full-featured Visual Search Screen (`SearchScreen.jsx`), freeing up header space for clean notification and profile interactions.
+
+---
+
+## 🔐 7. Google Login & Firebase Authentication
+
+HoneyChain supports seamless authentication through email credentials as well as **1-Click Google Sign-In** via Firebase Authentication.
+
+### Authentication Data Flow
+
+```text
+User
+ ↓
+Role Selection (Beekeeper / Customer)
+ ↓
+Google Login Button ("Continue with Google")
+ ↓
+Firebase GoogleAuthProvider (AuthContext.jsx)
+ ↓
+Google Account Verification
+ ↓
+Firestore User Role Update (firestoreService.updateUserRole)
+ ↓
+Auth Store Token & User Session Commit
+ ↓
+Redirect to Role-Specific Dashboard
+```
+
+### Google Login Setup Steps
+
+#### Step 1 — Create Firebase Project
+1. Go to the [Firebase Console](https://console.firebase.google.com/).
+2. Click **Create Project** and name it `honeychain`.
+
+#### Step 2 — Enable Google Authentication
+1. Navigate to **Authentication** → **Sign-in method**.
+2. Click **Add new provider** → Select **Google** → Click **Enable**.
+3. Configure your project support email and save.
+
+#### Step 3 — Register Web Application
+1. In Firebase Console Settings, click **Add App** → Select **Web (`</>`)**.
+2. Register your web app and copy the Firebase configuration values.
+
+#### Step 4 — Configure `.env` File
+Create a local `.env` file from `.env.example`:
+```bash
+cp .env.example .env
+```
+Fill in your project's Firebase values:
+```env
+EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSy...
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=honeychain-40065.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=honeychain-40065
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=honeychain-40065.firebasestorage.app
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=314717495726
+EXPO_PUBLIC_FIREBASE_APP_ID=1:314717495726:web:d71b1db1dd5c01dbc0a83f
+```
+
+---
+
+## 🗺️ 8. Data-Driven Hive Map System
+
+HoneyChain features an interactive, data-driven map system displaying physical apiary locations, hive counts, telemetry statuses, and geolocation markers.
+
+### Map Data Flow Architecture
+
+```text
+PostgreSQL Database (apiaries & hives tables)
+   ↓
+FastAPI Backend Endpoint (GET /api/hives)
+   ↓
+Frontend API Service (hive.service.js)
+   ↓
+React Component State (SearchScreen / Beekeeper Dashboard)
+   ↓
+Interactive Map Markers (Latitude & Longitude Coordinates)
+   ↓
+Popup Hive Cards & Telemetry Inspection
+```
+
+### Map Features
+* **Real Coordinates**: Uses exact latitude and longitude values from apiaries (e.g., Sonoma Apiaries, Mendocino Coast Hives).
+* **Interactive Markers**: Tapping markers opens a detailed card with hive health status, colony count, and purity score.
+* **Theme Map Tiles**: Adapts tile styling to match Light or Dark mode.
+* **Loading & Error Handling**: Displays graceful activity indicators while fetching map data.
+
+---
+
+## 🤖 9. Local AI & Machine Learning Intelligence Architecture
 
 HoneyChain features a **100% local, self-contained AI/ML stack** operating without external LLM/AI APIs. All model inference and training run locally using Scikit-Learn, Joblib, Librosa, Pandas, and NumPy.
 
@@ -105,7 +346,7 @@ HoneyChain features a **100% local, self-contained AI/ML stack** operating witho
 
 ---
 
-## 📦 4. Datasets & Dataset Audit Matrix
+## 📦 10. Datasets & Dataset Audit Matrix
 
 All datasets are audited, cached locally, and fully integrated for offline-first model execution.
 
@@ -120,7 +361,7 @@ All datasets are audited, cached locally, and fully integrated for offline-first
 
 ---
 
-## 🗄️ 5. Database Architecture & Design
+## 🗄️ 11. Database Architecture & Design
 
 ### Technology Stack
 * **ORM**: SQLAlchemy 2.0 with type annotations and Pydantic v2 compatibility.
@@ -144,7 +385,7 @@ All datasets are audited, cached locally, and fully integrated for offline-first
 
 ---
 
-## 🔗 6. Blockchain Architecture & Smart Contracts
+## 🔗 12. Blockchain Architecture & Smart Contracts
 
 HoneyChain integrates an immutable smart contract layer on the **Polygon Amoy Testnet** (Chain ID `80002`) with automatic fallback to a **Local Hardhat Node** (Chain ID `31337`) or local cryptographic proof hashing.
 
@@ -167,7 +408,7 @@ HoneyChain integrates an immutable smart contract layer on the **Polygon Amoy Te
 
 ---
 
-## 🌳 7. Honey Batch Genealogy & Lineage Engine
+## 🌳 13. Honey Batch Genealogy & Lineage Engine
 
 ### Lineage Traversal Model
 ```text
@@ -186,7 +427,7 @@ Harvest C ──┘           │
 
 ---
 
-## 📱 8. QR Code System & Public Verification
+## 📱 14. QR Code System & Public Verification
 
 ### End-to-End Consumer Verification Flow
 1. **Packaging**: Processor generates unique product QR codes encoding opaque verification URLs (`https://honeychain.app/verify/PROD_0001`).
@@ -200,7 +441,7 @@ Harvest C ──┘           │
 
 ---
 
-## 👤 9. Application Design & Role-Based Control
+## 👤 15. Application Design & Role-Based Control
 
 HoneyChain features five role-specific interfaces integrated with JWT authentication (`HS256`) and role enforcement (`require_role`):
 
@@ -214,47 +455,11 @@ HoneyChain features five role-specific interfaces integrated with JWT authentica
 
 ---
 
-## 🏗️ 10. Complete End-to-End System Architecture
-
-```text
- ┌───────────────────────┐
- │ ESP32 IoT Sensors     │ (Temp, Humidity, Load Cell Weight, Acoustic)
- └───────────┬───────────┘
-             │ Wi-Fi / MQTT
-             ▼
- ┌───────────────────────┐
- │ Eclipse Mosquitto     │ (MQTT Broker: port 1883)
- └───────────┬───────────┘
-             │ Paho-MQTT Thread
-             ▼
- ┌───────────────────────┐       ┌────────────────────────┐
- │ FastAPI Backend Engine│──────►│ SQLAlchemy PostgreSQL  │
- └─────┬───────────┬─────┘       └────────────────────────┘
-       │           │
-       │           ├────────────► ┌────────────────────────┐
-       │           │              │ Local AI/ML Stack      │ (Isolation Forest, RF Yield, Librosa)
-       │           │              └────────────────────────┘
-       │           │
-       │           └────────────► ┌────────────────────────┐
-       │                          │ Polygon Amoy / Hardhat │ (HoneyChain.sol Smart Contract)
-       │                          └────────────────────────┘
-       │ WebSockets / REST
-       ▼
- ┌────────────────────────────────────────────────────────┐
- │ Expo React Native Mobile & Web App                      │
- │ (Beekeeper, Collection Center, Processor, Admin, QR)   │
- └────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🔌 11. Hardware + Software Integration
+## 🔌 16. Hardware + Software Integration
 
 HoneyChain bridges physical hardware IoT sensing with cloud & Web3 software architecture. This section documents the micro-level status, connection protocols, wiring, step-by-step data flow, payload schemas, and troubleshooting across every hardware and software layer.
 
----
-
-### Master Architecture Diagram
+### Master Hardware Diagram
 
 ```mermaid
 flowchart TD
@@ -274,8 +479,6 @@ flowchart TD
     K --> L[Consumer Public Portal]
 ```
 
----
-
 ### Hardware Component Table
 
 | Hardware | Purpose | Software Connection | Status | Completion % |
@@ -290,501 +493,183 @@ flowchart TD
 
 ---
 
-### Software Component Table
+## 🛠️ 17. Complete Installation & Developer Setup
 
-| Software Layer | Responsibility | Status | Completion % |
-|---|---|---|---:|
-| **ESP32 Firmware** | C++ Sensor reading, Wi-Fi reconnection, NTP sync, MQTT publishing | ✅ Complete | 100% |
-| **MQTT Broker** | Eclipse Mosquitto message router on TCP Port 1883 | ✅ Complete | 100% |
-| **FastAPI Backend** | Paho-MQTT subscriber worker thread, Pydantic validation, REST API routers | ✅ Complete | 100% |
-| **PostgreSQL Database** | Persistent ORM storage (`sensor_readings`, `harvests`, `batches`, `products`) | ✅ Complete | 100% |
-| **AI/ML Risk Engine** | Isolation Forest anomaly detection & Transparent Risk Score calculation | ✅ Complete | 100% |
-| **WebSocket Telemetry Hub**| Real-time live sensor telemetry streaming (`/ws/telemetry`) | ✅ Complete | 100% |
-| **React Dashboard** | Beekeeper live telemetry UI, interactive charts, digital twin status | ✅ Complete | 100% |
-| **Blockchain Smart Contract** | Hardhat / Polygon Web3 immutable logging (`HoneyChain.sol`) | ✅ Complete | 100% |
-| **QR / Verification Router** | Public product provenance lookup & SHA-256 certificate generation | ✅ Complete | 100% |
-
----
-
-### End-to-End Data Flow
-
-```text
-Physical Sensor
-↓
-ESP32
-↓
-Wi-Fi
-↓
-MQTT
-↓
-FastAPI
-↓
-Validation
-↓
-PostgreSQL
-↓
-AI/ML
-↓
-Risk / Anomaly
-↓
-WebSocket
-↓
-React Dashboard
-```
-
-#### Detailed Stage Breakdown:
-
-1. **Physical Sensor**:
-   * **What happens**: DHT22 measures ambient temperature (°C) and humidity (%), while the Wheatstone load cell measures total weight (kg).
-   * **Data exchanged**: Analog electrical resistance signals and digital pulse streams.
-   * **Protocol**: Single-bus serial (DHT22) and 24-bit ADC clock/data protocol (HX711).
-   * **Location**: Hive physical housing.
-   * **Status**: `✅ Complete + Verified` (100%).
-
-2. **ESP32**:
-   * **What happens**: Reads sensor pins, applies scale calibration factor, tares weight offset, and formats data.
-   * **Data exchanged**: Raw float metrics (`t`, `h`, `w`, `db`).
-   * **Protocol**: C++ pin reading loops in `firmware/esp32/main.cpp`.
-   * **Location**: `firmware/esp32/main.cpp` (Lines 140–162).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-3. **Wi-Fi**:
-   * **What happens**: Connects ESP32 to local access point and synchronizes system clock via NTP.
-   * **Data exchanged**: IP packets over Wi-Fi 802.11 b/g/n.
-   * **Protocol**: WPA2 Personal & NTP (`pool.ntp.org`).
-   * **Location**: `firmware/esp32/main.cpp` (`setup_wifi()`, `setup_ntp()`).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-4. **MQTT**:
-   * **What happens**: ESP32 publishes serialized JSON message payload to topic `hivechain/{hive_id}/telemetry`.
-   * **Data exchanged**: JSON telemetry string over TCP Port 1883.
-   * **Protocol**: MQTT 3.1.1 (`PubSubClient`).
-   * **Location**: Mosquitto Broker (`mosquitto.conf`).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-5. **FastAPI**:
-   * **What happens**: Paho-MQTT background worker thread subscribes to topic `hivechain/+/telemetry` and captures payloads.
-   * **Data exchanged**: MQTT message packet containing JSON string.
-   * **Protocol**: Paho-MQTT Python client loop.
-   * **Location**: `backend/services/mqtt_worker.py` (Lines 20–55).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-6. **Validation**:
-   * **What happens**: Parses JSON string into Pydantic schema `MQTTPayload`, validating types and non-null constraints.
-   * **Data exchanged**: `MQTTPayload` model instance.
-   * **Protocol**: Pydantic v2 validation.
-   * **Location**: `backend/schemas.py` (`MQTTPayload`).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-7. **PostgreSQL**:
-   * **What happens**: Saves telemetry record into `sensor_readings` table with composite index `idx_sensor_readings_hive_time`.
-   * **Data exchanged**: SQL INSERT statement.
-   * **Protocol**: SQLAlchemy ORM session commit.
-   * **Location**: `backend/models.py` (`SensorReading`) & `backend/services/mqtt_worker.py`.
-   * **Status**: `✅ Complete + Verified` (100%).
-
-8. **AI/ML**:
-   * **What happens**: Passes telemetry readings to local ML pipeline to check Isolation Forest anomaly decision function.
-   * **Data exchanged**: Telemetry feature vector `[temperature_c, humidity_pct, weight_kg, sound_level_db]`.
-   * **Protocol**: In-memory Python function call (`predict_anomaly()`).
-   * **Location**: `ml/inference/ml_engine.py`.
-   * **Status**: `✅ Complete + Verified` (100%).
-
-9. **Risk / Anomaly**:
-   * **What happens**: Computes multi-factor risk score:
-     $$\text{Risk Score} = 0.35 \times \text{Temp Dev} + 0.25 \times \text{Hum Dev} + 0.20 \times \text{Weight Delta} + 0.10 \times \text{Sound Dev} + 0.10 \times \text{IF Score}$$
-   * **Data exchanged**: Risk score float (0.0 to 1.0) and anomaly status classification string.
-   * **Protocol**: Python math inference pipeline.
-   * **Location**: `ml/inference/ml_engine.py` (`calculate_hybrid_risk()`).
-   * **Status**: `✅ Complete + Verified` (100%).
-
-10. **WebSocket**:
-    * **What happens**: Broadcasts combined telemetry + risk result to all active client WebSocket connections.
-    * **Data exchanged**: WebSockets JSON broadcast frame.
-    * **Protocol**: WSS / WS (`ws://127.0.0.1:8000/ws/telemetry`).
-    * **Location**: `backend/routers/websocket.py` & `backend/services/pubsub.py`.
-    * **Status**: `✅ Complete + Verified` (100%).
-
-11. **React Dashboard**:
-    * **What happens**: Renders live telemetry gauge updates, heat anomaly alerts, and weight loss notifications in real-time.
-    * **Data exchanged**: JSON WebSocket payload parsed into React component state.
-    * **Protocol**: Native Browser / Mobile WebSocket Client API.
-    * **Location**: `src/features/dashboard/screens/DashboardScreen.jsx`.
-    * **Status**: `✅ Complete + Verified` (100%).
-
----
-
-### Sensor Data Format
-
-#### Real Telemetry Payload Schema (`MQTTPayload`)
-Source file: `firmware/esp32/main.cpp` & `backend/schemas.py`
-
-```json
-{
-  "hive_id": "HV-UP-001",
-  "temperature_c": 34.8,
-  "humidity_pct": 52.4,
-  "weight_kg": 42.15,
-  "sound_level_db": 40.0,
-  "is_simulated": false,
-  "timestamp": "2026-09-04T12:00:00Z"
-}
-```
-
-#### Field Explanations:
-* `hive_id` (*string*, required): Unique identifier of the monitored bee hive (e.g., `"HV-UP-001"`).
-* `temperature_c` (*float*, required): Internal hive temperature measured in degrees Celsius (°C) by DHT22.
-* `humidity_pct` (*float*, required): Relative humidity inside hive measured as percentage (0–100%) by DHT22.
-* `weight_kg` (*float*, required): Total hive weight measured in kilograms (kg) by HX711 + load cell.
-* `sound_level_db` (*float*, required): Hive ambient sound level measured in decibels (dB) (Fallback 40.0 dB if no acoustic microphone present).
-* `is_simulated` (*boolean*, optional): Flag indicating whether reading originates from physical hardware (`false`) or C++ firmware simulator (`true`).
-* `timestamp` (*string*, required): ISO 8601 UTC timestamp format synchronized via ESP32 NTP (`"YYYY-MM-DDTHH:MM:SSZ"`).
-
----
-
-### Communication Details
-
-#### ESP32 → MQTT
-```text
-Protocol: MQTT (TCP Port 1883)
-Topic: hivechain/{hive_id}/telemetry
-Payload: JSON (MQTTPayload schema)
-Client Library: PubSubClient (C++)
-Status: ✅ Complete + Verified
-```
-
-#### MQTT → FastAPI
-```text
-Subscriber: Paho-MQTT Background Worker Thread (backend/services/mqtt_worker.py)
-Validation: Pydantic MQTTPayload Schema (backend/schemas.py)
-Callback: on_message() parsing JSON and dispatching DB commit
-Status: ✅ Complete + Verified
-```
-
-#### FastAPI → PostgreSQL
-```text
-ORM: SQLAlchemy
-Table: sensor_readings
-Index: idx_sensor_readings_hive_time (hive_id, timestamp DESC)
-Status: ✅ Complete + Verified
-```
-
-#### FastAPI → AI/ML
-```text
-Model: Isolation Forest (scikit-learn) + Transparent Risk Score Formula
-Inference: Local Python in-process call (ml/inference/ml_engine.py)
-Model File: ml/models/isolation_forest.joblib
-Status: ✅ Complete + Verified
-```
-
-#### FastAPI → React
-```text
-Protocol: WebSocket & REST API
-Endpoints: ws://127.0.0.1:8000/ws/telemetry & GET /hives/{id}/readings
-Frontend Client: WebSocket subscriber in src/features/dashboard/screens/DashboardScreen.jsx
-Status: ✅ Complete + Verified
-```
-
----
-
-### Physical Test Flow
-
-```text
-1. Power ESP32 board via Micro-USB / battery power source.
-2. Connect DHT22 data pin to GPIO 4 and HX711 DOUT/SCK to GPIO 16 and 17.
-3. ESP32 connects to Wi-Fi access point via setup_wifi() and synchronizes time with pool.ntp.org.
-4. ESP32 establishes MQTT TCP connection to Mosquitto broker on port 1883.
-5. ESP32 reads physical sensor values, formats JSON string, and publishes to hivechain/HV-UP-001/telemetry.
-6. Paho-MQTT background worker in FastAPI backend receives payload on topic subscription callback.
-7. FastAPI validates JSON schema via Pydantic MQTTPayload and SQLAlchemy inserts record into PostgreSQL.
-8. FastAPI passes payload to ml_engine.py, running Isolation Forest anomaly prediction and risk scoring.
-9. FastAPI WebSocket manager broadcasts telemetry JSON frame to all active connections on /ws/telemetry.
-10. React Beekeeper Dashboard updates live temperature/humidity/weight gauges and risk indicators instantly.
-```
-
----
-
-### Hardware → Software Status Matrix
-
-| Integration Link | Status | Completion % | Tested | Details |
-|---|---|---:|:---:|---|
-| **Sensor → ESP32** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | DHT22 on `GPIO 4`, HX711 on `GPIO 16/17` |
-| **ESP32 → Wi-Fi** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Station mode, WPA2, NTP sync |
-| **ESP32 → MQTT** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Port 1883 topic `hivechain/{id}/telemetry` |
-| **MQTT → FastAPI** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Paho-MQTT worker thread in `mqtt_worker.py` |
-| **FastAPI → Database** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | SQLAlchemy ORM `sensor_readings` table |
-| **Database → AI/ML** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Isolation Forest & Risk Score formula |
-| **AI/ML → WebSocket** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `/ws/telemetry` real-time broadcasting |
-| **WebSocket → React** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Live Beekeeper Dashboard screen |
-| **Backend → Blockchain** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Hardhat / Web3 `HoneyChain.sol` client |
-| **Backend → QR Verification**| `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Public `/verify/{id}` lookup router |
-
----
-
-### ✅ Hardware + Software Already Completed
-
-* **ESP32 C++ Firmware**: Sensor reading, Wi-Fi reconnection loop, NTP time synchronization, SPIFFS offline flash ring-buffer queue (`/telemetry_queue.json`), TP4056 battery ADC pin reader (`GPIO 34`), NEO-6M GPS parameters, and MQTT publishing (`firmware/esp32/main.cpp`).
-* **MQTT Broker Integration**: Eclipse Mosquitto configuration and topic schema (`hivechain/{hive_id}/telemetry`).
-* **FastAPI Backend Worker**: Background Paho-MQTT ingestion thread, Pydantic schema validation (`MQTTPayload`), battery & GPS data handling, REST routers (`backend/services/mqtt_worker.py`).
-* **PostgreSQL Storage**: Full SQLAlchemy ORM schema for telemetry, battery levels, geolocation, harvests, batches, products, and blockchain logs (`backend/models.py`).
-* **AI/ML Risk Engine**: Pre-trained Isolation Forest anomaly model and transparent multi-factor risk score calculation (`ml/inference/ml_engine.py`).
-* **Real-time WebSockets**: Async WebSocket hub for instant live telemetry streaming to web and mobile clients (`backend/routers/websocket.py`).
-* **React Beekeeper Dashboard**: Live interactive UI screens rendering telemetry metrics, risk alerts, and digital twin state (`src/features/dashboard/screens/DashboardScreen.jsx`).
-* **Blockchain Immutability**: Hardhat Web3 smart contract (`HoneyChain.sol`) and Python Web3 client wrapper (`backend/services/contract_client.py`).
-* **QR Verification System**: QR code generation and public consumer product provenance lookup router (`backend/routers/verify.py`).
-
----
-
-### 🔧 Hardware + Software Fixed
-
-* **SPIFFS Offline Buffer Queue**: Added SPIFFS flash storage queue in C++ firmware to buffer unsent telemetry payloads during network outages and automatically flush upon reconnection.
-* **TP4056 Battery ADC Monitoring**: Added battery voltage scaling and percentage calculation on ESP32 `GPIO 34`, extending backend schemas and DB models.
-* **NEO-6M GPS Location Integration**: Extended payload schemas and database columns to transmit and store latitude/longitude coordinates.
-* **DHT22 `nan` Reading Guard**: Implemented fallback check in C++ firmware to prevent `nan` floats from breaking backend JSON deserialization.
-* **HX711 Scale Calibration**: Added scale calibration factor (`scale.set_scale(2280.f)`) and tare reset on boot to ensure accurate kilogram measurements.
-* **MQTT Reconnect Exponential Backoff**: Prevents network socket flooding during Wi-Fi outages with 5-second retry intervals.
-* **SQLAlchemy Async Worker Session**: Resolved database connection pooling locks by using proper scoped session management inside the background Paho-MQTT thread.
-* **WebSocket Connection Resilience**: Implemented automatic client reconnect logic on the React UI side to handle network interruptions seamlessly.
-
----
-
-### 🟡 Software Gaps & Physical Field Dependencies
-
-* **On-Chip Micro-FFT Acoustic Analysis (30% Complete)**:
-  * *Current implementation*: Sound level decibel metric (`sound_level_db`) uses fallback value (40.0 dB) in firmware; backend librosa/scikit-learn audio classifier is 100% complete for uploaded WAV files.
-  * *What remains*: Compiling ESP-DSP FFT library into C++ firmware sketch for microcontroller-side frequency binning.
-* **Physical Hardware Field Verification**:
-  * *Current status*: Software ingestion, C++ firmware, MQTT broker, and simulator/replay workers are 100% complete. Physical board flashing is pending physical hardware attachment.
-
----
-
-### ❌ Software Tasks Remaining (External Blockers Only)
-
-* **Polygon Amoy Testnet Deployment**: Smart contract code and Hardhat local deployment are 100% complete. Testnet contract broadcast is pending testnet MATIC.
-* **Physical ESP32 Board Flashing**: C++ firmware sketch is 100% complete in `firmware/esp32/main.cpp`. Hardware uploading is pending physical USB connection.
-
----
-
-### ⚪ Optional / Future Hardware
-
-* **INMP441 Digital I2S Acoustic Microphone**: For colony sound frequency analysis and queen piping detection.
-* **NEO-6M GPS Geolocation Hardware Module**: For automated apiary stolen-hive tracking.
-* **TP4056 Solar Battery Charger & Fuel Gauge IC**: For off-grid remote apiary solar power monitoring.
-
----
-
-### 🔌 Hardware + Software Readiness
-
-| Category | Readiness Status | Details |
-|---|:---:|---|
-| **MQTT Ingestion Software** | `100% COMPLETE` ✅ | Mosquitto listener port 1883 active |
-| **FastAPI Worker Thread** | `100% COMPLETE` ✅ | Paho-MQTT worker thread active |
-| **PostgreSQL Persistence** | `100% COMPLETE` ✅ | `sensor_readings` ORM table indexed |
-| **AI/ML Live Pipeline** | `100% COMPLETE` ✅ | Isolation Forest & Risk Engine live |
-| **WebSocket Broadcasting** | `100% COMPLETE` ✅ | `/ws/telemetry` real-time hub active |
-| **React UI Dashboard** | `100% COMPLETE` ✅ | Live gauges and alerts active |
-| **Firmware Codebase** | `100% COMPLETE` ✅ | SPIFFS + Battery ADC + GPS complete |
-| **Physical Board Testing** | `⏳ PENDING` | Requires physical USB connection |
-
----
-
-### 📱 16. QR Readiness
-
-| Subsystem Component | Status | Readiness % | Tested? | Notes |
-|---|---|---:|:---:|---|
-| **Product Bottling & ID** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Product creation links batch & harvest |
-| **QR Code Generation** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Generates Base64 PNG QR image (`qr_service.py`) |
-| **Public Verification Router** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `GET /verify/{id}` public endpoint active |
-| **Consumer Portal UI** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | `VerifyScreen.jsx` mobile-friendly view |
-| **Batch Genealogy Traceability**| `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Multi-tier lineage tree lookup |
-| **Blockchain Transaction Proof** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Immutability audit hash linked |
-| **Privacy Filter** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Redacts passwords, emails & exact addresses |
-| **Phone Camera Scan** | `COMPLETE + VERIFIED` ✅ | 100% | ✅ | Scans in mobile web browser without app |
-| **Public Hosting Deployment** | `LOCAL / PRIVATE NETWORK` | 90% | ✅ | Ready for public domain via `PUBLIC_APP_URL` |
-
----
-
-### 📊 17. Software Completion
-
-| Subsystem Layer | Completion Percentage |
-|---|---:|
-| **Frontend UI (React Native / Web)** | 98% |
-| **Backend REST APIs (FastAPI)** | 100% |
-| **Database & ORM (PostgreSQL/SQLAlchemy)** | 100% |
-| **Authentication & RBAC Security** | 100% |
-| **IoT Software & MQTT Ingestion** | 100% |
-| **ESP32 Firmware Codebase** | 100% |
-| **AI/ML Datasets & Preprocessing** | 100% |
-| **AI/ML Model Training & Artifacts** | 100% |
-| **AI/ML Live Backend Inference** | 100% |
-| **WebSocket Real-Time Gateway** | 100% |
-| **Blockchain Smart Contract & Web3 Client** | 95% |
-| **QR System & Product Lineage Genealogy** | 100% |
-| **Replay & Fallback Demo Mode** | 100% |
-| **Test Suite Coverage & Verification** | 100% |
-| **Security & System Configuration** | 100% |
-| **System Documentation & Architecture** | 100% |
-
-### **🎯 Overall Software Completion: 99.2%**
-### **🚀 Software Remaining: 0.8%**
-
-#### 📈 Software Progress: Before vs Current
-* **Previous Software Completion**: `97.0%`
-* **Current Software Completion**: `99.2%`
-* **Net Improvement**: `+2.2%` (SPIFFS flash buffer queue, TP4056 battery ADC driver, and GPS parameter integration completed).
-
----
-
-### 🤖 AI/ML Training Status
-
-| Model | Dataset | Training | Artifact | Evaluation | Integration | Status |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **Model 1: Isolation Forest** | HOBOS | ✅ | ✅ (`isolation_forest.joblib`) | ✅ (Precision 1.00) | ✅ (`ml_engine.py`) | `Complete ✅` |
-| **Model 2: Risk Score Engine** | In-process | ✅ | ✅ Formula Engine | ✅ (Score 0-1) | ✅ (`/analysis/*`) | `Complete ✅` |
-| **Model 3: Yield Forecast** | USDA/HOBOS | ✅ | ✅ (`yield_forecaster.joblib`) | ✅ ($R^2 = 0.953$) | ✅ (`/yield-forecast`) | `Complete ✅` |
-| **Model 4: Audio Classifier** | UrBAN/NU-Hive | ✅ | ✅ (`audio_classifier_model.joblib`) | ✅ (Precision 1.00) | ✅ (`/analysis/audio`)| `Complete ✅` |
-
----
-
-### 🚀 18. Exactly What Is Left
-
-| Task | Priority | Status | Completion % | Why It Remains | Exact Next Action | Dependency |
-|---|:---:|---|---:|---|---|---|
-| **Deploy Smart Contract to Polygon Amoy** | `P0` | `Local Complete` | 95% | Local Hardhat network verified; Polygon testnet deployment pending wallet MATIC | Run `npx hardhat run scripts/deploy.js --network amoy` | Testnet MATIC tokens |
-| **Flash Firmware to Physical ESP32 Board** | `P1` | `Code Complete` | 100% | C++ firmware sketch 100% complete in `firmware/esp32/main.cpp` | Upload sketch via PlatformIO / Arduino IDE to physical ESP32 board | Physical USB cable & ESP32 MCU |
-
----
-
-### Real vs. Replay/Simulation Data
-
-* **Real Hardware Telemetry** (`is_simulated: false`): Generated when physical ESP32, DHT22, and HX711 load cells are connected to the network.
-* **Replay Demo Mode** (`scripts/demo_telemetry_replay.py`): Replays pre-recorded telemetry sequences (heat spikes, weight drops) over REST/MQTT to guarantee reliable hackathon presentation demos without needing physical hardware attached.
-* **C++ Firmware Simulator Mode** (`#define SIMULATOR_MODE 1`): Enabled inside `main.cpp` for offline board testing without physical sensors attached.
-
----
-
-### 👨‍💻 How Hardware Connects to Software
-
-A physical DHT22 sensor and weight load cell measure internal hive conditions.
-The ESP32 microcontroller reads these sensor signals, formats them into a JSON payload, and publishes them over Wi-Fi using the MQTT protocol.
-The FastAPI backend's background worker receives the MQTT message, validates its schema, stores it in the PostgreSQL database, and evaluates it using the local AI/ML Risk Engine.
-Finally, the computed telemetry and risk metrics are broadcast in real-time over WebSockets to the React Beekeeper Dashboard.
-
----
-
-### Hardware + Software Troubleshooting
-
-| Symptom / Error | Probable Cause | Corrective Action |
-| --- | --- | --- |
-| **ESP32 not connecting to Wi-Fi** | Incorrect SSID/Password or 5GHz network | Use 2.4GHz Wi-Fi network and verify `ssid` and `password` in `main.cpp` |
-| **DHT22 reads `nan`** | Loose data pin connection or missing pull-up resistor | Verify `GPIO 4` connection and 3.3V power supply |
-| **Incorrect load-cell reading (`0.0kg`)** | Uncalibrated scale factor or tare offset | Re-calibrate scale factor (`scale.set_scale(2280.f)`) in `main.cpp` |
-| **MQTT Connection Failed (`rc=-2`)** | Incorrect MQTT Broker IP address or port 1883 blocked | Update `mqtt_server` IP in `main.cpp` and check firewall rules |
-| **FastAPI not receiving data** | Paho-MQTT worker thread failed to connect | Check backend logs and ensure Mosquitto broker service is running (`mosquitto -v`) |
-| **Database not saving readings** | PostgreSQL service stopped or table missing | Run database migrations (`python -m alembic upgrade head`) |
-| **ML result missing** | Missing `isolation_forest.joblib` model artifact | Run model training script (`python ml/train_model.py`) to generate artifact |
-| **WebSocket not updating dashboard** | Incorrect WebSocket URL or port mismatch | Verify WS endpoint URL (`ws://127.0.0.1:8000/ws/telemetry`) in React config |
-
----
-
-## 🚀 12. Development Roadmap & Demo Replay Mode
-
-### Hackathon Demo Replay Mode (`scripts/demo_telemetry_replay.py`)
-Provides real-time fallback streaming of realistic telemetry sequences (normal $\to$ heat anomaly $\to$ weight drop swarming) to guarantee demo resilience even in poor connectivity or offline environments.
-
+### Step 1 — Clone Repository
 ```bash
-# Execute live telemetry replay worker
-python scripts/demo_telemetry_replay.py --hive-id HV_E2E_01 --interval 2
-```
-
----
-
-## 🌐 13. API Router & Endpoint Specifications
-
-| Router File | Prefix | Endpoints & Key Actions | Authentication & Role |
-| --- | --- | --- | --- |
-| `routers/beekeepers.py` | `/beekeepers` | Register/Get beekeeper profiles | JWT `BEEKEEPER` |
-| `routers/apiaries.py` | `/apiaries` | Apiary CRUD operations | JWT `BEEKEEPER` |
-| `routers/hives.py` | `/hives` | Hive CRUD, digital twin, telemetry readings | JWT `BEEKEEPER` |
-| `routers/harvests.py` | `/harvests` | Record hive honey harvest & trigger Web3 tx | JWT `BEEKEEPER` |
-| `routers/batches.py` | `/batches` | Batch merge/split, step loggers, custody transfer | JWT `PROCESSOR` |
-| `routers/lab_tests.py` | `/lab-tests` | Log lab purity reports & SHA-256 hashes | JWT `PROCESSOR` |
-| `routers/products.py` | `/products` | Create sellable product units & generate QR | JWT `PROCESSOR` |
-| `routers/verify.py` | `/verify` | Public consumer QR verification lookup | `Public (No Auth)` |
-| `routers/genealogy.py` | `/genealogy` | Reconstruct product genealogy & harvest lineage | `Public / Authenticated` |
-| `routers/analysis.py` | `/analysis` | AI anomaly analysis, yield forecast, model metrics | `Authenticated` |
-| `routers/blockchain.py` | `/blockchain` | Query on-chain tx index & network status | `Authenticated` |
-| `routers/websocket.py` | `/ws` | Real-time hive telemetry broadcasting hub | `WebSocket Protocol` |
-
----
-
-## 🛠️ 14. Developer Setup & Execution Guide
-
-### 1. Prerequisites
-* Python 3.10+ (Tested on Python 3.13)
-* Node.js 18+ & npm
-* Git
-
-### 2. Environment Setup
-```bash
-# Clone the repository
 git clone https://github.com/PrabhakarG001/HoneyChain.git
 cd HoneyChain
+```
 
-# Create and activate Python virtual environment
+### Step 2 — Verify Git Status
+```bash
+git status
+```
+
+### Step 3 — Install Dependencies
+
+**Frontend & Package Dependencies**:
+```bash
+npm install
+```
+
+**Backend Python Dependencies**:
+```bash
 python -m venv venv
+# On Windows PowerShell:
 .\venv\Scripts\Activate.ps1
+# On Linux/macOS:
+source venv/bin/activate
 
-# Install backend & ML dependencies
 pip install -r backend/requirements.txt
 pip install -r ml/requirements.txt
-
-# Install frontend dependencies
-npm install
 ```
 
-### 3. Running Backend Services
+### Step 4 — Environment Variables Setup
+Copy `.env.example` to `.env`:
 ```bash
-# Set PYTHONPATH to project root
-$env:PYTHONPATH="."
+# On Linux/macOS or Git Bash:
+cp .env.example .env
 
-# Run FastAPI backend server (port 8000)
-python -m uvicorn backend.main:app --reload --port 8000
+# On Windows PowerShell:
+Copy-Item .env.example .env
 ```
 
-### 4. Running Frontend UI (Expo App)
-```bash
-# Start Expo development server
-npx expo start
+Review environment variables reference:
+```env
+# Backend API Configuration
+EXPO_PUBLIC_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:8000/api
+
+# Firebase Authentication
+EXPO_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+
+# Google Authentication
+EXPO_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-### 5. Running Hardhat Blockchain Node (Optional)
+### Step 5 — Run FastAPI Backend Server
 ```bash
-cd blockchain
-npm install
-npx hardhat node
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Step 6 — Run Expo Frontend Application
+```bash
+# Web Browser Mode (Port 8081)
+npm run web
+
+# Mobile Native Mode (Expo Go / Emulator)
+npm start
 ```
 
 ---
 
-## 🧪 15. Running Test Suites
+## 🔄 18. Updating an Existing Local Clone
+
+To sync your existing local clone with the latest updates from the `main` branch:
 
 ```bash
+# 1. Navigate to the project directory
+cd HoneyChain
+
+# 2. Check local working tree status
+git status
+
+# 3. Pull latest updates from main branch
+git pull origin main
+
+# 4. Update dependencies if package changes occurred
+npm install
+pip install -r backend/requirements.txt
+```
+
+* `cd HoneyChain`: Enters your local project folder.
+* `git status`: Ensures you have no uncommitted local conflicts.
+* `git pull origin main`: Downloads and merges the latest commits from GitHub repository.
+
+---
+
+## 📜 19. Available npm Package Scripts
+
+From `package.json`:
+
+| Command | Action / Purpose |
+| --- | --- |
+| `npm run web` | Launches Expo web development server (`http://localhost:8081`) |
+| `npm start` | Launches Metro bundler for iOS/Android/Web |
+| `npm run android` | Runs app on Android emulator/device |
+| `npm run ios` | Runs app on iOS simulator/device |
+| `npm run backend:start` | Launches FastAPI uvicorn backend server on port 8000 |
+
+---
+
+## 🧪 20. Running Automated Test Suites
+
+### Backend & AI Unit Tests (67 Passing Tests)
+```bash
 # Set PYTHONPATH to project root
-$env:PYTHONPATH="."
+$env:PYTHONPATH="."   # PowerShell
+# export PYTHONPATH=. # Bash
 
-# Run complete pytest test suite (67 passing tests)
 python -m pytest
+```
 
-# Run Hardhat smart contract tests (5 passing tests)
+### Smart Contract Hardhat Tests (5 Passing Tests)
+```bash
 cd blockchain
+npm install
 npx hardhat test
 ```
 
 ---
 
-## 📜 16. License & Credits
+## 🔧 21. Troubleshooting & Support
+
+### Issue 1: Backend Connection Refused (`ERR_CONNECTION_REFUSED`)
+* **Symptom**: Frontend shows error connecting to `http://localhost:8000/api`.
+* **Fix**: Ensure FastAPI server is running (`python -m uvicorn backend.main:app --port 8000`). Verify `EXPO_PUBLIC_API_URL` in `.env`.
+
+### Issue 2: Firebase / Google Sign-In Popup Blocked or Auth Error
+* **Symptom**: Google Sign-In fails or closes popup request.
+* **Fix**: Ensure `http://localhost:8081` is added to **Authorized Domains** under Firebase Console → Authentication → Settings. Check `EXPO_PUBLIC_FIREBASE_API_KEY` in `.env`.
+
+### Issue 3: Stale Cache or Node Module Mismatch
+* **Fix**: Clear Metro bundler cache and re-install node modules:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npx expo start --clear
+```
+
+---
+
+## 🔒 22. Security & Compliance Guidelines
+
+* **Environment Protection**: Never commit `.env` files or API private keys to public Git repositories.
+* **Server-Side Authorization**: Backend endpoints enforce authoritative JWT validation (`require_role`), preventing client-side role tampering.
+* **Consumer PII Protection**: QR verification endpoints strip all personal identifiable information (emails, passwords, exact residential addresses).
+
+---
+
+## ✅ 23. Verification & Testing Checklist
+
+- [x] **Role Selection & Auth**: Beekeeper and Customer roles render with 1-click Google Sign-In.
+- [x] **Firebase Auth**: Session state persists cleanly across browser refreshes.
+- [x] **Theme System**: Global Light & Dark mode toggle updates all pages, modals, forms, and navigation docks.
+- [x] **Customer Phone Navigation**: Dock correctly displays `Home | Discover | Scan | Profile`.
+- [x] **Beekeeper Header Responsiveness**: Phone header shows Notification Bell + Avatar; tablet/desktop view shows Plus & Chat buttons.
+- [x] **Hive Map**: Renders data-driven apiary coordinates from backend `/api/hives`.
+- [x] **Pytest Suite**: 67/67 automated pytest cases passing cleanly.
+- [x] **Hardhat Web3 Suite**: 5/5 Solidity contract tests passing cleanly.
+
+---
+
+## 📜 24. License & Credits
 
 - **License**: MIT License ([LICENSE](LICENSE))
 - **Team**: Antigravity Senior Engineering Team & HoneyChain Open Source Contributors.
-
