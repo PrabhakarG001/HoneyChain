@@ -6,6 +6,8 @@ import logging
 from ..database import get_db
 from .. import models, schemas
 from ..auth import require_role, get_current_user
+from ml.inference.ml_engine import calculate_hybrid_risk
+from ml.inference.yield_engine import predict_honey_yield
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +83,6 @@ def get_hive_readings(
 ):
     """
     REST Endpoint: Fetch historical time-series sensor readings for a hive.
-    Uses index-backed queries with time-range windowing and pagination to prevent memory overhead.
     """
     hive = db.query(models.Hive).filter(models.Hive.id == id).first()
     if not hive:
@@ -105,3 +106,63 @@ def get_hive_readings(
         .all()
 
     return readings
+
+@router.get("/{id}/analysis")
+def get_hive_analysis(id: str, db: Session = Depends(get_db)):
+    """
+    REST Endpoint: Return latest ML anomaly analysis and risk diagnostic breakdown for a hive.
+    """
+    hive = db.query(models.Hive).filter(models.Hive.id == id).first()
+    if not hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{id}' not found")
+
+    latest_analysis = db.query(models.MLAnalysis).filter(models.MLAnalysis.hive_id == id)\
+        .order_by(models.MLAnalysis.timestamp.desc()).first()
+
+    reading = db.query(models.SensorReading).filter(models.SensorReading.hive_id == id)\
+        .order_by(models.SensorReading.timestamp.desc()).first()
+
+    temp_dev = ((reading.temperature_c or 35.0) - 35.0) if reading else 0.0
+    hum_dev = ((reading.humidity_pct or 50.0) - 50.0) if reading else 0.0
+    sound_db = (reading.sound_level_db or 40.0) if reading else 40.0
+
+    risk_res = calculate_hybrid_risk(0.0, temp_dev, hum_dev, sound_db)
+
+    return {
+        "hive_id": id,
+        "timestamp": (latest_analysis.timestamp if latest_analysis else datetime.utcnow()).isoformat(),
+        "risk_score": latest_analysis.risk_score if latest_analysis and latest_analysis.risk_score is not None else risk_res.get("score"),
+        "status": latest_analysis.status if latest_analysis else risk_res.get("status"),
+        "highest_contributor": latest_analysis.highest_contributor if latest_analysis else risk_res.get("highest_contributor"),
+        "model_version": latest_analysis.model_version if latest_analysis else "if_v1.0",
+        "factor_breakdown": risk_res.get("factor_breakdown"),
+        "explanation": risk_res.get("explanation"),
+        "recommendation": risk_res.get("recommendation")
+    }
+
+@router.get("/{id}/yield-forecast")
+def get_hive_yield_forecast(id: str, db: Session = Depends(get_db)):
+    """
+    REST Endpoint: Return ML seasonal yield forecast for a hive.
+    """
+    hive = db.query(models.Hive).filter(models.Hive.id == id).first()
+    if not hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hive '{id}' not found")
+
+    reading = db.query(models.SensorReading).filter(models.SensorReading.hive_id == id)\
+        .order_by(models.SensorReading.timestamp.desc()).first()
+
+    current_weight = reading.weight_kg if reading and reading.weight_kg else 35.0
+    temp_avg = reading.temperature_c if reading and reading.temperature_c else 32.0
+    hum_avg = reading.humidity_pct if reading and reading.humidity_pct else 55.0
+
+    forecast = predict_honey_yield(
+        temp_avg=temp_avg,
+        humidity_avg=hum_avg,
+        hive_weight=current_weight,
+        brood_count=22000,
+        active_days=60,
+        historical_yield_avg=28.0
+    )
+    forecast["hive_id"] = id
+    return forecast
