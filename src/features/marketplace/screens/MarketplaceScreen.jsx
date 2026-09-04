@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Search, ShoppingBag, Award, ShieldCheck, Filter, ArrowLeft, Heart, CheckCircle2 } from 'lucide-react-native';
 import { firestoreService } from '../../../services/firestore.service';
+import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
+  const { onScroll, scrollEventThrottle } = useScrollToHideNav();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [highPurityOnly, setHighPurityOnly] = useState(false);
@@ -121,7 +123,12 @@ export default function MarketplaceScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+      >
         {/* Search Bar */}
         <View style={styles.searchBar}>
           <Search size={20} color="#64748B" />

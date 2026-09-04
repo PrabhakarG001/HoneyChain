@@ -7,22 +7,37 @@ export function useScrollToHideNav() {
   const scrollTimeout = useRef(null);
 
   const handleScroll = (event) => {
+    if (!event || !event.nativeEvent) return;
     const currentScrollY = event.nativeEvent.contentOffset.y;
     
-    if (currentScrollY < 0) return; // Ignore bounce on iOS
+    // Ignore bounce on iOS top/bottom
+    if (currentScrollY < 0) return;
 
-    if (currentScrollY > lastScrollY.current + 10 && currentScrollY > 50) {
+    // Top of page: always show navbar
+    if (currentScrollY <= 15) {
+      setNavbarVisible(true);
+      lastScrollY.current = currentScrollY;
+      return;
+    }
+
+    const diff = currentScrollY - lastScrollY.current;
+
+    // Scroll Down -> hide navbar
+    if (diff > 8 && currentScrollY > 40) {
       setNavbarVisible(false);
-    } else if (currentScrollY < lastScrollY.current - 10) {
+    } 
+    // Scroll Up -> show navbar
+    else if (diff < -6) {
       setNavbarVisible(true);
     }
     
     lastScrollY.current = currentScrollY;
 
+    // Auto-show navbar when user pauses/stops scrolling for 450ms
     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     scrollTimeout.current = setTimeout(() => {
       setNavbarVisible(true);
-    }, 800);
+    }, 450);
   };
 
   return { 
