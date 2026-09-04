@@ -87,7 +87,7 @@ HoneyChain features a **100% local, self-contained AI/ML stack** operating witho
 
 ### Model 2 — Transparent Hybrid Risk Score Engine
 * **Formula**:
-  $$\text{Risk Score} = 0.35 \times \text{Temp\_Dev} + 0.25 \times \text{Hum\_Dev} + 0.20 \times \text{Weight\_Delta} + 0.10 \times \text{Sound\_Dev} + 0.10 \times \text{IF\_Score}$$
+  $$\text{Risk Score} = 0.35 \times \text{Temp Dev} + 0.25 \times \text{Hum Dev} + 0.20 \times \text{Weight Delta} + 0.10 \times \text{Sound Dev} + 0.10 \times \text{IF Score}$$
 * **Status Thresholds**: `Normal` ($< 0.30$), `Attention Required` ($0.30 - 0.60$), `High Risk` ($> 0.60$).
 * **Outputs**: Factor contribution breakdown, highest risk contributor, diagnostic text explanation, and recommended beekeeper action.
 
@@ -392,7 +392,7 @@ React Dashboard
 
 9. **Risk / Anomaly**:
    * **What happens**: Computes multi-factor risk score:
-     $$\text{Risk Score} = 0.35 \times \text{Temp\_Dev} + 0.25 \times \text{Hum\_Dev} + 0.20 \times \text{Weight\_Delta} + 0.10 \times \text{Sound\_Dev} + 0.10 \times \text{IF\_Score}$$
+     $$\text{Risk Score} = 0.35 \times \text{Temp Dev} + 0.25 \times \text{Hum Dev} + 0.20 \times \text{Weight Delta} + 0.10 \times \text{Sound Dev} + 0.10 \times \text{IF Score}$$
    * **Data exchanged**: Risk score float (0.0 to 1.0) and anomaly status classification string.
    * **Protocol**: Python math inference pipeline.
    * **Location**: `ml/inference/ml_engine.py` (`calculate_hybrid_risk()`).
