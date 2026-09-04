@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
         phoneNumber: firebaseUser.phoneNumber || additionalData.phone || '',
         photoURL: firebaseUser.photoURL || '',
         avatarUrl: firebaseUser.photoURL || '',
-        role: additionalData.role || userSnap.data()?.role || 'Beekeeper',
+        role: additionalData.role || userSnap.data()?.role || 'CUSTOMER',
         updatedAt: serverTimestamp(),
       };
 
@@ -105,7 +105,17 @@ export function AuthProvider({ children }) {
     // Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const token = await firebaseUser.getIdToken();
+        let userRole = 'CUSTOMER';
+        try {
+          const userRef = doc(db, 'users', firebaseUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists() && userSnap.data()?.role) {
+            userRole = userSnap.data().role;
+          }
+        } catch (e) {
+          console.warn('Firestore role fetch warning:', e.message);
+        }
+
         const formattedUser = {
           uid: firebaseUser.uid,
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
@@ -115,7 +125,7 @@ export function AuthProvider({ children }) {
           photoURL: firebaseUser.photoURL || '',
           avatarUrl: firebaseUser.photoURL || '',
           username: firebaseUser.email ? firebaseUser.email.split('@')[0] : 'user',
-          role: 'Beekeeper'
+          role: userRole
         };
 
         setUser(formattedUser);

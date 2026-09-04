@@ -4,9 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ShieldAlert, Users, Award, Cpu, ArrowLeft, ChevronRight, Activity, Database, CheckCircle2, Box } from 'lucide-react-native';
 import { firestoreService } from '../../../services/firestore.service';
+import { useAuthStore } from '../../../store/auth.store';
+import AccessRestrictedModal from '../../../components/ui/AccessRestricted/AccessRestrictedModal';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const userRole = (user?.role || '').toUpperCase();
+  const isAuthorized = userRole === 'ADMIN' || userRole === 'INSPECTOR';
+
   const [stats, setStats] = useState({
     hives: 0,
     batches: 0,
@@ -15,6 +21,10 @@ export default function AdminDashboardScreen() {
     certifications: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  if (!isAuthorized) {
+    return <AccessRestrictedModal isVisible requiredRole="ADMIN / INSPECTOR" />;
+  }
 
   useEffect(() => {
     loadSystemStats();

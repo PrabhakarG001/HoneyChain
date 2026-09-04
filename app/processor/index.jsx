@@ -6,10 +6,16 @@ import GenealogyGraph from '../../src/features/processor/components/GenealogyGra
 import BottlingStation from '../../src/features/processor/components/BottlingStation';
 import { useRouter } from 'expo-router';
 import { batchService } from '../../src/services/batch.service';
+import { useAuthStore } from '../../src/store/auth.store';
+import AccessRestrictedModal from '../../src/components/ui/AccessRestricted/AccessRestrictedModal';
 import { theme } from '../../src/theme';
 
 export default function ProcessorPortal() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const userRole = (user?.role || '').toUpperCase();
+  const isCustomer = userRole === 'CUSTOMER';
+
   const [availableBatches, setAvailableBatches] = useState([]);
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [logs, setLogs] = useState({ filtering: false, moisture: false, pasteurization: false });
@@ -18,6 +24,10 @@ export default function ProcessorPortal() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMerging, setIsMerging] = useState(false);
   const [error, setError] = useState(null);
+
+  if (isCustomer) {
+    return <AccessRestrictedModal isVisible requiredRole="PROCESSOR / BEEKEEPER" />;
+  }
 
   useEffect(() => {
     fetchBatches();

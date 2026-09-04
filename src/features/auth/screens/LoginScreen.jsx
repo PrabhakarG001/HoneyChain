@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { 
   Mail, 
   Lock, 
@@ -33,6 +33,7 @@ import Button from '../../../components/ui/Button/Button';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import AuthBackground from '../components/AuthBackground';
 import { authService } from '../../../services/auth.service';
+import { firestoreService } from '../../../services/firestore.service';
 import { useAuthStore } from '../../../store/auth.store';
 import { loginSchema } from '../schemas/auth.schema';
 import GoogleIcon from '../../../components/ui/GoogleIcon';
@@ -42,8 +43,9 @@ import { theme } from '../../../theme';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { role: paramRole } = useLocalSearchParams();
   const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
-  const { isAuthenticated, isLoading: storeIsLoading } = useAuthStore();
+  const { isAuthenticated, isLoading: storeIsLoading, updateUser } = useAuthStore();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
   
@@ -103,7 +105,12 @@ export default function LoginScreen() {
       const res = await authService.login(data.email, data.password);
       setSuccessMsg('Authenticated! Entering HoneyChain network...');
       
-      await login(res.user, res.accessToken);
+      const userRole = paramRole ? paramRole.toUpperCase() : (res.user?.role || 'CUSTOMER');
+      const finalUser = { ...res.user, role: userRole };
+      await login(finalUser, res.accessToken);
+      if (paramRole && res.user?.uid) {
+        await firestoreService.updateUserRole(res.user.uid, userRole);
+      }
 
       setTimeout(() => {
         router.replace('/(app)/dashboard');
@@ -120,8 +127,14 @@ export default function LoginScreen() {
       setSuccessMsg('');
       setIsGoogleLoading(true);
 
-      await loginWithGoogle();
+      const gUser = await loginWithGoogle();
       setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
+
+      if (paramRole && gUser?.uid) {
+        const userRole = paramRole.toUpperCase();
+        updateUser({ role: userRole });
+        await firestoreService.updateUserRole(gUser.uid, userRole);
+      }
 
       setTimeout(() => {
         router.replace('/(app)/dashboard');

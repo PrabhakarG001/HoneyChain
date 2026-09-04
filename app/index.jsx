@@ -17,5 +17,5 @@ export default function Index() {
     return <Redirect href="/(app)/dashboard" />;
   }
   
-  return <Redirect href="/(auth)/login" />;
+  return <Redirect href="/(auth)/role-selection" />;
 }
