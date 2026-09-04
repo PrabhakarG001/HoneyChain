@@ -103,16 +103,22 @@ export default function DashboardScreen() {
 
   const feedData = isCustomer 
     ? [
-        { id: 'BATCH_A1B2C3D4', type: 'honey', title: 'Raw Wildflower Honey', subtitle: 'Sunny Valley Apiary • Batch #A1B2C3D4', isVerified: true, badgeText: 'Lab Verified' },
-        { id: 'BATCH_E5F6G7H8', type: 'honey', title: 'Monofloral Acacia Honey', subtitle: 'Highland Organic • Batch #E5F6G7H8', isVerified: true, badgeText: 'On-Chain Verified' }
+        { id: 'BATCH_A1B2C3D4', type: 'honey', title: 'Raw Organic Acacia Honey', subtitle: 'Sunny Valley Apiary • Sonoma, CA', height: 250, isVerified: true, badgeText: 'Lab Tested', imageUrl: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' },
+        { id: 'BATCH_E5F6G7H8', type: 'honey', title: 'Mountain Lavender Honey', subtitle: 'Highland Organic • Batch #HC-901', height: 190, isVerified: true, badgeText: 'Blockchain Recorded', imageUrl: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80' },
+        { id: 'BATCH_C9D0E1F2', type: 'honey', title: 'Bio-Active Manuka Honey (UMF 15+)', subtitle: 'Aotearoa Cooperative • NZ', height: 270, isVerified: true, badgeText: 'Verified Origin', imageUrl: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80' },
+        { id: 'BATCH_G3H4I5J6', type: 'honey', title: 'Wildflower Comb Honey Jar', subtitle: 'Oregon Apiary • Batch #HC-882', height: 210, isVerified: true, badgeText: 'Lab Certified', imageUrl: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80' }
       ]
-    : hives.map(hive => ({
+    : hives.map((hive, idx) => ({
         id: hive.id || hive._id,
         type: 'hive',
         title: hive.name || `Hive ${hive.id}`,
-        subtitle: hive.location || 'Unknown Location',
+        subtitle: hive.location || 'Sonoma Apiary Region',
+        height: idx % 2 === 0 ? 240 : 190,
         isVerified: true,
-        badgeText: hive.status || 'Active'
+        badgeText: hive.status || 'Active',
+        imageUrl: idx % 2 === 0 
+          ? 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80'
+          : 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
       }));
 
   const healthyHivesCount = hives.filter(h => h.status !== 'Warning' && h.status !== 'Critical').length;

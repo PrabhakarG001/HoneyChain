@@ -50,13 +50,16 @@ export default function SearchScreen() {
       const filtered = (hives || []).filter(h => 
         (h.name && h.name.toLowerCase().includes(query.toLowerCase())) ||
         (h.location && h.location.toLowerCase().includes(query.toLowerCase()))
-      ).map(h => ({
+      ).map((h, index) => ({
         id: h.id || h._id,
         type: 'hive',
         title: h.name || 'Hive',
-        subtitle: h.location || 'Unknown',
-        height: 200,
-        isVerified: true
+        subtitle: h.location || 'Sonoma Apiary',
+        height: index % 2 === 0 ? 250 : 195,
+        isVerified: true,
+        imageUrl: index % 2 === 0 
+          ? 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80'
+          : 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80'
       }));
       
       setResults(filtered);

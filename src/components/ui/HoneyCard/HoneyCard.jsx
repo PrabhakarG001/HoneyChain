@@ -5,6 +5,13 @@ import { theme } from '../../../theme';
 import styles from './HoneyCard.styles';
 import VerificationBadge from '../VerificationBadge/VerificationBadge';
 
+const FALLBACK_IMAGES = {
+  honey: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80',
+  hive: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80',
+  farm: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80',
+  batch: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=500&q=80',
+};
+
 const renderFallbackIcon = (type) => {
   switch (type) {
     case 'farm': return <Home size={36} color={theme.colors.primaryDark} />;
@@ -54,17 +61,11 @@ export default function HoneyCard({
         style={{ flex: 1 }}
       >
         <View style={[styles.imageContainer, { height, backgroundColor: theme.colors.primaryLight }]}>
-          {imageUrl ? (
-            <Image 
-              source={{ uri: imageUrl }} 
-              style={styles.image}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.amber50 || '#FFFBEB' }}>
-              {renderFallbackIcon(type)}
-            </View>
-          )}
+          <Image 
+            source={{ uri: imageUrl || FALLBACK_IMAGES[type] || FALLBACK_IMAGES.honey }} 
+            style={styles.image}
+            resizeMode="cover"
+          />
           
           <TouchableOpacity style={styles.favoriteButton} onPress={toggleSave}>
             <Heart 
