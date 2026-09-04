@@ -1,63 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import styles from './BrandLogo.styles';
 import LogoIcon from './LogoIcon';
-import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function BrandLogo({ 
   style, 
-  iconSize = 32, 
-  textStyle,
-  variant = 'horizontal', // 'horizontal', 'iconOnly', 'appIcon'
-  themeMode = 'light'     // 'light', 'dark', 'transparent'
+  iconSize = 30, 
+  textStyle
 }) {
-  const isDarkTheme = themeMode === 'dark';
-
-  if (variant === 'iconOnly') {
-    return <LogoIcon size={iconSize} style={style} />;
-  }
-
-  if (variant === 'appIcon') {
-    return (
-      <View style={[
-        localStyles.appIconContainer, 
-        { width: iconSize * 1.6, height: iconSize * 1.6, borderRadius: (iconSize * 1.6) * 0.22 },
-        style
-      ]}>
-        <LogoIcon size={iconSize} />
-      </View>
-    );
-  }
+  const colors = useThemeColors();
 
   return (
     <View style={[styles.container, style]}>
-      <LogoIcon size={iconSize} />
-      <View style={localStyles.textWrapper}>
-        <Text style={[
-          styles.logoText, 
-          isDarkTheme && { color: '#FFFFFF' },
-          textStyle
-        ]}>
-          Honey<Text style={{ color: theme.colors.primaryDark }}>Chain</Text>
-        </Text>
-      </View>
+      <LogoIcon size={iconSize} color={colors.text} accentColor={colors.accent} />
+      <Text style={[styles.logoText, { color: colors.text }, textStyle]}>
+        Honeychain
+      </Text>
     </View>
   );
 }
 
-const localStyles = StyleSheet.create({
-  textWrapper: {
+const styles = StyleSheet.create({
+  container: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
-  appIconContainer: {
-    backgroundColor: '#1F1A17',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
-  }
+  logoText: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
 });

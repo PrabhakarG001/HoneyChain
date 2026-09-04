@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, Search, Plus, Bell, User, MapPin, QrCode, Bookmark, Box, Database, Shield } from 'lucide-react-native';
-import { theme } from '../../theme';
+import { Home, Search, Plus, Bell, User, MapPin, QrCode, Bookmark, Box } from 'lucide-react-native';
 import { useUIStore } from '../../store/ui.store';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeColors } from '../../hooks/useThemeColors';
 
 export default function BottomNavbar({ state, descriptors, navigation, onCreatePress }) {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const isNavbarVisible = useUIStore(state => state.isNavbarVisible);
   const setNavbarVisible = useUIStore(state => state.setNavbarVisible);
   const { user } = useAuthStore();
@@ -17,7 +18,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
 
   useEffect(() => {
     Animated.timing(translateY, {
-      toValue: isNavbarVisible ? 0 : 120, // 120 pushes it smoothly out of view
+      toValue: isNavbarVisible ? 0 : 120,
       duration: 250,
       useNativeDriver: true,
       easing: Easing.out(Easing.cubic),
@@ -34,7 +35,13 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
         }
       ]}
     >
-      <View style={styles.container}>
+      <View style={[
+        styles.container, 
+        { 
+          backgroundColor: colors.dockBackground, 
+          borderColor: colors.cardBorder 
+        }
+      ]}>
         {state.routes.map((route, index) => {
           if (route.name === 'search') return null;
 
@@ -43,7 +50,6 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           const isCenterAction = route.name === 'create';
 
           const onPress = () => {
-            // Keep navbar visible on tab touch
             setNavbarVisible(true);
 
             if (isCenterAction) {
@@ -62,29 +68,31 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             }
           };
 
-          const color = isFocused ? theme.colors.primaryDark || '#D97706' : '#94A3B8';
+          const activeColor = colors.accent;
+          const inactiveColor = colors.subtext;
+          const color = isFocused ? activeColor : inactiveColor;
           const strokeWidth = isFocused ? 2.5 : 2;
 
           const renderIcon = () => {
             switch (route.name) {
               case 'index':
-                return <Home size={24} color={color} strokeWidth={strokeWidth} />;
+                return <Home size={22} color={color} strokeWidth={strokeWidth} />;
               case 'map':
                 return userRole === 'CUSTOMER' 
-                  ? <Search size={24} color={color} strokeWidth={strokeWidth} />
-                  : <MapPin size={24} color={color} strokeWidth={strokeWidth} />;
+                  ? <Search size={22} color={color} strokeWidth={strokeWidth} />
+                  : <MapPin size={22} color={color} strokeWidth={strokeWidth} />;
               case 'explore':
-                return <Search size={24} color={color} strokeWidth={strokeWidth} />;
+                return <Search size={22} color={color} strokeWidth={strokeWidth} />;
               case 'create':
                 return userRole === 'CUSTOMER'
-                  ? <QrCode size={26} color="#FFFFFF" strokeWidth={2.5} />
-                  : <Plus size={26} color="#FFFFFF" strokeWidth={2.5} />;
+                  ? <QrCode size={24} color="#FFFFFF" strokeWidth={2.5} />
+                  : <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />;
               case 'notifications':
-                return <Bookmark size={24} color={color} strokeWidth={strokeWidth} />;
+                return <Bookmark size={22} color={color} strokeWidth={strokeWidth} />;
               case 'profile':
-                return <User size={24} color={color} strokeWidth={strokeWidth} />;
+                return <User size={22} color={color} strokeWidth={strokeWidth} />;
               default:
-                return <Box size={24} color={color} strokeWidth={strokeWidth} />;
+                return <Box size={22} color={color} strokeWidth={strokeWidth} />;
             }
           };
 
@@ -110,13 +118,13 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
               activeOpacity={0.8}
             >
               {isCenterAction ? (
-                <View style={styles.centerBtn}>
+                <View style={[styles.centerBtn, { backgroundColor: colors.accent }]}>
                   {renderIcon()}
                 </View>
               ) : (
                 <View style={styles.iconColumn}>
                   {renderIcon()}
-                  <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
+                  <Text style={[styles.tabLabel, { color: inactiveColor }, isFocused && { color: activeColor, fontWeight: '700' }]}>
                     {getLabel()}
                   </Text>
                 </View>
@@ -137,25 +145,23 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     paddingHorizontal: 16,
-    zIndex: 99,
+    zIndex: 999,
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
-    height: 64,
+    borderRadius: 9999, // Pill-shaped dock
+    height: 60,
     width: '100%',
-    maxWidth: 480,
-    paddingHorizontal: 12,
+    maxWidth: 420,
+    paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    elevation: 8,
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
+    elevation: 10,
+    shadowColor: '#000000',
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
   },
   tabItem: {
     flex: 1,
@@ -170,25 +176,19 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#94A3B8',
     marginTop: 2,
   },
-  tabLabelActive: {
-    color: '#D97706',
-    fontWeight: '700',
-  },
   centerItemWrapper: {
-    top: -12,
+    top: -10,
   },
   centerBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#D97706',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
-    shadowColor: '#D97706',
+    shadowColor: '#F59E0B',
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },

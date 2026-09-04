@@ -17,6 +17,7 @@ import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import TopHeader from '../../../components/navigation/TopHeader';
 import ProtocolOverview from '../../../components/ui/ProtocolOverview/ProtocolOverview';
 import { useScrollToHideNav } from '../../../hooks/useScrollToHideNav';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 import { firestoreService } from '../../../services/firestore.service';
 
 const CATEGORIES = ['All', 'Honey', 'Farms', 'Quality', 'Origins', 'Verified'];
@@ -30,6 +31,7 @@ const SAMPLE_HIVES = [
 export default function DashboardScreen() {
   const { user } = useAuthStore();
   const router = useRouter();
+  const colors = useThemeColors();
   const { onScroll, scrollEventThrottle } = useScrollToHideNav();
   
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -125,7 +127,7 @@ export default function DashboardScreen() {
   const attentionHivesCount = hives.length - healthyHivesCount;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <TopHeader />
 
       <ScrollView 

@@ -1,80 +1,41 @@
 import React from 'react';
-import Svg, { Path, Defs, LinearGradient, Stop, G, Polygon } from 'react-native-svg';
-import { theme } from '../../../theme';
+import Svg, { Path, Rect, G } from 'react-native-svg';
 
 /**
- * HoneyChain Premium Brand Icon Symbol
- * 
- * Geometry Concept:
- * Interlocking geometric isometric honeycomb cell containing a subtle 'H' / 'HC'
- * constructed from connected blockchain nodes/blocks.
- * 
- * Colors:
- * Honey Gold (#E6A740) & Honey Bronze (#B87A22) with Deep Charcoal (#1F1A17) accents.
+ * Custom Minimalist Geometric Hexagon (Honeycomb) interlaced with an Oval Chain Link
  */
 export default function LogoIcon({ 
-  size = 32, 
-  primaryColor = '#E6A740', 
-  darkColor = '#B87A22',
-  accentColor = '#1F1A17',
+  size = 30, 
+  color = '#111827',
+  accentColor = '#F59E0B',
   style 
 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" style={style} fill="none">
-      <Defs>
-        <LinearGradient id="hcAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor={primaryColor} />
-          <Stop offset="100%" stopColor={darkColor} />
-        </LinearGradient>
-        <LinearGradient id="hcGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <Stop offset="0%" stopColor="#FAEDCD" />
-          <Stop offset="100%" stopColor={primaryColor} />
-        </LinearGradient>
-        <LinearGradient id="hcDarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor={accentColor} />
-          <Stop offset="100%" stopColor="#3A322C" />
-        </LinearGradient>
-      </Defs>
-
-      {/* Hexagonal Outer Grid Boundary */}
-      <Polygon 
-        points="50,6 88,28 88,72 50,94 12,72 12,28" 
-        stroke="url(#hcAmberGrad)" 
-        strokeWidth="4" 
-        strokeLinejoin="round" 
-        fill="none" 
-        opacity="0.3"
+      {/* Outer Hexagon (Honeycomb Cell) */}
+      <Path
+        d="M 50 8 L 88 30 L 88 70 L 50 92 L 12 70 L 12 30 Z"
+        stroke={color}
+        strokeWidth="6"
+        strokeLinejoin="round"
+        fill="none"
       />
 
-      {/* Left 'H' Vertical Pillar Node Block */}
-      <Path 
-        d="M 24 30 L 38 22 L 38 78 L 24 70 Z" 
-        fill="url(#hcAmberGrad)" 
+      {/* Interlaced Oval Chain Link Left */}
+      <Path
+        d="M 32 40 C 32 30, 48 30, 48 40 L 48 60 C 48 70, 32 70, 32 60 Z"
+        stroke={accentColor}
+        strokeWidth="5"
+        fill="none"
       />
 
-      {/* Right 'H' Vertical Pillar Node Block */}
-      <Path 
-        d="M 62 22 L 76 30 L 76 70 L 62 78 Z" 
-        fill="url(#hcAmberGrad)" 
+      {/* Interlaced Oval Chain Link Right */}
+      <Path
+        d="M 52 40 C 52 30, 68 30, 68 40 L 68 60 C 68 70, 52 70, 52 60 Z"
+        stroke={color}
+        strokeWidth="5"
+        fill="none"
       />
-
-      {/* Interlocking Blockchain Crossbar Node (Forms the 'H' / Honeycomb Core) */}
-      <Path 
-        d="M 38 43 L 50 36 L 62 43 L 62 57 L 50 64 L 38 57 Z" 
-        fill="url(#hcDarkGrad)" 
-      />
-
-      {/* Central Honeycomb Diamond Core */}
-      <Path 
-        d="M 50 42 L 58 50 L 50 58 L 42 50 Z" 
-        fill="url(#hcGlowGrad)" 
-      />
-
-      {/* Connection Links (Nodes to Crossbar) */}
-      <Path d="M 38 32 L 50 39" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" />
-      <Path d="M 62 32 L 50 39" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" />
-      <Path d="M 38 68 L 50 61" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" />
-      <Path d="M 62 68 L 50 61" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" />
     </Svg>
   );
 }
