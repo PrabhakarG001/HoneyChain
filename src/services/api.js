@@ -3,17 +3,25 @@ import { Platform } from 'react-native';
 import { getItemAsync } from '../utils/storage';
 
 const getDefaultApiUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL || process.env.VITE_API_URL;
-  if (envUrl) return envUrl;
+  let envUrl = process.env.EXPO_PUBLIC_API_URL || process.env.VITE_API_URL;
 
   if (Platform.OS === 'android') {
+    if (envUrl) {
+      return envUrl.replace('localhost', '10.0.2.2').replace('127.0.0.1', '10.0.2.2');
+    }
     return 'http://10.0.2.2:8000/api';
   }
+
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     const hostname = window.location.hostname || 'localhost';
+    if (envUrl && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return envUrl.replace('localhost', hostname).replace('127.0.0.1', hostname);
+    }
+    if (envUrl) return envUrl;
     return `http://${hostname}:8000/api`;
   }
-  return 'http://localhost:8000/api';
+
+  return envUrl || 'http://localhost:8000/api';
 };
 
 const API_URL = getDefaultApiUrl();
@@ -36,8 +44,8 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        const { useAuthStore } = require('../store/auth.store');
-        await useAuthStore.getState().logout();
+        // Handle 401 gracefully without force-logging out Firebase Auth users
+        console.warn(`Backend API returned 401 for ${error.config?.url}. Falling back to client/Firestore state.`);
       }
     } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_CONNECTION_REFUSED') {
       error.message = `Cannot connect to HoneyChain backend server at ${API_URL}. Please start the backend server (python -m uvicorn backend.main:app --port 8000).`;

@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Hives collection
+    match /hives/{hiveId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Batches collection
+    match /batches/{batchId} {
+      allow read: if true; // Public verification allowed for honey batch provenance
+      allow write: if request.auth != null;
+    }
+    
+    // Telemetry collection
+    match /telemetry/{telemetryId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

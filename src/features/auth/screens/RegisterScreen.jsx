@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -27,6 +27,7 @@ import {
 } from 'lucide-react-native';
 
 import Input from '../../../components/ui/Input/Input';
+import { ActivityIndicator } from 'react-native';
 import Button from '../../../components/ui/Button/Button';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import AuthBackground from '../components/AuthBackground';
@@ -35,17 +36,29 @@ import { authService } from '../../../services/auth.service';
 import { useAuthStore } from '../../../store/auth.store';
 import { registerSchema } from '../schemas/auth.schema';
 import { USER_ROLES } from '../../../constants/roles';
+import GoogleIcon from '../../../components/ui/GoogleIcon';
+import { useAuth } from '../../../context/AuthContext';
 import styles from './RegisterScreen.styles';
 import { theme } from '../../../theme';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
+  const { isAuthenticated, isLoading: storeIsLoading } = useAuthStore();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
 
   const login = useAuthStore(state => state.login);
   const [globalError, setGlobalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!storeIsLoading && isAuthenticated) {
+      router.replace('/(app)/dashboard');
+    }
+  }, [isAuthenticated, storeIsLoading]);
   
   const { control, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = useForm({
     resolver: zodResolver(registerSchema),
@@ -85,6 +98,29 @@ export default function RegisterScreen() {
       }, 500);
     } catch (err) {
       setGlobalError(err.message || 'Registration failed. Please try again.');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (isGoogleLoading || isSubmitting) return;
+    try {
+      setGlobalError('');
+      setSuccessMsg('');
+      setIsGoogleLoading(true);
+
+      await loginWithGoogle();
+      setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
+
+      setTimeout(() => {
+        router.replace('/(app)/dashboard');
+      }, 500);
+    } catch (err) {
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        return;
+      }
+      setGlobalError(err.message || 'Google authentication failed. Please try again.');
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -337,6 +373,31 @@ export default function RegisterScreen() {
                   icon={<ArrowRight size={18} color="#FFFFFF" />}
                 />
               </View>
+
+              {/* Divider */}
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* Google Sign-In Button */}
+              <TouchableOpacity
+                style={[styles.googleBtn, (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled]}
+                onPress={handleGoogleLogin}
+                disabled={isGoogleLoading || isSubmitting}
+                accessibilityRole="button"
+                accessibilityLabel="Continue with Google"
+              >
+                {isGoogleLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.charcoal} />
+                ) : (
+                  <View style={styles.googleBtnContent}>
+                    <GoogleIcon size={20} style={{ marginRight: 10 }} />
+                    <Text style={styles.googleBtnText}>Continue with Google</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
               
               {/* Footer Login Link */}
               <View style={styles.footer}>

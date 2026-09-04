@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
-import { LogOut, X } from 'lucide-react-native';
+import { LogOut } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../../theme';
+import { useAuth } from '../../context/AuthContext';
 import { useAuthStore } from '../../store/auth.store';
 
 export default function LogoutConfirmModal({ isVisible, onClose }) {
-  const { logout } = useAuthStore();
+  const { logout: authContextLogout } = useAuth();
+  const { logout: storeLogout } = useAuthStore();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleConfirmLogout = async () => {
     try {
       setIsLoggingOut(true);
-      await logout();
+      if (authContextLogout) {
+        await authContextLogout();
+      } else {
+        await storeLogout();
+      }
       onClose();
       router.replace('/(auth)/login');
     } catch (err) {

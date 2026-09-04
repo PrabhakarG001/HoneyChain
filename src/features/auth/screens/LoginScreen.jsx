@@ -35,21 +35,32 @@ import AuthBackground from '../components/AuthBackground';
 import { authService } from '../../../services/auth.service';
 import { useAuthStore } from '../../../store/auth.store';
 import { loginSchema } from '../schemas/auth.schema';
-import { getItemAsync, setItemAsync, deleteItemAsync } from '../../../utils/storage';
+import GoogleIcon from '../../../components/ui/GoogleIcon';
+import { useAuth } from '../../../context/AuthContext';
 import styles from './LoginScreen.styles';
 import { theme } from '../../../theme';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { user: authContextUser, loading: authContextLoading, loginWithGoogle } = useAuth();
+  const { isAuthenticated, isLoading: storeIsLoading } = useAuthStore();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 840;
   
   const login = useAuthStore(state => state.login);
   const [globalError, setGlobalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [forgotModalVisible, setForgotModalVisible] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!storeIsLoading && isAuthenticated) {
+      router.replace('/(app)/dashboard');
+    }
+  }, [isAuthenticated, storeIsLoading]);
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, watch } = useForm({
     resolver: zodResolver(loginSchema),
@@ -99,6 +110,30 @@ export default function LoginScreen() {
       }, 500);
     } catch (err) {
       setGlobalError(err.message || 'Login failed. Please check your credentials.');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (isGoogleLoading || isSubmitting) return;
+    try {
+      setGlobalError('');
+      setSuccessMsg('');
+      setIsGoogleLoading(true);
+
+      await loginWithGoogle();
+      setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
+
+      setTimeout(() => {
+        router.replace('/(app)/dashboard');
+      }, 500);
+    } catch (err) {
+      // Don't show error if user cancelled popup
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        return;
+      }
+      setGlobalError(err.message || 'Google authentication failed. Please try again.');
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -277,9 +312,29 @@ export default function LoginScreen() {
               {/* Divider */}
               <View style={styles.dividerContainer}>
                 <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>SECURE AUTHENTICATION</Text>
+                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
                 <View style={styles.dividerLine} />
               </View>
+
+              {/* Google Sign-In Button */}
+              <TouchableOpacity
+                style={[styles.googleBtn, (isGoogleLoading || isSubmitting) && styles.googleBtnDisabled]}
+                onPress={handleGoogleLogin}
+                disabled={isGoogleLoading || isSubmitting}
+                accessibilityRole="button"
+                accessibilityLabel="Continue with Google"
+              >
+                {isGoogleLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.charcoal} />
+                ) : (
+                  <View style={styles.googleBtnContent}>
+                    <GoogleIcon size={20} style={{ marginRight: 10 }} />
+                    <Text style={styles.googleBtnText}>Continue with Google</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <View style={{ height: 16 }} />
 
               {/* Sign Up Link */}
               <View style={styles.footer}>

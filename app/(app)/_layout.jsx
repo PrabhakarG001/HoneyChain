@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/auth.store';
+import { theme } from '../../src/theme';
 
 export default function AppLayout() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -12,7 +14,17 @@ export default function AppLayout() {
     }
   }, [isLoading, isAuthenticated]);
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background.main }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

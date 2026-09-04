@@ -23,6 +23,7 @@
     "expo-sqlite": "~57.0.2",
     "expo-status-bar": "~57.0.1",
     "expo-task-manager": "~57.0.15",
+    "firebase": "^12.18.0",
     "lucide-react-native": "^1.37.0",
     "prop-types": "^15.8.1",
     "react": "19.2.3",

@@ -3,8 +3,16 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { theme } from '../../../theme';
 
 export default function UserAvatar({ user, size = 36, style }) {
-  const avatarUrl = user?.avatarUrl;
-  const initial = user?.name ? user.name.charAt(0).toUpperCase() : user?.username ? user.username.charAt(0).toUpperCase() : 'U';
+  const avatarUrl = user?.photoURL || user?.avatarUrl || user?.avatar;
+  const initial = user?.displayName
+    ? user.displayName.charAt(0).toUpperCase()
+    : user?.name
+    ? user.name.charAt(0).toUpperCase()
+    : user?.username
+    ? user.username.charAt(0).toUpperCase()
+    : user?.email
+    ? user.email.charAt(0).toUpperCase()
+    : 'U';
 
   if (avatarUrl) {
     return (

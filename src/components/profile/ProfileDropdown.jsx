@@ -30,10 +30,10 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                 <UserAvatar user={user} size={48} />
                 <View style={styles.userInfo}>
                   <Text style={styles.userName} numberOfLines={1}>
-                    {user?.name || user?.username || 'User'}
+                    {user?.displayName || user?.name || user?.username || 'HoneyChain User'}
                   </Text>
                   <Text style={styles.userHandle} numberOfLines={1}>
-                    @{user?.username || 'user'}
+                    {user?.email || (user?.username ? `@${user.username}` : 'user')}
                   </Text>
                   <View style={{ marginTop: 4 }}>
                     <VerificationBadge type="blockchain" text={user?.role || 'Member'} size="small" />

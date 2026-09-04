@@ -275,5 +275,50 @@ export default StyleSheet.create({
     color: theme.colors.primaryDark,
     fontSize: 14,
     fontWeight: '700',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border,
+  },
+  dividerText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    color: theme.colors.text.muted,
+    marginHorizontal: theme.spacing.sm,
+  },
+  googleBtn: {
+    height: 48,
+    borderRadius: theme.radius.lg,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  googleBtnDisabled: {
+    opacity: 0.6,
+  },
+  googleBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A202C',
   }
 });

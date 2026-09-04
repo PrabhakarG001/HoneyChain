@@ -274,5 +274,33 @@ export default StyleSheet.create({
     color: theme.colors.text.secondary,
     lineHeight: 18,
     marginBottom: theme.spacing.lg,
+  },
+  googleBtn: {
+    height: 48,
+    borderRadius: theme.radius.lg,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: theme.spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  googleBtnDisabled: {
+    opacity: 0.6,
+  },
+  googleBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A202C',
   }
 });
