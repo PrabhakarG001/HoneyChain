@@ -71,49 +71,61 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const { login: storeLogin, logout: storeLogout } = useAuthStore();
 
-  // Helper to sync user record into Firestore 'users' collection
-  const syncUserToFirestore = async (firebaseUser, additionalData = {}) => {
-    if (!firebaseUser) return;
-    try {
-      const userRef = doc(db, 'users', firebaseUser.uid);
-      const userSnap = await getDoc(userRef);
+  // Helper to sync user record into Firestore 'users' collection asynchronously
+  const syncUserToFirestore = (firebaseUser, additionalData = {}) => {
+    if (!firebaseUser || !db || !db.app) return;
+    // Fire and forget in background so UI is never blocked
+    (async () => {
+      try {
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 800));
+        const fetchPromise = getDoc(userRef);
+        const userSnap = await Promise.race([fetchPromise, timeoutPromise]);
 
-      const userData = {
-        uid: firebaseUser.uid,
-        name: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
-        displayName: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
-        email: firebaseUser.email || additionalData.email || '',
-        phoneNumber: firebaseUser.phoneNumber || additionalData.phone || '',
-        photoURL: firebaseUser.photoURL || '',
-        avatarUrl: firebaseUser.photoURL || '',
-        role: additionalData.role || userSnap.data()?.role || 'CUSTOMER',
-        updatedAt: serverTimestamp(),
-      };
+        const existingData = (userSnap && typeof userSnap.exists === 'function' && userSnap.exists()) 
+          ? userSnap.data() 
+          : {};
 
-      if (!userSnap.exists()) {
-        userData.createdAt = serverTimestamp();
-        await setDoc(userRef, userData);
-      } else {
-        await updateDoc(userRef, userData);
+        const userData = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
+          displayName: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
+          email: firebaseUser.email || additionalData.email || '',
+          phoneNumber: firebaseUser.phoneNumber || additionalData.phone || '',
+          photoURL: firebaseUser.photoURL || '',
+          avatarUrl: firebaseUser.photoURL || '',
+          role: additionalData.role || existingData.role || 'CUSTOMER',
+          updatedAt: serverTimestamp(),
+        };
+
+        if (!userSnap || typeof userSnap.exists !== 'function' || !userSnap.exists()) {
+          userData.createdAt = serverTimestamp();
+          await setDoc(userRef, userData);
+        } else {
+          await updateDoc(userRef, userData);
+        }
+      } catch (e) {
+        console.warn('Firestore user sync warning (non-fatal):', e.message);
       }
-    } catch (e) {
-      console.warn('Firestore user sync warning (non-fatal):', e.message);
-    }
+    })();
   };
 
   useEffect(() => {
     // Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        const token = await firebaseUser.getIdToken();
+        
+        // Fast local storage role restoration check
         let userRole = 'CUSTOMER';
         try {
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists() && userSnap.data()?.role) {
-            userRole = userSnap.data().role;
+          const cachedUser = await getItemAsync('user');
+          if (cachedUser) {
+            const parsed = JSON.parse(cachedUser);
+            if (parsed && parsed.role) userRole = parsed.role;
           }
         } catch (e) {
-          console.warn('Firestore role fetch warning:', e.message);
+          // ignore
         }
 
         const formattedUser = {
@@ -133,7 +145,7 @@ export function AuthProvider({ children }) {
         await setItemAsync('user', JSON.stringify(formattedUser));
         await setItemAsync('access_token', token);
 
-        // Background sync to Firestore
+        // Non-blocking background sync to Firestore
         syncUserToFirestore(firebaseUser);
       } else {
         setUser(null);
@@ -150,27 +162,27 @@ export function AuthProvider({ children }) {
   const loginWithEmail = async (email, password) => {
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-      await syncUserToFirestore(res.user);
+      syncUserToFirestore(res.user);
       return res.user;
     } catch (err) {
       throw new Error(formatFirebaseError(err));
     }
   };
 
-  const registerWithEmail = async (email, password, displayName, role = 'Beekeeper') => {
+  const registerWithEmail = async (email, password, displayName, role = 'CUSTOMER') => {
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       if (displayName) {
         await updateProfile(res.user, { displayName });
       }
-      await syncUserToFirestore(res.user, { name: displayName, role });
+      syncUserToFirestore(res.user, { name: displayName, role });
       return res.user;
     } catch (err) {
       throw new Error(formatFirebaseError(err));
     }
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (selectedRole = 'CUSTOMER') => {
     if (!auth.app.options || !auth.app.options.apiKey) {
       throw new Error('Firebase configuration error. Please verify VITE_FIREBASE_* / EXPO_PUBLIC_FIREBASE_* environment variables in .env file.');
     }
@@ -179,7 +191,9 @@ export function AuthProvider({ children }) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       const result = await signInWithPopup(auth, provider);
-      await syncUserToFirestore(result.user);
+      
+      // Fast background sync
+      syncUserToFirestore(result.user, { role: selectedRole });
       return result.user;
     } catch (err) {
       const friendlyMessage = formatFirebaseError(err);

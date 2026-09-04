@@ -127,18 +127,16 @@ export default function LoginScreen() {
       setSuccessMsg('');
       setIsGoogleLoading(true);
 
-      const gUser = await loginWithGoogle();
-      setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
+      const userRole = paramRole ? paramRole.toUpperCase() : 'CUSTOMER';
+      const gUser = await loginWithGoogle(userRole);
+      setSuccessMsg('Google Sign-In successful! Opening HoneyChain...');
 
-      if (paramRole && gUser?.uid) {
-        const userRole = paramRole.toUpperCase();
+      if (gUser?.uid) {
         updateUser({ role: userRole });
-        await firestoreService.updateUserRole(gUser.uid, userRole);
+        firestoreService.updateUserRole(gUser.uid, userRole).catch(() => {});
       }
 
-      setTimeout(() => {
-        router.replace('/(app)/dashboard');
-      }, 500);
+      router.replace('/(app)/dashboard');
     } catch (err) {
       // Don't show error if user cancelled popup
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
