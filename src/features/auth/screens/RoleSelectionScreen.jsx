@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ShieldCheck, ArrowRight, Globe, Sparkles, Award, Box } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight, Globe, Sparkles } from 'lucide-react-native';
 import BrandLogo from '../../../components/ui/BrandLogo/BrandLogo';
 import LanguageModal from '../../../components/ui/LanguageModal/LanguageModal';
 import AuthBackground from '../components/AuthBackground';
+import HoneycombDecoration from '../components/HoneycombDecoration';
+import MolecularDecoration from '../components/MolecularDecoration';
+import MicroElementsDecoration from '../components/MicroElementsDecoration';
 import { useThemeColors } from '../../../hooks/useThemeColors';
 import { useTranslation } from '../../../hooks/useTranslation';
 
@@ -16,6 +19,7 @@ export default function RoleSelectionScreen() {
   const { width } = useWindowDimensions();
   const isTabletOrDesktop = width >= 768;
   const [isLangModalVisible, setIsLangModalVisible] = useState(false);
+  const [hoveredRole, setHoveredRole] = useState(null);
 
   const handleSelectRole = (role) => {
     router.push({
@@ -26,11 +30,26 @@ export default function RoleSelectionScreen() {
 
   return (
     <AuthBackground style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
+      {/* Decorative Bottom Left Honeycomb Structure */}
+      <HoneycombDecoration width={width} />
+
+      {/* Decorative Bottom Right Molecular Chemical Structure */}
+      <MolecularDecoration width={width} />
+
+      {/* Subtle Micro Floating Particles and Curved Accents */}
+      <MicroElementsDecoration width={width} />
+
+      <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
         {/* Top Header Row with Language Button */}
         <View style={styles.topBar}>
           <TouchableOpacity
-            style={[styles.langBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            style={[
+              styles.langBtn, 
+              { 
+                backgroundColor: colors.isDark ? 'rgba(22, 24, 30, 0.85)' : 'rgba(255, 255, 255, 0.9)', 
+                borderColor: colors.isDark ? 'rgba(244, 185, 66, 0.25)' : colors.border 
+              }
+            ]}
             onPress={() => setIsLangModalVisible(true)}
             accessibilityRole="button"
             accessibilityLabel="Select language"
@@ -58,13 +77,25 @@ export default function RoleSelectionScreen() {
             {/* Role Options */}
             <View style={[styles.cardGrid, isTabletOrDesktop && styles.tabletCardGrid]}>
               {/* Beekeeper Option */}
-              <TouchableOpacity
-                style={[
-                  styles.roleCard, 
-                  { backgroundColor: colors.surface, borderColor: colors.border }
-                ]}
+              <Pressable
+                onHoverIn={() => setHoveredRole('BEEKEEPER')}
+                onHoverOut={() => setHoveredRole(null)}
                 onPress={() => handleSelectRole('BEEKEEPER')}
-                activeOpacity={0.85}
+                style={({ pressed }) => [
+                  styles.roleCard,
+                  {
+                    backgroundColor: colors.isDark ? '#16181E' : '#FFFFFF',
+                    borderColor: (hoveredRole === 'BEEKEEPER' || pressed) 
+                      ? colors.accent 
+                      : colors.border,
+                    shadowColor: (hoveredRole === 'BEEKEEPER' || pressed)
+                      ? colors.accent
+                      : colors.isDark ? '#000000' : '#1F1A17',
+                    shadowOpacity: (hoveredRole === 'BEEKEEPER' || pressed) ? 0.25 : 0.08,
+                    shadowRadius: (hoveredRole === 'BEEKEEPER' || pressed) ? 14 : 10,
+                    transform: [{ scale: pressed ? 0.985 : (hoveredRole === 'BEEKEEPER' ? 1.015 : 1) }],
+                  }
+                ]}
                 accessibilityRole="button"
                 accessibilityLabel="Select Beekeeper and Producer role"
               >
@@ -82,19 +113,36 @@ export default function RoleSelectionScreen() {
                     {t('beekeeperRoleDesc', 'Manage your apiaries, monitor IoT hive telemetry, log harvests, and mint blockchain honey passports.')}
                   </Text>
                 </View>
-                <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
-                  <ArrowRight size={20} color={colors.accent} />
+                <View style={[
+                  styles.actionArrow, 
+                  { 
+                    backgroundColor: (hoveredRole === 'BEEKEEPER') ? colors.accent : (colors.isDark ? '#27272A' : '#F8FAFC') 
+                  }
+                ]}>
+                  <ArrowRight size={20} color={(hoveredRole === 'BEEKEEPER') ? '#000000' : colors.accent} />
                 </View>
-              </TouchableOpacity>
+              </Pressable>
 
               {/* Customer Option */}
-              <TouchableOpacity
-                style={[
-                  styles.roleCard, 
-                  { backgroundColor: colors.surface, borderColor: colors.border }
-                ]}
+              <Pressable
+                onHoverIn={() => setHoveredRole('CUSTOMER')}
+                onHoverOut={() => setHoveredRole(null)}
                 onPress={() => handleSelectRole('CUSTOMER')}
-                activeOpacity={0.85}
+                style={({ pressed }) => [
+                  styles.roleCard,
+                  {
+                    backgroundColor: colors.isDark ? '#16181E' : '#FFFFFF',
+                    borderColor: (hoveredRole === 'CUSTOMER' || pressed) 
+                      ? colors.accent 
+                      : colors.border,
+                    shadowColor: (hoveredRole === 'CUSTOMER' || pressed)
+                      ? colors.accent
+                      : colors.isDark ? '#000000' : '#1F1A17',
+                    shadowOpacity: (hoveredRole === 'CUSTOMER' || pressed) ? 0.25 : 0.08,
+                    shadowRadius: (hoveredRole === 'CUSTOMER' || pressed) ? 14 : 10,
+                    transform: [{ scale: pressed ? 0.985 : (hoveredRole === 'CUSTOMER' ? 1.015 : 1) }],
+                  }
+                ]}
                 accessibilityRole="button"
                 accessibilityLabel="Select Customer and Buyer role"
               >
@@ -112,10 +160,15 @@ export default function RoleSelectionScreen() {
                     {t('customerRoleDesc', 'Discover artisanal honey, scan QR codes for on-chain provenance, and buy verified pure honey.')}
                   </Text>
                 </View>
-                <View style={[styles.actionArrow, { backgroundColor: colors.isDark ? '#27272A' : '#F8FAFC' }]}>
-                  <ArrowRight size={20} color={colors.accent} />
+                <View style={[
+                  styles.actionArrow, 
+                  { 
+                    backgroundColor: (hoveredRole === 'CUSTOMER') ? colors.accent : (colors.isDark ? '#27272A' : '#F8FAFC') 
+                  }
+                ]}>
+                  <ArrowRight size={20} color={(hoveredRole === 'CUSTOMER') ? '#000000' : colors.accent} />
                 </View>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             {/* Trust Footer */}
@@ -139,13 +192,13 @@ export default function RoleSelectionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDFBF7',
+    zIndex: 10,
   },
   topBar: {
     paddingHorizontal: 20,
     paddingTop: 12,
     alignItems: 'flex-end',
-    zIndex: 10,
+    zIndex: 15,
   },
   langBtn: {
     flexDirection: 'row',
@@ -180,13 +233,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#1F1A17',
     marginBottom: 6,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#7A7265',
     textAlign: 'center',
   },
   cardGrid: {
@@ -196,17 +247,12 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   roleCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 22,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F0EBE1',
+    borderWidth: 1.5,
     elevation: 3,
-    shadowColor: '#1F1A17',
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
   iconBox: {
@@ -227,19 +273,16 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F1A17',
     marginBottom: 4,
   },
   roleDesc: {
     fontSize: 13,
-    color: '#7A7265',
     lineHeight: 18,
   },
   actionArrow: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F8FAFC',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -283,7 +326,6 @@ const styles = StyleSheet.create({
   },
   trustText: {
     fontSize: 13,
-    color: '#64748B',
     fontWeight: '500',
   },
 });
