@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
 import { 
   View, Text, TouchableOpacity, StyleSheet, Modal, 
-  TouchableWithoutFeedback, ScrollView, Animated, Dimensions 
+  TouchableWithoutFeedback, ScrollView, Dimensions 
 } from 'react-native';
 import { 
   User, Edit3, ShieldCheck, LogOut, QrCode, Award, 
-  Sparkles, Box, Heart, ChevronRight, Copy, Check, 
-  Bell, RefreshCw, X, ShieldAlert, CheckCircle2, Zap
+  Sparkles, Box, ChevronRight, Copy, Check, 
+  Bell, RefreshCw, X, CheckCircle2, Zap, Sun, Moon, Smartphone
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeStore } from '../../store/theme.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import UserAvatar from '../ui/UserAvatar/UserAvatar';
 import VerificationBadge from '../ui/VerificationBadge/VerificationBadge';
 
 const ROLES = [
   { id: 'Beekeeper', label: 'Beekeeper 🐝', desc: 'Manage apiaries & harvests' },
-  { id: 'Customer', label: 'Customer 🛍️', desc: 'Buy pure verified honey' },
+  { id: 'Customer', label: 'Customer 🍯', desc: 'Buy pure verified honey' },
   { id: 'Inspector', label: 'Inspector 🔍', desc: 'Audit quality & labs' }
+];
+
+const THEME_OPTIONS = [
+  { id: 'system', label: 'Auto', Icon: Smartphone },
+  { id: 'light', label: 'Light', Icon: Sun },
+  { id: 'dark', label: 'Dark', Icon: Moon }
 ];
 
 export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile, onOpenLogout }) {
   const { user, updateUser } = useAuthStore();
+  const { themeMode, setThemeMode } = useThemeStore();
   const router = useRouter();
   const colors = useThemeColors();
 
@@ -58,7 +66,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
             <View style={[styles.popoverCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
               
               {/* Header Close & Title */}
-              <View style={styles.headerBar}>
+              <View style={[styles.headerBar, { borderBottomColor: colors.border }]}>
                 <View style={styles.headerTitleRow}>
                   <Sparkles size={18} color={colors.accent} />
                   <Text style={[styles.headerTitle, { color: colors.text }]}>Profile Hub</Text>
@@ -95,7 +103,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                     <TouchableOpacity style={styles.walletSnippet} onPress={handleCopyWallet} activeOpacity={0.7}>
                       <Text style={[styles.walletText, { color: colors.subtext }]}>{displayWallet}</Text>
                       {copiedWallet ? (
-                        <Check size={12} color="#10B981" />
+                        <Check size={12} color={colors.accent} />
                       ) : (
                         <Copy size={12} color={colors.subtext} />
                       )}
@@ -105,12 +113,40 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   <ChevronRight size={18} color={colors.subtext} />
                 </TouchableOpacity>
 
+                {/* Appearance / Theme Switcher Card */}
+                <View style={[styles.sectionBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Text style={[styles.boxTitle, { color: colors.subtext }]}>THEME MODE</Text>
+                  <View style={styles.themeToggleRow}>
+                    {THEME_OPTIONS.map(({ id, label, Icon }) => {
+                      const isSelected = themeMode === id;
+                      return (
+                        <TouchableOpacity
+                          key={id}
+                          style={[
+                            styles.themePill,
+                            { 
+                              backgroundColor: isSelected ? colors.accent : colors.background,
+                              borderColor: isSelected ? colors.accent : colors.border
+                            }
+                          ]}
+                          onPress={() => setThemeMode(id)}
+                        >
+                          <Icon size={14} color={isSelected ? '#000000' : colors.text} />
+                          <Text style={[styles.themePillText, { color: isSelected ? '#000000' : colors.text }]}>
+                            {label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+
                 {/* Role Switcher Pill */}
                 <View style={[styles.roleSwitchCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                   <View style={styles.roleSwitchHeader}>
                     <View style={styles.rowAlign}>
                       <Zap size={16} color={colors.accent} />
-                      <Text style={[styles.roleLabel, { color: colors.text }]}>Active Role: {currentRole}</Text>
+                      <Text style={[styles.roleLabel, { color: colors.text }]}>Role: {currentRole}</Text>
                     </View>
                     <TouchableOpacity 
                       onPress={() => setShowRoleSelector(!showRoleSelector)}
@@ -172,8 +208,8 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   style={[styles.menuRow, { borderBottomColor: colors.border }]}
                   onPress={() => handleNavigate('/(app)/(tabs)/profile')}
                 >
-                  <View style={[styles.menuIconBg, { backgroundColor: '#F59E0B20' }]}>
-                    <User size={18} color="#F59E0B" />
+                  <View style={[styles.menuIconBg, { backgroundColor: colors.surface }]}>
+                    <User size={18} color={colors.accent} />
                   </View>
                   <View style={styles.menuTextWrap}>
                     <Text style={[styles.menuMainText, { color: colors.text }]}>View Full Profile</Text>
@@ -189,8 +225,8 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                     if (onOpenEditProfile) onOpenEditProfile();
                   }}
                 >
-                  <View style={[styles.menuIconBg, { backgroundColor: '#3B82F620' }]}>
-                    <Edit3 size={18} color="#3B82F6" />
+                  <View style={[styles.menuIconBg, { backgroundColor: colors.surface }]}>
+                    <Edit3 size={18} color={colors.accent} />
                   </View>
                   <View style={styles.menuTextWrap}>
                     <Text style={[styles.menuMainText, { color: colors.text }]}>Edit Profile Details</Text>
@@ -203,8 +239,8 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   style={[styles.menuRow, { borderBottomColor: colors.border }]}
                   onPress={() => handleNavigate('/(app)/(tabs)/profile')}
                 >
-                  <View style={[styles.menuIconBg, { backgroundColor: '#8B5CF620' }]}>
-                    <ShieldCheck size={18} color="#8B5CF6" />
+                  <View style={[styles.menuIconBg, { backgroundColor: colors.surface }]}>
+                    <ShieldCheck size={18} color={colors.accent} />
                   </View>
                   <View style={styles.menuTextWrap}>
                     <Text style={[styles.menuMainText, { color: colors.text }]}>Account & Role Permissions</Text>
@@ -220,8 +256,8 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   style={[styles.menuRow, { borderBottomColor: colors.border }]}
                   onPress={() => handleNavigate('/(app)/(tabs)/explore')}
                 >
-                  <View style={[styles.menuIconBg, { backgroundColor: '#10B98120' }]}>
-                    <Box size={18} color="#10B981" />
+                  <View style={[styles.menuIconBg, { backgroundColor: colors.surface }]}>
+                    <Box size={18} color={colors.accent} />
                   </View>
                   <View style={styles.menuTextWrap}>
                     <Text style={[styles.menuMainText, { color: colors.text }]}>My Honey Batches & Hives</Text>
@@ -234,8 +270,8 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                   style={[styles.menuRow, { borderBottomColor: colors.border }]}
                   onPress={() => handleNavigate('/(app)/(tabs)/notifications')}
                 >
-                  <View style={[styles.menuIconBg, { backgroundColor: '#EC489920' }]}>
-                    <Bell size={18} color="#EC4899" />
+                  <View style={[styles.menuIconBg, { backgroundColor: colors.surface }]}>
+                    <Bell size={18} color={colors.accent} />
                   </View>
                   <View style={styles.menuTextWrap}>
                     <Text style={[styles.menuMainText, { color: colors.text }]}>Notifications & Activity</Text>
@@ -247,14 +283,14 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
                 {/* Section 3: Logout */}
                 <View style={styles.logoutMargin}>
                   <TouchableOpacity 
-                    style={[styles.logoutRow, { backgroundColor: '#EF444415' }]}
+                    style={[styles.logoutRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                     onPress={() => {
                       onClose();
                       if (onOpenLogout) onOpenLogout();
                     }}
                   >
-                    <LogOut size={18} color="#EF4444" />
-                    <Text style={styles.logoutText}>Sign Out of HoneyChain</Text>
+                    <LogOut size={18} color={colors.text} />
+                    <Text style={[styles.logoutText, { color: colors.text }]}>Sign Out of HoneyChain</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -270,7 +306,7 @@ export default function ProfileDropdown({ isVisible, onClose, onOpenEditProfile,
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
     paddingTop: 64,
@@ -297,7 +333,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(150,150,150,0.12)',
   },
   headerTitleRow: {
     flexDirection: 'row',
@@ -356,6 +391,36 @@ const styles = StyleSheet.create({
   walletText: {
     fontSize: 11,
     fontFamily: 'monospace',
+  },
+  sectionBox: {
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  boxTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    marginBottom: 8,
+  },
+  themeToggleRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  themePill: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  themePillText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   roleSwitchCard: {
     borderRadius: 16,
@@ -481,10 +546,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 12,
     borderRadius: 16,
+    borderWidth: 1,
   },
   logoutText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#EF4444',
   },
 });
