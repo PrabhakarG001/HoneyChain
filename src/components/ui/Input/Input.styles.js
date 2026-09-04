@@ -7,37 +7,58 @@ export default StyleSheet.create({
   },
   label: {
     color: theme.colors.charcoal,
+    fontSize: 14,
     fontWeight: '600',
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   inputWrapper: {
-    backgroundColor: theme.colors.background,
-    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.lg,
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: 14,
+    height: 50,
   },
   inputWrapperFocused: {
     borderColor: theme.colors.primaryDark,
-    backgroundColor: theme.colors.white,
+    backgroundColor: '#FFFFFF',
     shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   inputWrapperError: {
     borderColor: theme.colors.status.error,
     backgroundColor: theme.colors.status.errorLight,
   },
+  leftIconContainer: {
+    marginRight: theme.spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rightIconContainer: {
+    marginLeft: theme.spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   input: {
+    flex: 1,
     color: theme.colors.charcoal,
-    fontSize: 16,
+    fontSize: 15,
+    paddingVertical: 0,
+    height: '100%',
+  },
+  inputWithLeftIcon: {
+    paddingLeft: 0,
   },
   errorText: {
     color: theme.colors.status.error,
     fontSize: 12,
     marginTop: theme.spacing.xs,
+    fontWeight: '500',
   }
 });
+
