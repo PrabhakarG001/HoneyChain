@@ -5,22 +5,50 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "scheme": "honeychain",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFDF9"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.honeychain.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow HoneyChain to access your camera to take photos of hive inspections and scan QR codes.",
+        "NSLocationWhenInUseUsageDescription": "Allow HoneyChain to access your location for apiary mapping and harvest geo-tagging.",
+        "NSBluetoothAlwaysUsageDescription": "Allow HoneyChain to connect to your smart hives via Bluetooth LE.",
+        "NSBluetoothPeripheralUsageDescription": "Allow HoneyChain to communicate with hive sensors via Bluetooth."
+      }
     },
     "android": {
       "package": "com.honeychain.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F4B942",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
@@ -38,11 +66,29 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow HoneyChain to access your camera to take photos of hive inspections."
+          "cameraPermission": "Allow HoneyChain to access your camera to take photos of hive inspections and scan QR codes."
         }
       ],
-      "expo-location",
-      "expo-sqlite"
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow HoneyChain to access your location for apiary mapping and harvest geo-tagging."
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 24
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
     ]
   }
 }
