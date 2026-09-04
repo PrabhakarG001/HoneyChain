@@ -59,7 +59,12 @@ export default function TopHeader({ onSearchQueryChange }) {
     <>
       <View style={[styles.headerContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         {/* Brand Logo "Honeychain" */}
-        <TouchableOpacity onPress={() => router.push('/(app)/(tabs)')} activeOpacity={0.8}>
+        <TouchableOpacity 
+          onPress={() => router.push('/(app)/(tabs)')} 
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Honeychain home"
+        >
           <BrandLogo />
         </TouchableOpacity>
 
@@ -86,9 +91,15 @@ export default function TopHeader({ onSearchQueryChange }) {
               }}
               onSubmitEditing={() => handleSearchSubmit()}
               returnKeyType="search"
+              accessibilityLabel="Search Honeychain"
             />
             {query.length > 0 && (
-              <TouchableOpacity onPress={handleClear} style={styles.clearBtn}>
+              <TouchableOpacity 
+                onPress={handleClear} 
+                style={styles.clearBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Clear search input"
+              >
                 <X size={16} color={colors.subtext} />
               </TouchableOpacity>
             )}
@@ -106,6 +117,8 @@ export default function TopHeader({ onSearchQueryChange }) {
                       setQuery(suggestion);
                       handleSearchSubmit(suggestion);
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Search for ${suggestion}`}
                   >
                     <Search size={14} color={colors.subtext} />
                     <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
@@ -122,6 +135,8 @@ export default function TopHeader({ onSearchQueryChange }) {
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => setIsCreateMenuVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Create hive or harvest"
             >
               <Plus size={20} color={colors.text} strokeWidth={2.5} />
             </TouchableOpacity>
@@ -131,6 +146,8 @@ export default function TopHeader({ onSearchQueryChange }) {
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.surface }]}
               onPress={() => router.push('/(app)/(tabs)/notifications')}
+              accessibilityRole="button"
+              accessibilityLabel="Open notifications"
             >
               <MessageSquare size={20} color={colors.text} />
             </TouchableOpacity>
@@ -140,6 +157,8 @@ export default function TopHeader({ onSearchQueryChange }) {
             onPress={() => setIsDropdownVisible(true)}
             activeOpacity={0.8}
             style={[styles.avatarWrapper, { borderColor: colors.accent }]}
+            accessibilityRole="button"
+            accessibilityLabel="Open profile hub"
           >
             <UserAvatar user={user} size={32} />
           </TouchableOpacity>

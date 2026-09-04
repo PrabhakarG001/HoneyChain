@@ -117,6 +117,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
             <TouchableOpacity
               key={route.key}
               accessibilityRole="button"
+              accessibilityLabel={getLabel()}
               accessibilityState={isFocused ? { selected: true } : {}}
               onPress={onPress}
               style={[styles.tabItem, isCenterAction && styles.centerItemWrapper]}

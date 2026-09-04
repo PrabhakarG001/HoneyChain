@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Animated, Alert, StyleSheet } from 'react-native';
-import { Heart, MoreHorizontal, Home, Box, Feather } from 'lucide-react-native';
+import { Heart, MoreHorizontal } from 'lucide-react-native';
 import { useThemeColors } from '../../../hooks/useThemeColors';
-import VerificationBadge from '../VerificationBadge/VerificationBadge';
 
 const FALLBACK_IMAGES = {
   honey: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=500&q=80',
@@ -27,7 +26,7 @@ export default function HoneyCard({
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
-      toValue: 0.96,
+      toValue: 0.97,
       useNativeDriver: true,
       speed: 20,
     }).start();
@@ -41,12 +40,16 @@ export default function HoneyCard({
     }).start();
   };
 
-  const toggleSave = () => setIsSaved(!isSaved);
+  const toggleSave = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    setIsSaved(!isSaved);
+  };
 
-  const handleMorePress = () => {
+  const handleMorePress = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     Alert.alert('Options', title, [
-      { text: 'Copy Link', onPress: () => {} },
-      { text: 'Save to Board', onPress: toggleSave },
+      { text: isSaved ? 'Remove from Saved' : 'Save to Board', onPress: () => setIsSaved(!isSaved) },
+      { text: 'Share Honey Link', onPress: () => {} },
       { text: 'Cancel', style: 'cancel' }
     ]);
   };
@@ -54,11 +57,13 @@ export default function HoneyCard({
   return (
     <Animated.View style={[styles.container, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity 
-        activeOpacity={1} 
+        activeOpacity={0.9} 
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={{ flex: 1 }}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}, ${subtitle || ''}`}
       >
         {/* Card Image Container */}
         <View style={[styles.imageContainer, { height, backgroundColor: colors.surface }]}>
@@ -69,13 +74,19 @@ export default function HoneyCard({
           />
           
           <TouchableOpacity 
-            style={[styles.favoriteButton, isSaved && { backgroundColor: '#EF4444' }]} 
+            style={[
+              styles.favoriteButton, 
+              { backgroundColor: isSaved ? colors.accent : (colors.isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)') }
+            ]} 
             onPress={toggleSave}
+            accessibilityRole="button"
+            accessibilityLabel={isSaved ? "Unsave item" : "Save item"}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Heart 
               size={16} 
-              color={isSaved ? '#FFFFFF' : '#111827'}
-              fill={isSaved ? '#FFFFFF' : 'transparent'}
+              color={isSaved ? '#000000' : (colors.isDark ? '#FFFFFF' : '#111827')}
+              fill={isSaved ? '#000000' : 'transparent'}
             />
           </TouchableOpacity>
         </View>
@@ -94,7 +105,13 @@ export default function HoneyCard({
           </View>
 
           {/* Three-Dot Menu Button */}
-          <TouchableOpacity style={styles.moreBtn} onPress={handleMorePress}>
+          <TouchableOpacity 
+            style={styles.moreBtn} 
+            onPress={handleMorePress}
+            accessibilityRole="button"
+            accessibilityLabel="More options"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <MoreHorizontal size={18} color={colors.subtext} />
           </TouchableOpacity>
         </View>
@@ -124,10 +141,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 3,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    zIndex: 10,
   },
   contentRow: {
     flexDirection: 'row',
@@ -146,6 +167,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   moreBtn: {
-    padding: 4,
+    padding: 6,
   },
 });
