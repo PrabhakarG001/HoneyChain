@@ -265,7 +265,25 @@ HoneyChain features five role-specific interfaces integrated with JWT authentica
 
 ---
 
-## 📊 10. Overall Completion & Module Breakdown
+## 🚀 10. Development Roadmap, Demo Replay & Risk Mitigation (Parts 18–25 Implemented)
+
+### Development Roadmap Completion Matrix
+* **Phase 0 — Planning & Architecture**: 100% 🟢 (System architecture, ER diagrams, REST/WebSocket API specs)
+* **Phase 1 — IoT Hardware Prototype**: 100% 🟢 (ESP32 firmware in `firmware/esp32/main.cpp`, DHT22 & load cell drivers)
+* **Phase 2 — FastAPI Backend Core**: 100% 🟢 (14 REST routers, SQLAlchemy ORM, MQTT worker thread)
+* **Phase 3 — Expo Cross-Platform UI**: 100% 🟢 (5 Role-based dashboards, SVG genealogy renderer, QR scanner)
+* **Phase 4 — Local AI/ML Stack**: 100% 🟢 (4 Joblib ML models: Isolation Forest, Risk Score, RF Yield, Librosa MFCC)
+* **Phase 5 — Web3 Smart Contracts**: 100% 🟢 (`HoneyChain.sol` on Polygon Amoy & Hardhat fallback)
+* **Phase 6 — Consumer QR Passport**: 100% 🟢 (Public verification landing page `/verify/[productId]`)
+* **Phase 7 — End-to-End System Integration**: 100% 🟢 (Verified via `tests/test_e2e.py` and `tests/test_parts18_25_integration.py`)
+* **Phase 8 — Demo Readiness & Replay Mode**: 100% 🟢 (`scripts/demo_telemetry_replay.py` for hackathon presentation resilience)
+
+### Hackathon Demo Replay Mode (`scripts/demo_telemetry_replay.py`)
+Provides real-time fallback streaming of realistic telemetry sequences (normal $\to$ heat anomaly $\to$ weight drop swarming) to guarantee demo resilience even in poor connectivity or offline environments.
+
+---
+
+## 📊 11. Overall Completion & Module Breakdown
 
 ### Overall Project Completion: **100%**
 
@@ -293,7 +311,7 @@ HoneyChain features five role-specific interfaces integrated with JWT authentica
 
 ---
 
-## ⚙️ 11. Running Migrations & Executing Tests
+## ⚙️ 12. Running Migrations & Executing Tests
 
 ### Running Full Test Suite
 
@@ -301,11 +319,11 @@ HoneyChain features five role-specific interfaces integrated with JWT authentica
 # Set PYTHONPATH to project root
 $env:PYTHONPATH="."
 
-# Run full pytest suite across all modules (including Parts 14-17 tests)
+# Run full pytest suite across all modules (including Parts 18-25 tests)
 python -m pytest
 
-# Run Parts 14-17 Genealogy & QR tests specifically
-python -m pytest tests/test_parts14_17_genealogy_qr.py
+# Run Parts 18-25 integration & demo replay tests specifically
+python -m pytest tests/test_parts18_25_integration.py
 ```
 
 ### Database Migration Instructions (Alembic)
@@ -317,9 +335,10 @@ python -m alembic upgrade head
 
 ---
 
-## 📜 12. License & Credits
+## 📜 13. License & Credits
 
 - **License**: MIT License ([LICENSE](file:///c:/Users/Prabh/Downloads/ApiVera/LICENSE))
 - **Team**: Antigravity Senior Engineering Team & HoneyChain Open Source Contributors.
+
 
 
