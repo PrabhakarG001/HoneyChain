@@ -10,11 +10,13 @@ import Button from '../../../components/ui/Button/Button';
 import { batchService } from '../../../services/batch.service';
 import { createBatchSchema } from '../schemas/batch.schema';
 import styles from './CreateBatchScreen.styles';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function CreateBatchScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  
+  const colors = useThemeColors();
+
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(createBatchSchema),
     defaultValues: {
@@ -38,10 +40,10 @@ export default function CreateBatchScreen() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Create Honey Batch</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Create Honey Batch</Text>
 
         <Controller
           control={control} name="farmId"

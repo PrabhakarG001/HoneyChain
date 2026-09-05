@@ -6,9 +6,11 @@ import { Users, ArrowLeft, Search, ShieldCheck, UserCheck, ChevronDown, Check } 
 import { firestoreService } from '../../../services/firestore.service';
 import { auditService } from '../../../services/audit.service';
 import { USER_ROLES } from '../../../constants/roles';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function UserManagementScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,52 +69,52 @@ export default function UserManagementScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>User & RBAC Management</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>User & RBAC Management</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Search */}
-        <View style={styles.searchBar}>
-          <Search size={20} color="#64748B" />
+        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Search size={20} color={colors.subtext} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search users by name, email or role..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
         </View>
 
-        <Text style={styles.sectionHeader}>Ecosystem User Accounts ({filteredUsers.length})</Text>
+        <Text style={[styles.sectionHeader, { color: colors.text }]}>Ecosystem User Accounts ({filteredUsers.length})</Text>
 
         {loading ? (
           <ActivityIndicator color="#7C3AED" size="large" style={{ marginVertical: 40 }} />
         ) : (
           filteredUsers.map((user) => (
-            <View key={user.uid} style={styles.card}>
+            <View key={user.uid} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={styles.userRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>
+                <View style={[styles.avatar, { backgroundColor: colors.isDark ? '#3B0764' : '#F3E8FF' }]}>
+                  <Text style={[styles.avatarText, { color: colors.isDark ? '#C084FC' : '#7C3AED' }]}>
                     {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </Text>
                 </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={styles.userName}>{user.displayName || 'HoneyChain User'}</Text>
-                  <Text style={styles.userEmail}>{user.email}</Text>
+                  <Text style={[styles.userName, { color: colors.text }]}>{user.displayName || 'HoneyChain User'}</Text>
+                  <Text style={[styles.userEmail, { color: colors.subtext }]}>{user.email}</Text>
                 </View>
-                <View style={styles.roleTag}>
-                  <Text style={styles.roleTagText}>{user.role || 'CUSTOMER'}</Text>
+                <View style={[styles.roleTag, { backgroundColor: colors.isDark ? '#3B0764' : '#F3E8FF' }]}>
+                  <Text style={[styles.roleTagText, { color: colors.isDark ? '#C084FC' : '#7C3AED' }]}>{user.role || 'CUSTOMER'}</Text>
                 </View>
               </View>
 
               {/* Expand Role Selector */}
               <TouchableOpacity
-                style={styles.changeRoleBtn}
+                style={[styles.changeRoleBtn, { backgroundColor: colors.background }]}
                 onPress={() => setSelectedUser(selectedUser === user.uid ? null : user.uid)}
               >
                 <Text style={styles.changeRoleBtnText}>Change Access Role</Text>
@@ -120,12 +122,13 @@ export default function UserManagementScreen() {
               </TouchableOpacity>
 
               {selectedUser === user.uid && (
-                <View style={styles.roleOptionsGrid}>
+                <View style={[styles.roleOptionsGrid, { borderTopColor: colors.border }]}>
                   {Object.keys(USER_ROLES).map((roleKey) => (
                     <TouchableOpacity
                       key={roleKey}
                       style={[
                         styles.roleOptionChip,
+                        { backgroundColor: colors.isDark ? '#1E293B' : '#F1F5F9' },
                         user.role === roleKey && styles.roleOptionActive,
                       ]}
                       onPress={() => handleRoleChange(user.uid, roleKey)}
@@ -133,6 +136,7 @@ export default function UserManagementScreen() {
                       <Text
                         style={[
                           styles.roleOptionText,
+                          { color: colors.text },
                           user.role === roleKey && styles.roleOptionTextActive,
                         ]}
                       >
@@ -154,16 +158,13 @@ export default function UserManagementScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -172,7 +173,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
@@ -181,9 +181,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -193,21 +191,17 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 15,
-    color: '#0F172A',
   },
   sectionHeader: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 12,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   userRow: {
     flexDirection: 'row',
@@ -217,27 +211,22 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F3E8FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#7C3AED',
   },
   userName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0F172A',
   },
   userEmail: {
     fontSize: 13,
-    color: '#64748B',
     marginTop: 2,
   },
   roleTag: {
-    backgroundColor: '#F3E8FF',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -245,13 +234,11 @@ const styles = StyleSheet.create({
   roleTagText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#7C3AED',
   },
   changeRoleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 8,
     marginTop: 12,
@@ -268,12 +255,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
   roleOptionChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -285,7 +270,6 @@ const styles = StyleSheet.create({
   roleOptionText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
   },
   roleOptionTextActive: {
     color: '#FFFFFF',

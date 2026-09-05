@@ -5,9 +5,11 @@ import { useRouter } from 'expo-router';
 import { Award, ArrowLeft, CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Clock } from 'lucide-react-native';
 import { firestoreService } from '../../../services/firestore.service';
 import { auditService } from '../../../services/audit.service';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function OrganicCertificationsScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const [certifications, setCertifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,41 +82,44 @@ export default function OrganicCertificationsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Organic Certification Audits</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Organic Certification Audits</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionHeader}>Beekeeper & Apiary Applications</Text>
+        <Text style={[styles.sectionHeader, { color: colors.text }]}>Beekeeper & Apiary Applications</Text>
 
         {loading ? (
           <ActivityIndicator color="#059669" size="large" style={{ marginVertical: 40 }} />
         ) : (
           certifications.map((item) => (
-            <View key={item.id} style={styles.card}>
+            <View key={item.id} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={styles.cardHeader}>
                 <Award size={28} color={item.status === 'APPROVED' ? '#059669' : item.status === 'PENDING' ? '#D97706' : '#DC2626'} />
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={styles.beekeeperName}>{item.beekeeperName}</Text>
-                  <Text style={styles.apiarySub}>{item.apiaryName} • {item.location}</Text>
+                  <Text style={[styles.beekeeperName, { color: colors.text }]}>{item.beekeeperName}</Text>
+                  <Text style={[styles.apiarySub, { color: colors.subtext }]}>{item.apiaryName} • {item.location}</Text>
                 </View>
                 <View style={[
                   styles.statusBadge,
-                  item.status === 'APPROVED' && styles.statusApproved,
-                  item.status === 'PENDING' && styles.statusPending,
-                  item.status === 'REJECTED' && styles.statusRejected,
+                  item.status === 'APPROVED' && { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5' },
+                  item.status === 'PENDING' && { backgroundColor: colors.isDark ? '#451A03' : '#FEF3C7' },
+                  item.status === 'REJECTED' && { backgroundColor: colors.isDark ? '#450A0A' : '#FEF2F2' },
                 ]}>
-                  <Text style={styles.statusBadgeText}>{item.status}</Text>
+                  <Text style={[
+                    styles.statusBadgeText,
+                    { color: item.status === 'APPROVED' ? (colors.isDark ? '#34D399' : '#047857') : item.status === 'PENDING' ? (colors.isDark ? '#FBBF24' : '#B45309') : (colors.isDark ? '#F87171' : '#B91C1C') }
+                  ]}>{item.status}</Text>
                 </View>
               </View>
 
-              <View style={styles.detailsBox}>
-                <Text style={styles.sealText}>Seal: {item.organicSeal}</Text>
-                <Text style={styles.dateText}>Issued: {item.issuedDate} | Expiry: {item.expiryDate}</Text>
+              <View style={[styles.detailsBox, { backgroundColor: colors.background }]}>
+                <Text style={[styles.sealText, { color: colors.text }]}>Seal: {item.organicSeal}</Text>
+                <Text style={[styles.dateText, { color: colors.subtext }]}>Issued: {item.issuedDate} | Expiry: {item.expiryDate}</Text>
               </View>
 
               <View style={styles.actionRow}>
@@ -149,16 +154,13 @@ export default function OrganicCertificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -167,7 +169,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
@@ -176,16 +177,13 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 14,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -194,11 +192,9 @@ const styles = StyleSheet.create({
   beekeeperName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
   },
   apiarySub: {
     fontSize: 13,
-    color: '#64748B',
     marginTop: 2,
   },
   statusBadge: {
@@ -206,22 +202,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
   },
-  statusApproved: {
-    backgroundColor: '#ECFDF5',
-  },
-  statusPending: {
-    backgroundColor: '#FEF3C7',
-  },
-  statusRejected: {
-    backgroundColor: '#FEF2F2',
-  },
   statusBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#0F172A',
   },
   detailsBox: {
-    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     padding: 12,
     marginVertical: 12,
@@ -229,11 +214,9 @@ const styles = StyleSheet.create({
   sealText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#334155',
   },
   dateText: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 4,
   },
   actionRow: {

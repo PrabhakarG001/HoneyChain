@@ -6,9 +6,11 @@ import { ShieldCheck, Copy, ExternalLink, ArrowLeft, Cpu, CheckCircle2, Lock, Fi
 import QRCode from 'react-native-qrcode-svg';
 import { theme } from '../../../theme';
 import { auditService } from '../../../services/audit.service';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function BlockchainPassportScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { batchId = 'HC-2026-8841', txHash = '0x8f3c92a71b4e061d9a2c4e5f6071a93e811b' } = useLocalSearchParams();
   const [copied, setCopied] = useState(false);
 
@@ -36,30 +38,30 @@ export default function BlockchainPassportScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Blockchain Honey Passport</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Blockchain Honey Passport</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Status Card */}
-        <View style={styles.statusCard}>
+        <View style={[styles.statusCard, { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5', borderColor: colors.isDark ? '#047857' : '#A7F3D0' }]}>
           <View style={styles.statusHeader}>
             <ShieldCheck size={36} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.statusTitle}>{passportData.status}</Text>
-              <Text style={styles.statusSub}>Cryptographically anchored on-chain</Text>
+              <Text style={[styles.statusTitle, { color: colors.isDark ? '#34D399' : '#065F46' }]}>{passportData.status}</Text>
+              <Text style={[styles.statusSub, { color: colors.isDark ? '#6EE7B7' : '#047857' }]}>Cryptographically anchored on-chain</Text>
             </View>
           </View>
         </View>
 
         {/* QR Code Anchor */}
-        <View style={styles.qrCard}>
-          <Text style={styles.qrTitle}>On-Chain Provenance QR</Text>
-          <View style={styles.qrWrapper}>
+        <View style={[styles.qrCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.qrTitle, { color: colors.text }]}>On-Chain Provenance QR</Text>
+          <View style={[styles.qrWrapper, { backgroundColor: '#FFFFFF' }]}>
             <QRCode
               value={`https://honeychain.io/passport/${passportData.batchId}`}
               size={160}
@@ -67,79 +69,79 @@ export default function BlockchainPassportScreen() {
               backgroundColor="#FFFFFF"
             />
           </View>
-          <Text style={styles.batchCode}>Batch Code: {passportData.batchId}</Text>
+          <Text style={[styles.batchCode, { color: colors.subtext }]}>Batch Code: {passportData.batchId}</Text>
         </View>
 
         {/* Blockchain Metadata */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Smart Contract Details</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Smart Contract Details</Text>
           
-          <View style={styles.row}>
-            <Text style={styles.label}>Network</Text>
-            <Text style={styles.value}>{passportData.network}</Text>
+          <View style={[styles.row, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.label, { color: colors.subtext }]}>Network</Text>
+            <Text style={[styles.value, { color: colors.text }]}>{passportData.network}</Text>
           </View>
           
-          <View style={styles.row}>
-            <Text style={styles.label}>Block Number</Text>
-            <Text style={styles.value}>#{passportData.blockNumber}</Text>
+          <View style={[styles.row, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.label, { color: colors.subtext }]}>Block Number</Text>
+            <Text style={[styles.value, { color: colors.text }]}>#{passportData.blockNumber}</Text>
           </View>
 
-          <View style={styles.rowStack}>
-            <Text style={styles.label}>Transaction Hash</Text>
-            <TouchableOpacity style={styles.copyBox} onPress={handleCopyHash}>
-              <Text style={styles.hashText} numberOfLines={1} ellipsisMode="middle">
+          <View style={[styles.rowStack, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.label, { color: colors.subtext }]}>Transaction Hash</Text>
+            <TouchableOpacity style={[styles.copyBox, { backgroundColor: colors.background }]} onPress={handleCopyHash}>
+              <Text style={[styles.hashText, { color: colors.text }]} numberOfLines={1} ellipsisMode="middle">
                 {passportData.txHash}
               </Text>
               <Copy size={16} color="#4F46E5" />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.rowStack}>
-            <Text style={styles.label}>Smart Contract Address</Text>
-            <View style={styles.copyBox}>
-              <Text style={styles.hashText} numberOfLines={1} ellipsisMode="middle">
+          <View style={[styles.rowStack, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.label, { color: colors.subtext }]}>Smart Contract Address</Text>
+            <View style={[styles.copyBox, { backgroundColor: colors.background }]}>
+              <Text style={[styles.hashText, { color: colors.text }]} numberOfLines={1} ellipsisMode="middle">
                 {passportData.contractAddress}
               </Text>
               <FileCode size={16} color="#4F46E5" />
             </View>
           </View>
 
-          <View style={styles.rowStack}>
-            <Text style={styles.label}>Merkle State Root</Text>
-            <View style={styles.copyBox}>
-              <Text style={styles.hashText} numberOfLines={1} ellipsisMode="middle">
+          <View style={[styles.rowStack, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.label, { color: colors.subtext }]}>Merkle State Root</Text>
+            <View style={[styles.copyBox, { backgroundColor: colors.background }]}>
+              <Text style={[styles.hashText, { color: colors.text }]} numberOfLines={1} ellipsisMode="middle">
                 {passportData.merkleRoot}
               </Text>
-              <Lock size={16} color="#6B7280" />
+              <Lock size={16} color={colors.subtext} />
             </View>
           </View>
         </View>
 
         {/* Immutable Provenance Records */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Immutable Provenance Ledger</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Immutable Provenance Ledger</Text>
           
           <View style={styles.ledgerItem}>
             <CheckCircle2 size={18} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={styles.ledgerText}>Apiary Harvest Registered</Text>
-              <Text style={styles.ledgerSub}>{passportData.beekeeper} • {passportData.apiaryLocation}</Text>
+              <Text style={[styles.ledgerText, { color: colors.text }]}>Apiary Harvest Registered</Text>
+              <Text style={[styles.ledgerSub, { color: colors.subtext }]}>{passportData.beekeeper} • {passportData.apiaryLocation}</Text>
             </View>
           </View>
 
           <View style={styles.ledgerItem}>
             <CheckCircle2 size={18} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={styles.ledgerText}>Botanical & Purity Verified</Text>
-              <Text style={styles.ledgerSub}>{passportData.floralOrigin} • Purity: {passportData.purityIndex}%</Text>
+              <Text style={[styles.ledgerText, { color: colors.text }]}>Botanical & Purity Verified</Text>
+              <Text style={[styles.ledgerSub, { color: colors.subtext }]}>{passportData.floralOrigin} • Purity: {passportData.purityIndex}%</Text>
             </View>
           </View>
 
           <View style={styles.ledgerItem}>
             <CheckCircle2 size={18} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={styles.ledgerText}>Lab Certification Passed</Text>
-              <Text style={styles.ledgerSub}>Pollen: {passportData.pollenCount}</Text>
+              <Text style={[styles.ledgerText, { color: colors.text }]}>Lab Certification Passed</Text>
+              <Text style={[styles.ledgerSub, { color: colors.subtext }]}>Pollen: {passportData.pollenCount}</Text>
             </View>
           </View>
         </View>
@@ -159,16 +161,13 @@ export default function BlockchainPassportScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -177,15 +176,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   statusCard: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
@@ -198,31 +194,25 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#065F46',
   },
   statusSub: {
     fontSize: 13,
-    color: '#047857',
     marginTop: 2,
   },
   qrCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   qrTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1E293B',
     marginBottom: 16,
   },
   qrWrapper: {
     padding: 12,
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     elevation: 2,
     shadowColor: '#000',
@@ -233,20 +223,16 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     fontWeight: '600',
-    color: '#64748B',
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 14,
   },
   row: {
@@ -254,28 +240,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   rowStack: {
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   label: {
     fontSize: 13,
-    color: '#64748B',
     fontWeight: '500',
   },
   value: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0F172A',
   },
   copyBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F1F5F9',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -284,7 +265,6 @@ const styles = StyleSheet.create({
   hashText: {
     fontSize: 12,
     fontFamily: 'monospace',
-    color: '#334155',
     flex: 1,
     marginRight: 8,
   },
@@ -296,11 +276,9 @@ const styles = StyleSheet.create({
   ledgerText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1E293B',
   },
   ledgerSub: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 2,
   },
   explorerBtn: {

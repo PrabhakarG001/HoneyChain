@@ -11,11 +11,13 @@ import { farmService } from '../../../services/farm.service';
 import { useAuthStore } from '../../../store/auth.store';
 import { addFarmSchema } from '../schemas/farm.schema';
 import styles from './AddFarmScreen.styles';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function AddFarmScreen() {
   const router = useRouter();
   const user = useAuthStore(state => state.user);
   const queryClient = useQueryClient();
+  const colors = useThemeColors();
   
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(addFarmSchema),
@@ -40,10 +42,10 @@ export default function AddFarmScreen() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Add New Farm</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Add New Farm</Text>
 
         <Controller
           control={control} name="name"

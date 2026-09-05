@@ -86,6 +86,7 @@ export default StyleSheet.create({
   },
   scanButtonText: {
     ...theme.typography.subtitle,
-    color: theme.colors.white,
+    color: '#000000',
+    fontWeight: '700',
   }
 });

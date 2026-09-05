@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Cpu, ArrowLeft, Activity, Database, CheckCircle2, RefreshCw, Layers, ShieldCheck, Wifi } from 'lucide-react-native';
 import { auditService } from '../../../services/audit.service';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function SystemHealthScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -34,88 +36,88 @@ export default function SystemHealthScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>System & IoT Telemetry Health</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>System & IoT Telemetry Health</Text>
         <TouchableOpacity style={styles.refreshBtn} onPress={handleRefresh}>
-          <RefreshCw size={20} color={refreshing ? '#2563EB' : '#64748B'} />
+          <RefreshCw size={20} color={refreshing ? '#2563EB' : colors.subtext} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Gateway Health Overview */}
-        <Text style={styles.sectionTitle}>Ecosystem Node Services</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Ecosystem Node Services</Text>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.serviceRow}>
             <Wifi size={24} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.serviceName}>IoT Telemetry Gateways & MQTT Broker</Text>
-              <Text style={styles.serviceSub}>42/42 Hives Connected • Latency: 12ms • 0% Packet Loss</Text>
+              <Text style={[styles.serviceName, { color: colors.text }]}>IoT Telemetry Gateways & MQTT Broker</Text>
+              <Text style={[styles.serviceSub, { color: colors.subtext }]}>42/42 Hives Connected • Latency: 12ms • 0% Packet Loss</Text>
             </View>
-            <View style={styles.onlineBadge}>
-              <Text style={styles.onlineText}>ONLINE</Text>
+            <View style={[styles.onlineBadge, { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5' }]}>
+              <Text style={[styles.onlineText, { color: colors.isDark ? '#34D399' : '#059669' }]}>ONLINE</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.serviceRow}>
             <Activity size={24} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.serviceName}>HoneyChain FastAPI Backend Server</Text>
-              <Text style={styles.serviceSub}>Port 8000 • Uvicorn Worker Active • Response: 18ms</Text>
+              <Text style={[styles.serviceName, { color: colors.text }]}>HoneyChain FastAPI Backend Server</Text>
+              <Text style={[styles.serviceSub, { color: colors.subtext }]}>Port 8000 • Uvicorn Worker Active • Response: 18ms</Text>
             </View>
-            <View style={styles.onlineBadge}>
-              <Text style={styles.onlineText}>HEALTHY</Text>
+            <View style={[styles.onlineBadge, { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5' }]}>
+              <Text style={[styles.onlineText, { color: colors.isDark ? '#34D399' : '#059669' }]}>HEALTHY</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.serviceRow}>
             <Layers size={24} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.serviceName}>Polygon / Ethereum Blockchain RPC Node</Text>
-              <Text style={styles.serviceSub}>Block #19,482,109 • Smart Contracts Synced</Text>
+              <Text style={[styles.serviceName, { color: colors.text }]}>Polygon / Ethereum Blockchain RPC Node</Text>
+              <Text style={[styles.serviceSub, { color: colors.subtext }]}>Block #19,482,109 • Smart Contracts Synced</Text>
             </View>
-            <View style={styles.onlineBadge}>
-              <Text style={styles.onlineText}>SYNCED</Text>
+            <View style={[styles.onlineBadge, { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5' }]}>
+              <Text style={[styles.onlineText, { color: colors.isDark ? '#34D399' : '#059669' }]}>SYNCED</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.serviceRow}>
             <Database size={24} color="#10B981" />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.serviceName}>Firebase Firestore Database</Text>
-              <Text style={styles.serviceSub}>honeychain-40065 • 0 Throttled Requests</Text>
+              <Text style={[styles.serviceName, { color: colors.text }]}>Firebase Firestore Database</Text>
+              <Text style={[styles.serviceSub, { color: colors.subtext }]}>honeychain-40065 • 0 Throttled Requests</Text>
             </View>
-            <View style={styles.onlineBadge}>
-              <Text style={styles.onlineText}>ACTIVE</Text>
+            <View style={[styles.onlineBadge, { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5' }]}>
+              <Text style={[styles.onlineText, { color: colors.isDark ? '#34D399' : '#059669' }]}>ACTIVE</Text>
             </View>
           </View>
         </View>
 
         {/* Real-time System Audit Stream */}
-        <Text style={styles.sectionTitle}>Live System Audit Trail</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Live System Audit Trail</Text>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {loading ? (
             <ActivityIndicator color="#2563EB" size="small" style={{ marginVertical: 20 }} />
           ) : logs.length === 0 ? (
-            <Text style={styles.emptyText}>No recent audit log events recorded.</Text>
+            <Text style={[styles.emptyText, { color: colors.subtext }]}>No recent audit log events recorded.</Text>
           ) : (
             logs.map((log, index) => (
-              <View key={log.id || index} style={styles.logItem}>
+              <View key={log.id || index} style={[styles.logItem, { borderBottomColor: colors.border }]}>
                 <CheckCircle2 size={16} color="#10B981" style={{ marginTop: 2 }} />
                 <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.logAction}>{log.action || 'SYSTEM_EVENT'}</Text>
-                  <Text style={styles.logMeta}>
+                  <Text style={[styles.logAction, { color: colors.text }]}>{log.action || 'SYSTEM_EVENT'}</Text>
+                  <Text style={[styles.logMeta, { color: colors.subtext }]}>
                     {log.userRole || 'SYSTEM'} • {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Just now'}
                   </Text>
                 </View>
@@ -131,7 +133,6 @@ export default function SystemHealthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
@@ -139,9 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     padding: 4,
@@ -149,7 +148,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   refreshBtn: {
     padding: 4,
@@ -161,17 +159,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 12,
     marginTop: 6,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   serviceRow: {
     flexDirection: 'row',
@@ -180,15 +175,12 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0F172A',
   },
   serviceSub: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 2,
   },
   onlineBadge: {
-    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -196,11 +188,9 @@ const styles = StyleSheet.create({
   onlineText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#059669',
   },
   emptyText: {
     fontSize: 13,
-    color: '#64748B',
     textAlign: 'center',
     marginVertical: 10,
   },
@@ -209,16 +199,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   logAction: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1E293B',
   },
   logMeta: {
     fontSize: 11,
-    color: '#64748B',
     marginTop: 2,
   },
 });

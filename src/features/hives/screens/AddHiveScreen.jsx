@@ -10,6 +10,7 @@ import Input from '../../../components/ui/Input/Input';
 import Button from '../../../components/ui/Button/Button';
 import { hiveService } from '../../../services/hive.service';
 import styles from './AddHiveScreen.styles';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 const addHiveFormSchema = z.object({
   name: z.string().min(1, 'Hive name is required'),
@@ -21,6 +22,7 @@ export default function AddHiveScreen() {
   const router = useRouter();
   const { farmId } = useLocalSearchParams();
   const queryClient = useQueryClient();
+  const colors = useThemeColors();
   
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(addHiveFormSchema),
@@ -42,10 +44,10 @@ export default function AddHiveScreen() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Add New Hive</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Add New Hive</Text>
 
         <Controller
           control={control} name="name"

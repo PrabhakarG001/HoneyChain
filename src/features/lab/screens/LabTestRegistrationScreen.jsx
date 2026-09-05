@@ -7,9 +7,11 @@ import { qualityService } from '../../../services/quality.service';
 import { firestoreService } from '../../../services/firestore.service';
 import { auditService } from '../../../services/audit.service';
 import { theme } from '../../../theme';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function LabTestRegistrationScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { batchId: paramBatchId } = useLocalSearchParams();
 
   const [batchId, setBatchId] = useState(paramBatchId || 'HC-BATCH-901');
@@ -60,17 +62,11 @@ export default function LabTestRegistrationScreen() {
       });
 
       Alert.alert(
-        'Quality Test Certified',
-        `Batch ${batchId} analyzed successfully!\nPurity Score: ${purityResult.score}/100 (${purityResult.grade})`,
-        [
-          {
-            text: 'OK',
-            onPress: () => router.back(),
-          },
-        ]
+        'Lab Certificate Issued',
+        `Batch ${batchId} certified with Purity Score ${purityResult.score}/100 (Grade ${purityResult.grade}).`,
+        [{ text: 'OK', onPress: () => router.back() }]
       );
-    } catch (err) {
-      console.error('Failed to submit lab test:', err);
+    } catch (e) {
       Alert.alert('Error', 'Failed to register lab test.');
     } finally {
       setIsSubmitting(false);
@@ -78,102 +74,104 @@ export default function LabTestRegistrationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Register Lab Analysis</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Purity & Lab Test Registration</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Live Score Banner */}
-        <View
-          style={[
-            styles.scoreBanner,
-            purityResult.grade === 'GRADE_A' && styles.bannerGradeA,
-            purityResult.grade === 'GRADE_B' && styles.bannerGradeB,
-            purityResult.grade === 'NON_COMPLIANT' && styles.bannerFailed,
-          ]}
-        >
+        {/* Score Preview Banner */}
+        <View style={[
+          styles.scoreBanner,
+          purityResult.grade === 'A' && { backgroundColor: colors.isDark ? '#064E3B' : '#ECFDF5', borderColor: colors.isDark ? '#047857' : '#A7F3D0' },
+          purityResult.grade === 'B' && { backgroundColor: colors.isDark ? '#451A03' : '#FEF3C7', borderColor: colors.isDark ? '#B45309' : '#FDE68A' },
+          purityResult.status !== 'COMPLIANT' && { backgroundColor: colors.isDark ? '#450A0A' : '#FEF2F2', borderColor: colors.isDark ? '#991B1B' : '#FCA5A5' },
+        ]}>
           <View style={styles.bannerRow}>
-            <Award size={40} color={purityResult.status === 'COMPLIANT' ? '#047857' : '#B91C1C'} />
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.scoreText}>Honey Purity Score: {purityResult.score} / 100</Text>
-              <Text style={styles.gradeText}>
-                Grade: {purityResult.grade.replace('_', ' ')} ({purityResult.status})
+            {purityResult.status === 'COMPLIANT' ? (
+              <CheckCircle size={32} color={purityResult.grade === 'A' ? '#10B981' : '#D97706'} />
+            ) : (
+              <ShieldAlert size={32} color="#EF4444" />
+            )}
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.scoreText, { color: colors.text }]}>
+                Purity Score: {purityResult.score}/100
+              </Text>
+              <Text style={[styles.gradeText, { color: colors.subtext }]}>
+                Grade: {purityResult.grade} • Status: {purityResult.status}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Inputs */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Sample Information</Text>
+        {/* Input Form */}
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Laboratory Metrics Input</Text>
 
-          <Text style={styles.inputLabel}>Batch Identification Code</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Batch ID</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={batchId}
             onChangeText={setBatchId}
             placeholder="e.g. HC-BATCH-901"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
 
-          <Text style={styles.sectionTitle}>Physicochemical Parameters</Text>
-
-          <Text style={styles.inputLabel}>Pollen Grain Count (grains/gram)</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Pollen Grains Count (grains/g)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={pollenCount}
             onChangeText={setPollenCount}
             keyboardType="numeric"
             placeholder="e.g. 45000"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
-          <Text style={styles.hint}>Standard: &gt;20,000 grains/g for mono-floral verification.</Text>
+          <Text style={[styles.hint, { color: colors.subtext }]}>Purity Threshold: &gt; 35,000 grains/g for Grade A pure origin.</Text>
 
-          <Text style={styles.inputLabel}>C4 Sugar Test (% Adulteration)</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>C4 Sugar Adulteration Index (%)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={c4Sugar}
             onChangeText={setC4Sugar}
             keyboardType="decimal-pad"
             placeholder="e.g. 1.2"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
-          <Text style={styles.hint}>Max limit: 7% for pure honey compliance.</Text>
+          <Text style={[styles.hint, { color: colors.subtext }]}>Adulteration limit: Must be &lt; 7.0% (C4 plant sugars).</Text>
 
-          <Text style={styles.inputLabel}>HMF Content (mg/kg)</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>HMF Concentration (mg/kg)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={hmfLevel}
             onChangeText={setHmfLevel}
             keyboardType="decimal-pad"
             placeholder="e.g. 14.5"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
-          <Text style={styles.hint}>Fresh honey standard: &lt;40 mg/kg.</Text>
+          <Text style={[styles.hint, { color: colors.subtext }]}>Fresh honey standard: &lt; 40 mg/kg.</Text>
 
-          <Text style={styles.inputLabel}>Moisture Level (%)</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Moisture Level (%)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={moisture}
             onChangeText={setMoisture}
             keyboardType="decimal-pad"
             placeholder="e.g. 17.2"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
-          <Text style={styles.hint}>Optimal shelf stability: 15% - 19.5%.</Text>
+          <Text style={[styles.hint, { color: colors.subtext }]}>Optimal shelf stability: 15% - 19.5%.</Text>
 
-          <Text style={styles.inputLabel}>Lab Analytical Remarks</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Lab Analytical Remarks</Text>
           <TextInput
-            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text, height: 80, textAlignVertical: 'top' }]}
             value={notes}
             onChangeText={setNotes}
             multiline
             placeholder="Add chemical analysis notes..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
         </View>
 
@@ -200,16 +198,13 @@ export default function LabTestRegistrationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -218,7 +213,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
@@ -230,18 +224,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
   },
-  bannerGradeA: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
-  },
-  bannerGradeB: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#FDE68A',
-  },
-  bannerFailed: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FCA5A5',
-  },
   bannerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -249,49 +231,39 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#0F172A',
   },
   gradeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#475569',
     marginTop: 2,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 14,
     marginTop: 6,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
     marginBottom: 6,
     marginTop: 10,
   },
   input: {
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#0F172A',
   },
   hint: {
     fontSize: 12,
-    color: '#64748B',
     marginTop: 4,
     marginBottom: 4,
   },

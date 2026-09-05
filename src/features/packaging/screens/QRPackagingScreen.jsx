@@ -6,9 +6,11 @@ import { QrCode, ArrowLeft, PackageCheck, CheckCircle2, Box, Sparkles } from 'lu
 import QRCodeSVG from 'react-native-qrcode-svg';
 import { firestoreService } from '../../../services/firestore.service';
 import { auditService } from '../../../services/audit.service';
+import { useThemeColors } from '../../../hooks/useThemeColors';
 
 export default function QRPackagingScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const { batchId: paramBatchId } = useLocalSearchParams();
 
   const [batchId, setBatchId] = useState(paramBatchId || 'HC-BATCH-901');
@@ -58,91 +60,91 @@ export default function QRPackagingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color="#111827" size={24} />
+          <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>QR Code Packaging Workflow</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>QR Code Packaging Workflow</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Intro Banner */}
-        <View style={styles.banner}>
-          <PackageCheck size={32} color="#4F46E5" />
+        <View style={[styles.banner, { backgroundColor: colors.isDark ? '#1E1B4B' : '#EEF2FF', borderColor: colors.isDark ? '#312E81' : '#C7D2FE' }]}>
+          <PackageCheck size={32} color={colors.isDark ? '#818CF8' : '#4F46E5'} />
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.bannerTitle}>Batch Bottling & Provenance QR</Text>
-            <Text style={styles.bannerSub}>Generate tampered-proof consumer QR codes linked directly to the on-chain passport.</Text>
+            <Text style={[styles.bannerTitle, { color: colors.isDark ? '#A5B4FC' : '#3730A3' }]}>Batch Bottling & Provenance QR</Text>
+            <Text style={[styles.bannerSub, { color: colors.isDark ? '#C7D2FE' : '#4338CA' }]}>Generate tampered-proof consumer QR codes linked directly to the on-chain passport.</Text>
           </View>
         </View>
 
         {/* Product Details Form */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Packaging Specs</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Packaging Specs</Text>
 
-          <Text style={styles.inputLabel}>Source Batch ID</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Source Batch ID</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={batchId}
             onChangeText={setBatchId}
             placeholder="e.g. HC-BATCH-901"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
 
-          <Text style={styles.inputLabel}>Product Title</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Product Title</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={productName}
             onChangeText={setProductName}
             placeholder="e.g. HoneyChain Raw Acacia Honey"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
 
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.inputLabel}>Net Weight</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Net Weight</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 value={netWeight}
                 onChangeText={setNetWeight}
                 placeholder="500g"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.subtext}
               />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.inputLabel}>Retail Price ($)</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Retail Price ($)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 value={price}
                 onChangeText={setPrice}
                 keyboardType="decimal-pad"
                 placeholder="24.99"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.subtext}
               />
             </View>
           </View>
 
-          <Text style={styles.inputLabel}>Lot Batch Size (Jar Count)</Text>
+          <Text style={[styles.inputLabel, { color: colors.text }]}>Lot Batch Size (Jar Count)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             value={jarCount}
             onChangeText={setJarCount}
             keyboardType="numeric"
             placeholder="100"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.subtext}
           />
         </View>
 
         {/* Live Generated QR Result */}
         {generatedProduct && (
-          <View style={styles.qrResultCard}>
+          <View style={[styles.qrResultCard, { backgroundColor: colors.surface, borderColor: colors.isDark ? '#059669' : '#10B981' }]}>
             <View style={{ alignItems: 'center' }}>
               <Sparkles size={24} color="#10B981" />
-              <Text style={styles.qrResultTitle}>Consumer QR Label Preview</Text>
-              <Text style={styles.qrResultSub}>Scan ID: {generatedProduct.qrId}</Text>
+              <Text style={[styles.qrResultTitle, { color: colors.text }]}>Consumer QR Label Preview</Text>
+              <Text style={[styles.qrResultSub, { color: colors.subtext }]}>Scan ID: {generatedProduct.qrId}</Text>
             </View>
 
-            <View style={styles.qrBox}>
+            <View style={[styles.qrBox, { backgroundColor: '#FFFFFF' }]}>
               <QRCodeSVG
                 value={`https://honeychain.io/verify/${generatedProduct.qrId}`}
                 size={180}
@@ -151,17 +153,17 @@ export default function QRPackagingScreen() {
               />
             </View>
 
-            <View style={styles.detailList}>
+            <View style={[styles.detailList, { backgroundColor: colors.background }]}>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Product:</Text>
-                <Text style={styles.detailValue}>{generatedProduct.productName}</Text>
+                <Text style={[styles.detailLabel, { color: colors.subtext }]}>Product:</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{generatedProduct.productName}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Linked Batch:</Text>
-                <Text style={styles.detailValue}>{generatedProduct.batchId}</Text>
+                <Text style={[styles.detailLabel, { color: colors.subtext }]}>Linked Batch:</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{generatedProduct.batchId}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Purity Score:</Text>
+                <Text style={[styles.detailLabel, { color: colors.subtext }]}>Purity Score:</Text>
                 <Text style={[styles.detailValue, { color: '#10B981' }]}>{generatedProduct.purityScore}/100</Text>
               </View>
             </View>
@@ -198,16 +200,13 @@ export default function QRPackagingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     marginRight: 12,
@@ -216,7 +215,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
   },
   content: {
     padding: 16,
@@ -225,8 +223,6 @@ const styles = StyleSheet.create({
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
@@ -235,67 +231,53 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#3730A3',
   },
   bannerSub: {
     fontSize: 13,
-    color: '#4338CA',
     marginTop: 2,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 14,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
     marginBottom: 6,
     marginTop: 10,
   },
   input: {
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#0F172A',
   },
   qrResultCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#10B981',
     alignItems: 'center',
   },
   qrResultTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#0F172A',
     marginTop: 4,
   },
   qrResultSub: {
     fontSize: 13,
-    color: '#64748B',
     marginTop: 2,
   },
   qrBox: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     marginVertical: 16,
     elevation: 3,
@@ -305,7 +287,6 @@ const styles = StyleSheet.create({
   },
   detailList: {
     width: '100%',
-    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 14,
     marginBottom: 16,
@@ -317,12 +298,10 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    color: '#64748B',
   },
   detailValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0F172A',
   },
   printBtn: {
     backgroundColor: '#10B981',
