@@ -227,7 +227,8 @@ export default function DashboardScreen() {
                 <MasonryGrid 
                   data={feedData.filter(i => {
                     if (selectedCategory === 'All') return true;
-                    if (selectedCategory === 'Farms') return i.type === 'farm';
+                    if (selectedCategory === 'Hives') return i.type === 'hive';
+                    if (selectedCategory === 'Apiaries' || selectedCategory === 'Farms') return i.type === 'farm' || i.type === 'apiary';
                     if (selectedCategory === 'Honey') return i.type === 'honey' || i.type === 'product';
                     if (selectedCategory === 'Quality') return i.badgeText;
                     if (selectedCategory === 'Origins') return i.subtitle.includes('Origin') || i.subtitle.includes('Apiary');

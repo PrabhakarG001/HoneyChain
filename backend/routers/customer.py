@@ -38,6 +38,18 @@ def get_customer_orders(db: Session = Depends(get_db), current_user = Depends(re
         }
     ]
 
+@router.post("/orders")
+def create_customer_order(payload: dict, db: Session = Depends(get_db), current_user = Depends(require_role(["customer", "admin"]))):
+    import time
+    order_id = f"ORD-{int(time.time())}"
+    return {
+        "order_id": order_id,
+        "status": "Confirmed",
+        "date": "2026-09-05",
+        "customer": current_user.username,
+        "details": payload
+    }
+
 @router.post("/tips")
 def tip_beekeeper(payload: dict, db: Session = Depends(get_db), current_user = Depends(require_role(["customer", "admin"]))):
     amount = payload.get("amount")

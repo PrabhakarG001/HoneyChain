@@ -36,10 +36,13 @@ def setup_test_db():
 
 @pytest.fixture
 def db():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
-    yield session
-    session.close()
+    try:
+        yield session
+    finally:
+        session.close()
 
 @pytest.fixture
 def client(db):
