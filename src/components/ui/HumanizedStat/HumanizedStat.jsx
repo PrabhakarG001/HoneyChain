@@ -8,83 +8,68 @@ export default function HumanizedStat({ icon: Icon, color, value, description, b
 
   return (
     <View style={[
-      styles.cardContainer,
+      styles.metricBlock,
       { 
         backgroundColor: colors.surface, 
         borderColor: colors.border,
-        shadowColor: colors.isDark ? '#000000' : '#0F172A',
       }
     ]}>
-      <View style={styles.topRow}>
-        {Icon && (
-          <View style={[styles.iconBadge, { backgroundColor: `${accentColor}18` }]}>
-            <Icon size={20} color={accentColor} strokeWidth={2.2} />
-          </View>
-        )}
-        {badgeText && (
-          <View style={[styles.pillBadge, { backgroundColor: `${accentColor}20` }]}>
-            <Text style={[styles.pillBadgeText, { color: accentColor }]}>{badgeText}</Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.metricContent}>
-        <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
-        <Text style={[styles.description, { color: colors.subtext }]} numberOfLines={2}>
+      <View style={styles.headerRow}>
+        <Text style={[styles.description, { color: colors.subtext }]} numberOfLines={1}>
           {description}
         </Text>
+        {Icon && <Icon size={16} color={accentColor} strokeWidth={2} />}
+      </View>
+
+      <View style={styles.valueRow}>
+        <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
+        {badgeText && (
+          <View style={[styles.badge, { backgroundColor: colors.isDark ? '#1E293B' : '#F1F5F9' }]}>
+            <Text style={[styles.badgeText, { color: accentColor }]}>{badgeText}</Text>
+          </View>
+        )}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cardContainer: {
+  metricBlock: {
     flex: 1,
-    padding: 16,
-    borderRadius: 18,
+    padding: 14,
+    borderRadius: 10,
     borderWidth: 1,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    justifyContent: 'space-between',
-    minHeight: 112,
+    justifyContent: 'center',
   },
-  topRow: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  iconBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pillBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
-  pillBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  metricContent: {
-    justifyContent: 'flex-end',
-  },
-  value: {
-    fontSize: 26,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-    marginBottom: 2,
+    marginBottom: 6,
   },
   description: {
     fontSize: 12,
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 6,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+  },
+  badge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  badgeText: {
+    fontSize: 10,
     fontWeight: '600',
-    lineHeight: 16,
   },
 });

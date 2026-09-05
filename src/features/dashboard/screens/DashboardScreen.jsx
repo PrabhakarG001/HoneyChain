@@ -119,72 +119,69 @@ export default function DashboardScreen() {
         <View style={styles.greetingSection}>
           <ProtocolOverview />
           
-          <View style={[styles.heroBanner, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <View style={styles.badgeRow}>
-              <View style={[styles.statusTag, { backgroundColor: colors.isDark ? '#3B2D05' : '#FEF3C7' }]}>
-                <Sparkles size={13} color="#D97706" />
-                <Text style={[styles.statusTagText, { color: colors.isDark ? '#F59E0B' : '#B45309' }]}>
-                  {isCustomer ? 'Verified Consumer' : 'Certified Apiary'}
+          <View style={styles.greetingHeaderRow}>
+            <View>
+              <Text style={[styles.greetingTitle, { color: colors.text }]}>
+                {greeting},{' '}
+                <Text style={{ color: colors.isDark ? '#F4B942' : '#D97706', fontWeight: '700' }}>
+                  {user?.name?.split(' ')[0] || user?.username || 'User'}
                 </Text>
-              </View>
+              </Text>
+              <Text style={[styles.greetingSubtitle, { color: colors.subtext }]}>
+                {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}
+              </Text>
             </View>
-
-            <Text style={[styles.greetingTitle, { color: colors.text }]}>
-              {greeting},{' '}
-              <Text style={{ color: colors.isDark ? '#F4B942' : '#D97706', fontWeight: '800' }}>
-                {user?.name?.split(' ')[0] || user?.username || 'User'}
-              </Text>.
-            </Text>
-            
-            <Text style={[styles.greetingSubtitle, { color: colors.subtext }]}>
-              {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}
-            </Text>
-
-            <View style={styles.statsRow}>
-              {isCustomer ? (
-                <>
-                  <HumanizedStat 
-                    icon={ShoppingBag}
-                    value="2" 
-                    description="Verified Honey Purchases" 
-                    color="#10B981"
-                    badgeText="Active"
-                  />
-                  <HumanizedStat 
-                    icon={ShieldCheck}
-                    value="100%" 
-                    description="On-Chain Authenticity" 
-                    color={colors.isDark ? '#F4B942' : '#D97706'}
-                    badgeText="Secured"
-                  />
-                </>
-              ) : (
-                <>
-                  <HumanizedStat 
-                    icon={CheckCircle2}
-                    value={isLoading ? '-' : healthyHivesCount.toString()} 
-                    description="Healthy Hives" 
-                    color="#10B981"
-                    badgeText="Normal"
-                  />
-                  <HumanizedStat 
-                    icon={AlertTriangle}
-                    value={isLoading ? '-' : attentionHivesCount.toString()} 
-                    description="Attention Needed" 
-                    color="#F59E0B"
-                    badgeText={attentionHivesCount > 0 ? "Review" : "Clean"}
-                  />
-                </>
-              )}
+            <View style={[styles.statusTag, { backgroundColor: colors.isDark ? '#1E293B' : '#F1F5F9', borderColor: colors.border, borderWidth: 1 }]}>
+              <Text style={[styles.statusTagText, { color: colors.isDark ? '#F59E0B' : '#D97706' }]}>
+                {isCustomer ? 'Verified Consumer' : 'Certified Apiary'}
+              </Text>
             </View>
-            
-            {!isCustomer && attentionHivesCount > 0 && (
-              <InsightCard 
-                title="AI Insight" 
-                insight="Some hives need your attention. Check their telemetry for details." 
-              />
+          </View>
+
+          <View style={styles.statsRow}>
+            {isCustomer ? (
+              <>
+                <HumanizedStat 
+                  icon={ShoppingBag}
+                  value="2" 
+                  description="Verified Honey Purchases" 
+                  color="#10B981"
+                  badgeText="Active"
+                />
+                <HumanizedStat 
+                  icon={ShieldCheck}
+                  value="100%" 
+                  description="On-Chain Authenticity" 
+                  color={colors.isDark ? '#F4B942' : '#D97706'}
+                  badgeText="Secured"
+                />
+              </>
+            ) : (
+              <>
+                <HumanizedStat 
+                  icon={CheckCircle2}
+                  value={isLoading ? '-' : healthyHivesCount.toString()} 
+                  description="Healthy Hives" 
+                  color="#10B981"
+                  badgeText="Normal"
+                />
+                <HumanizedStat 
+                  icon={AlertTriangle}
+                  value={isLoading ? '-' : attentionHivesCount.toString()} 
+                  description="Attention Needed" 
+                  color="#F59E0B"
+                  badgeText={attentionHivesCount > 0 ? "Review" : "Clean"}
+                />
+              </>
             )}
           </View>
+          
+          {!isCustomer && attentionHivesCount > 0 && (
+            <InsightCard 
+              title="AI Insight" 
+              insight="Some hives need your attention. Check their telemetry for details." 
+            />
+          )}
         </View>
 
         {isLoading ? (
