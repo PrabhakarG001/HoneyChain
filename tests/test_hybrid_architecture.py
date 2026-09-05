@@ -93,12 +93,17 @@ def test_rest_consumer_verification():
     token = get_auth_token()
     headers = {"Authorization": f"Bearer {token}"}
     
+    # Ensure distinct hive to prevent 409 duplicate harvest conflict
+    hive_payload = {"id": "HIVE_TEST_VERIFY_01", "name": "Verify Hive", "location": "Sector V"}
+    client.post("/api/hives/", json=hive_payload, headers=headers)
+
     payload = {
-        "hive_id": "HIVE_TEST_001",
+        "hive_id": "HIVE_TEST_VERIFY_01",
         "weight_kg": 20.0,
         "timestamp": datetime.utcnow().isoformat()
     }
     h_res = client.post("/api/harvests", json=payload, headers=headers)
+    assert h_res.status_code in [200, 201], h_res.text
     batch_id = h_res.json()["data"]["batchId"]
 
     # Test public consumer verification without auth
