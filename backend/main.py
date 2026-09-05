@@ -122,7 +122,8 @@ def register(user: schemas.UserCreate, db = Depends(get_db)):
     db_user = models.User(
         username=user.username, 
         name=user.name or user.username,
-        role=user.role, 
+        role=user.role,
+        avatar_url=user.avatar_url,
         hashed_password=hashed_password
     )
     db.add(db_user)
@@ -139,6 +140,51 @@ def register(user: schemas.UserCreate, db = Depends(get_db)):
         db.commit()
 
     return db_user
+
+@app.post("/auth/google")
+@app.post("/api/auth/google")
+def google_auth(req: schemas.GoogleAuthRequest, db = Depends(get_db)):
+    photo = req.avatar_url or req.photo_url
+    db_user = db.query(models.User).filter(models.User.username == req.email).first()
+    
+    if not db_user:
+        import secrets
+        random_pass = secrets.token_urlsafe(16)
+        db_user = models.User(
+            username=req.email,
+            name=req.name or req.email.split('@')[0],
+            role=req.role or "CUSTOMER",
+            avatar_url=photo,
+            hashed_password=get_password_hash(random_pass)
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+    else:
+        # Update existing user's avatar_url if photo provided
+        if photo:
+            db_user.avatar_url = photo
+        if req.name and not db_user.name:
+            db_user.name = req.name
+        db.commit()
+        db.refresh(db_user)
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": db_user.username, "role": db_user.role}, expires_delta=access_token_expires
+    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": db_user.id,
+            "username": db_user.username,
+            "name": db_user.name,
+            "role": db_user.role,
+            "avatar_url": db_user.avatar_url,
+            "bio": db_user.bio
+        }
+    }
 
 @app.post("/auth/login", response_model=schemas.Token)
 @app.post("/api/auth/login", response_model=schemas.Token)

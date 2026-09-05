@@ -36,8 +36,9 @@ export default function EditProfileModal({ isVisible, onClose }) {
       setName(user.name || '');
       setUsername(user.username || '');
       setBio(user.bio || '');
-      setAvatarUrl(user.avatarUrl || '');
-      setCustomAvatar(user.avatarUrl && !PRESET_AVATARS.includes(user.avatarUrl) ? user.avatarUrl : '');
+      const userPhoto = user.avatarUrl || user.photoURL || user.avatar_url || user.profileImage || '';
+      setAvatarUrl(userPhoto);
+      setCustomAvatar(userPhoto && !PRESET_AVATARS.includes(userPhoto) ? userPhoto : '');
       setErrorMessage('');
       setSuccessMessage('');
     }

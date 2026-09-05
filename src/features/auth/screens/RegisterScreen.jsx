@@ -115,7 +115,16 @@ export default function RegisterScreen() {
       setSuccessMsg('');
       setIsGoogleLoading(true);
 
-      await loginWithGoogle();
+      const gUser = await loginWithGoogle();
+      if (gUser?.uid) {
+        const gPhoto = gUser.photoURL || gUser.providerData?.[0]?.photoURL || '';
+        updateUser({ 
+          photoURL: gPhoto,
+          avatarUrl: gPhoto,
+          avatar_url: gPhoto,
+          profileImage: gPhoto
+        });
+      }
       setSuccessMsg('Google Sign-In successful! Connecting to HoneyChain...');
 
       setTimeout(() => {

@@ -86,14 +86,26 @@ export function AuthProvider({ children }) {
           ? userSnap.data() 
           : {};
 
+        const extractedPhotoUrl = 
+          firebaseUser.photoURL || 
+          firebaseUser.providerData?.[0]?.photoURL || 
+          additionalData.photoURL || 
+          additionalData.avatarUrl || 
+          additionalData.profileImage || 
+          existingData.photoURL || 
+          existingData.avatarUrl || 
+          '';
+
         const userData = {
           uid: firebaseUser.uid,
           name: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
           displayName: firebaseUser.displayName || additionalData.name || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
           email: firebaseUser.email || additionalData.email || '',
           phoneNumber: firebaseUser.phoneNumber || additionalData.phone || '',
-          photoURL: firebaseUser.photoURL || '',
-          avatarUrl: firebaseUser.photoURL || '',
+          photoURL: extractedPhotoUrl,
+          avatarUrl: extractedPhotoUrl,
+          avatar_url: extractedPhotoUrl,
+          profileImage: extractedPhotoUrl,
           role: additionalData.role || existingData.role || 'CUSTOMER',
           updatedAt: serverTimestamp(),
         };
@@ -123,15 +135,34 @@ export function AuthProvider({ children }) {
         
         // Fast local storage role restoration check
         let userRole = 'CUSTOMER';
+        let cachedPhoto = '';
         try {
           const cachedUser = await getItemAsync('user');
           if (cachedUser) {
             const parsed = JSON.parse(cachedUser);
             if (parsed && parsed.role) userRole = parsed.role;
+            if (parsed && (parsed.photoURL || parsed.avatarUrl || parsed.avatar_url || parsed.profileImage)) {
+              cachedPhoto = parsed.photoURL || parsed.avatarUrl || parsed.avatar_url || parsed.profileImage;
+            }
           }
         } catch (e) {
           // ignore
         }
+
+        const photoUrl = 
+          firebaseUser.photoURL || 
+          firebaseUser.providerData?.[0]?.photoURL || 
+          cachedPhoto || 
+          '';
+
+        console.log('[HoneyChain Auth] User auth state changed:', {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          providerPhotoURL: firebaseUser.providerData?.[0]?.photoURL,
+          resolvedPhotoUrl: photoUrl
+        });
 
         const formattedUser = {
           uid: firebaseUser.uid,
@@ -139,8 +170,12 @@ export function AuthProvider({ children }) {
           displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'HoneyChain User',
           email: firebaseUser.email || '',
           phoneNumber: firebaseUser.phoneNumber || '',
-          photoURL: firebaseUser.photoURL || '',
-          avatarUrl: firebaseUser.photoURL || '',
+          photoURL: photoUrl,
+          avatarUrl: photoUrl,
+          avatar_url: photoUrl,
+          profileImage: photoUrl,
+          picture: photoUrl,
+          image: photoUrl,
           username: firebaseUser.email ? firebaseUser.email.split('@')[0] : 'user',
           role: userRole
         };
@@ -197,8 +232,18 @@ export function AuthProvider({ children }) {
       provider.setCustomParameters({ prompt: 'select_account' });
       const result = await signInWithPopup(auth, provider);
       
+      const gPhotoUrl = result.user?.photoURL || result.user?.providerData?.[0]?.photoURL || '';
+      console.log('[HoneyChain Auth] Google Sign-In raw response user:', {
+        uid: result.user?.uid,
+        displayName: result.user?.displayName,
+        email: result.user?.email,
+        photoURL: result.user?.photoURL,
+        providerDataPhoto: result.user?.providerData?.[0]?.photoURL,
+        resolvedGooglePhoto: gPhotoUrl
+      });
+
       // Fast background sync
-      syncUserToFirestore(result.user, { role: selectedRole });
+      syncUserToFirestore(result.user, { role: selectedRole, photoURL: gPhotoUrl });
       return result.user;
     } catch (err) {
       const friendlyMessage = formatFirebaseError(err);

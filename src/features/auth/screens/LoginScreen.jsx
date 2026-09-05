@@ -139,7 +139,14 @@ export default function LoginScreen() {
       setSuccessMsg('Google Sign-In successful! Opening HoneyChain...');
 
       if (gUser?.uid) {
-        updateUser({ role: userRole });
+        const gPhoto = gUser.photoURL || gUser.providerData?.[0]?.photoURL || '';
+        updateUser({ 
+          role: userRole,
+          photoURL: gPhoto,
+          avatarUrl: gPhoto,
+          avatar_url: gPhoto,
+          profileImage: gPhoto
+        });
         firestoreService.updateUserRole(gUser.uid, userRole).catch(() => {});
       }
 

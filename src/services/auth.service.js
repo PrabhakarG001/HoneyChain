@@ -31,6 +31,7 @@ export const authService = {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      const userPhoto = userResponse.data.avatar_url || null;
       return {
         user: {
           id: userResponse.data.id || userResponse.data.username,
@@ -38,7 +39,10 @@ export const authService = {
           username: userResponse.data.username,
           name: userResponse.data.name || userResponse.data.username,
           role: userResponse.data.role,
-          avatarUrl: userResponse.data.avatar_url || null,
+          avatarUrl: userPhoto,
+          photoURL: userPhoto,
+          avatar_url: userPhoto,
+          profileImage: userPhoto,
           bio: userResponse.data.bio || ''
         },
         accessToken: token
@@ -66,14 +70,49 @@ export const authService = {
         bio: updateData.bio
       });
       const data = response.data;
+      const userPhoto = data.avatar_url || null;
       return {
         id: data.id || data.username,
         email: data.username,
         username: data.username,
         name: data.name || data.username,
         role: data.role,
-        avatarUrl: data.avatar_url || null,
+        avatarUrl: userPhoto,
+        photoURL: userPhoto,
+        avatar_url: userPhoto,
+        profileImage: userPhoto,
         bio: data.bio || ''
+      };
+    } catch (err) {
+      throw new Error(parseAuthError(err));
+    }
+  },
+
+  googleAuth: async (googleData) => {
+    try {
+      const response = await api.post('/auth/google', {
+        email: googleData.email,
+        name: googleData.name,
+        avatar_url: googleData.avatarUrl || googleData.photoURL || googleData.avatar_url,
+        photo_url: googleData.photoURL || googleData.avatarUrl,
+        role: googleData.role || 'CUSTOMER'
+      });
+      const data = response.data;
+      const userPhoto = data.user.avatar_url || null;
+      return {
+        user: {
+          id: data.user.id || data.user.username,
+          email: data.user.username,
+          username: data.user.username,
+          name: data.user.name || data.user.username,
+          role: data.user.role,
+          avatarUrl: userPhoto,
+          photoURL: userPhoto,
+          avatar_url: userPhoto,
+          profileImage: userPhoto,
+          bio: data.user.bio || ''
+        },
+        accessToken: data.access_token
       };
     } catch (err) {
       throw new Error(parseAuthError(err));
@@ -86,7 +125,8 @@ export const authService = {
         username: userData.email,
         password: userData.password,
         role: userData.role || 'BEEKEEPER',
-        name: userData.name
+        name: userData.name,
+        avatar_url: userData.avatarUrl || userData.photoURL || userData.avatar_url
       });
       
       // Auto-login after registration

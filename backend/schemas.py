@@ -29,6 +29,14 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class GoogleAuthRequest(BaseModel):
+    email: str
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    photo_url: Optional[str] = None
+    role: Optional[str] = "CUSTOMER"
+    google_id: Optional[str] = None
+
 # ==================== Beekeeper Schemas ====================
 class BeekeeperCreate(BaseModel):
     license_no: str

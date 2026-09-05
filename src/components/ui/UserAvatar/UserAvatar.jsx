@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { theme } from '../../../theme';
 
 export default function UserAvatar({ user, size = 36, style }) {
-  const avatarUrl = user?.photoURL || user?.avatarUrl || user?.avatar;
+  const [hasError, setHasError] = useState(false);
+
+  const avatarUrl = 
+    user?.photoURL || 
+    user?.avatarUrl || 
+    user?.avatar_url || 
+    user?.profileImage || 
+    user?.profile_image || 
+    user?.picture || 
+    user?.avatar || 
+    user?.image;
+
   const initial = user?.displayName
     ? user.displayName.charAt(0).toUpperCase()
     : user?.name
@@ -14,11 +25,15 @@ export default function UserAvatar({ user, size = 36, style }) {
     ? user.email.charAt(0).toUpperCase()
     : 'U';
 
-  if (avatarUrl) {
+  if (avatarUrl && !hasError) {
     return (
       <Image 
         source={{ uri: avatarUrl }} 
         style={[{ width: size, height: size, borderRadius: size / 2 }, style]} 
+        onError={() => {
+          console.warn('[UserAvatar] Failed to load avatar image:', avatarUrl);
+          setHasError(true);
+        }}
       />
     );
   }
