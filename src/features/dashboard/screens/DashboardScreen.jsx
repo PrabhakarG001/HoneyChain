@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search } from 'lucide-react-native';
+import { Search, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Sparkles, Award } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/auth.store';
 import { hiveService } from '../../../services/hive.service';
 import { theme } from '../../../theme';
@@ -119,47 +119,72 @@ export default function DashboardScreen() {
         <View style={styles.greetingSection}>
           <ProtocolOverview />
           
-          <Text style={styles.greetingTitle}>{greeting}, {user?.name?.split(' ')[0] || user?.username || 'User'}.</Text>
-          <Text style={styles.greetingSubtitle}>
-            {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}
-          </Text>
-          
-          <View style={styles.statsRow}>
-            {isCustomer ? (
-              <>
-                <HumanizedStat 
-                  value="2" 
-                  description="Verified Honey Purchases" 
-                  color={theme.colors.status.success}
-                />
-                <HumanizedStat 
-                  value="100%" 
-                  description="On-Chain Authenticity" 
-                  color={theme.colors.primaryDark}
-                />
-              </>
-            ) : (
-              <>
-                <HumanizedStat 
-                  value={isLoading ? '-' : healthyHivesCount.toString()} 
-                  description="Healthy Hives" 
-                  color={theme.colors.status.success}
-                />
-                <HumanizedStat 
-                  value={isLoading ? '-' : attentionHivesCount.toString()} 
-                  description="Attention Needed" 
-                  color={theme.colors.status.warning}
-                />
-              </>
+          <View style={[styles.heroBanner, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.badgeRow}>
+              <View style={[styles.statusTag, { backgroundColor: colors.isDark ? '#3B2D05' : '#FEF3C7' }]}>
+                <Sparkles size={13} color="#D97706" />
+                <Text style={[styles.statusTagText, { color: colors.isDark ? '#F59E0B' : '#B45309' }]}>
+                  {isCustomer ? 'Verified Consumer' : 'Certified Apiary'}
+                </Text>
+              </View>
+            </View>
+
+            <Text style={[styles.greetingTitle, { color: colors.text }]}>
+              {greeting},{' '}
+              <Text style={{ color: colors.isDark ? '#F4B942' : '#D97706', fontWeight: '800' }}>
+                {user?.name?.split(' ')[0] || user?.username || 'User'}
+              </Text>.
+            </Text>
+            
+            <Text style={[styles.greetingSubtitle, { color: colors.subtext }]}>
+              {isCustomer ? 'Welcome to your Honey Transparency Hub.' : 'Here is your apiary summary for today.'}
+            </Text>
+
+            <View style={styles.statsRow}>
+              {isCustomer ? (
+                <>
+                  <HumanizedStat 
+                    icon={ShoppingBag}
+                    value="2" 
+                    description="Verified Honey Purchases" 
+                    color="#10B981"
+                    badgeText="Active"
+                  />
+                  <HumanizedStat 
+                    icon={ShieldCheck}
+                    value="100%" 
+                    description="On-Chain Authenticity" 
+                    color={colors.isDark ? '#F4B942' : '#D97706'}
+                    badgeText="Secured"
+                  />
+                </>
+              ) : (
+                <>
+                  <HumanizedStat 
+                    icon={CheckCircle2}
+                    value={isLoading ? '-' : healthyHivesCount.toString()} 
+                    description="Healthy Hives" 
+                    color="#10B981"
+                    badgeText="Normal"
+                  />
+                  <HumanizedStat 
+                    icon={AlertTriangle}
+                    value={isLoading ? '-' : attentionHivesCount.toString()} 
+                    description="Attention Needed" 
+                    color="#F59E0B"
+                    badgeText={attentionHivesCount > 0 ? "Review" : "Clean"}
+                  />
+                </>
+              )}
+            </View>
+            
+            {!isCustomer && attentionHivesCount > 0 && (
+              <InsightCard 
+                title="AI Insight" 
+                insight="Some hives need your attention. Check their telemetry for details." 
+              />
             )}
           </View>
-          
-          {!isCustomer && attentionHivesCount > 0 && (
-            <InsightCard 
-              title="AI Insight" 
-              insight="Some hives need your attention. Check their telemetry for details." 
-            />
-          )}
         </View>
 
         {isLoading ? (
@@ -171,7 +196,12 @@ export default function DashboardScreen() {
         ) : (
           <>
             <View style={styles.feedHeader}>
-              <Text style={styles.sectionTitle}>{isCustomer ? 'Verified Honey Batches' : 'Discovery'}</Text>
+              <View style={styles.sectionHeaderTitleRow}>
+                <Award size={22} color={colors.isDark ? '#F4B942' : '#D97706'} style={{ marginRight: 8 }} />
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  {isCustomer ? 'Verified Honey Batches' : 'Discovery'}
+                </Text>
+              </View>
             </View>
 
             <ScrollView 
