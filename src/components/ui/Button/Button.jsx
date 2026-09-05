@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, Animated } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, Animated, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import styles from './Button.styles';
 import { theme } from '../../../theme';
@@ -21,11 +21,12 @@ export function Button({
   const colors = useThemeColors();
   const isDisabled = disabled || isLoading;
   const scale = useRef(new Animated.Value(1)).current;
+  const useNativeDriver = Platform.OS !== 'web';
 
   const handlePressIn = () => {
     Animated.spring(scale, {
       toValue: 0.96,
-      useNativeDriver: true,
+      useNativeDriver,
       speed: 20,
     }).start();
   };
@@ -33,7 +34,7 @@ export function Button({
   const handlePressOut = () => {
     Animated.spring(scale, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver,
       speed: 20,
     }).start();
   };

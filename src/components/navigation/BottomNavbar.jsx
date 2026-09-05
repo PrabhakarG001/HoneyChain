@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, TouchableOpacity, Animated, Easing, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Search, Plus, User, MapPin, QrCode, Bookmark, Box, ShoppingBag } from 'lucide-react-native';
 import { useUIStore } from '../../store/ui.store';
@@ -25,7 +25,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
     Animated.timing(translateY, {
       toValue: isNavbarVisible ? 0 : 120,
       duration: 250,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
       easing: Easing.out(Easing.cubic),
     }).start();
   }, [isNavbarVisible]);

@@ -24,10 +24,12 @@ export default function HoneyCard({
   const [isSaved, setIsSaved] = useState(false);
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
+  const useNativeDriver = Platform.OS !== 'web';
+
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
       toValue: 0.97,
-      useNativeDriver: true,
+      useNativeDriver,
       speed: 20,
     }).start();
   };
@@ -35,7 +37,7 @@ export default function HoneyCard({
   const handlePressOut = () => {
     Animated.spring(scaleAnim, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver,
       speed: 20,
     }).start();
   };
