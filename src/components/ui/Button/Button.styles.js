@@ -46,13 +46,13 @@ export default StyleSheet.create({
     fontWeight: 'bold',
   },
   text_primary: {
-    color: theme.colors.white,
+    color: '#000000',
   },
   text_secondary: {
-    color: theme.colors.white,
+    color: '#FFFFFF',
   },
   text_outline: {
-    color: theme.colors.charcoal,
+    color: theme.colors.primaryDark,
   },
   
   text_sm: {

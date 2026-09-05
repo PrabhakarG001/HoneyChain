@@ -20,55 +20,65 @@ export function useThemeColors() {
       isDark: true,
       mode: themeMode,
       accent,
-      background: '#0B0C10',        // Deep Black / Near Black
-      surface: '#16181E',           // Near Black surface
-      cardBackground: '#121212',
-      text: '#FFFFFF',              // White
-      subtext: '#9CA3AF',           // Light Grey
-      border: '#27272A',            // Subtle Dark Border
-      cardBorder: '#27272A',
-      dockBackground: 'rgba(11, 12, 16, 0.92)',
+      background: '#090A0F',        // Deep Slate Black
+      surface: '#14161F',           // Dark Surface Card
+      cardBackground: '#14161F',
+      text: '#FFFFFF',              // Pure White
+      subtext: '#9CA3AF',           // Highly Readable Light Slate Grey
+      border: '#272A36',            // Visible Subtle Border
+      cardBorder: '#272A36',
+      dockBackground: 'rgba(9, 10, 15, 0.94)',
       icon: '#FFFFFF',
       buttonBg: '#FFFFFF',
-      buttonText: '#000000',
+      buttonText: '#090A0F',
       accentButtonBg: accent,
       accentButtonText: '#000000',
-      badgeBg: 'rgba(244, 185, 66, 0.15)',
-      badgeBorder: 'rgba(244, 185, 66, 0.35)',
+      inputBg: '#1A1D28',
+      inputText: '#FFFFFF',
+      inputPlaceholder: '#71717A',
+      inputBorder: '#272A36',
+      modalOverlay: 'rgba(0, 0, 0, 0.75)',
+      badgeBg: 'rgba(244, 185, 66, 0.16)',
+      badgeBorder: 'rgba(244, 185, 66, 0.38)',
       badgeText: accent,
       status: {
-        success: accent,            // Verification uses Honey Gold
+        success: accent,
         warning: accent,
-        error: '#EF4444',           // System critical errors only
+        error: '#EF4444',
       }
     };
   }
 
-  // Light Mode
+  // Light Mode - High Contrast Slate Palette
   return {
     isDark: false,
     mode: themeMode,
     accent,
-    background: '#FFFFFF',          // White
-    surface: '#F8FAFC',             // Light Neutral Surface
+    background: '#F8FAFC',          // Soft Cool Light Neutral
+    surface: '#FFFFFF',             // Pure White Card
     cardBackground: '#FFFFFF',
-    text: '#000000',                // Black
-    subtext: '#6B7280',             // Light Grey
-    border: '#E5E7EB',              // Subtle Light Border
-    cardBorder: '#E5E7EB',
-    dockBackground: 'rgba(255, 255, 255, 0.92)',
-    icon: '#000000',
-    buttonBg: '#000000',
+    text: '#0F172A',                // Deep Slate Black (WCAG AAA)
+    subtext: '#475569',             // Clear Dark Slate Grey
+    border: '#E2E8F0',              // Crisp Visible Border
+    cardBorder: '#E2E8F0',
+    dockBackground: 'rgba(255, 255, 255, 0.95)',
+    icon: '#0F172A',
+    buttonBg: '#0F172A',
     buttonText: '#FFFFFF',
     accentButtonBg: accent,
     accentButtonText: '#000000',
-    badgeBg: 'rgba(244, 185, 66, 0.12)',
-    badgeBorder: 'rgba(244, 185, 66, 0.3)',
-    badgeText: accent,
+    inputBg: '#FFFFFF',
+    inputText: '#0F172A',
+    inputPlaceholder: '#64748B',
+    inputBorder: '#CBD5E1',
+    modalOverlay: 'rgba(15, 23, 42, 0.65)',
+    badgeBg: 'rgba(244, 185, 66, 0.14)',
+    badgeBorder: 'rgba(244, 185, 66, 0.4)',
+    badgeText: '#B47B00',
     status: {
-      success: accent,              // Verification uses Honey Gold
-      warning: accent,
-      error: '#DC2626',             // System critical errors only
+      success: '#B47B00',
+      warning: '#B47B00',
+      error: '#DC2626',
     }
   };
 }

@@ -20,6 +20,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   }
 }
 
+import { useThemeColors } from '../../../hooks/useThemeColors';
+
 export function Input({ 
   label, 
   error, 
@@ -34,6 +36,7 @@ export function Input({
   accessibilityLabel,
   ...props 
 }) {
+  const colors = useThemeColors();
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -51,18 +54,19 @@ export function Input({
 
   return (
     <View style={[styles.container, style]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? <Text style={[styles.label, { color: colors.text }]}>{label}</Text> : null}
       <View style={[
-        styles.inputWrapper, 
-        isFocused && styles.inputWrapperFocused,
-        error && styles.inputWrapperError
+        styles.inputWrapper,
+        { backgroundColor: colors.inputBg, borderColor: colors.inputBorder },
+        isFocused && { borderColor: colors.accent, backgroundColor: colors.inputBg },
+        error && { borderColor: colors.status.error, backgroundColor: colors.isDark ? '#2D1B1B' : '#FEF2F2' }
       ]}>
         {leftIcon ? <View style={styles.leftIconContainer}>{leftIcon}</View> : null}
         
         <TextInput
-          style={[styles.input, leftIcon && styles.inputWithLeftIcon]}
+          style={[styles.input, { color: colors.inputText }, leftIcon && styles.inputWithLeftIcon]}
           value={value ?? ''}
-          placeholderTextColor={theme.colors.text.muted}
+          placeholderTextColor={colors.inputPlaceholder}
           onFocus={handleFocus}
           onBlur={handleBlur}
           secureTextEntry={isSecure}
@@ -79,16 +83,16 @@ export function Input({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             {showPassword ? (
-              <EyeOff size={20} color={theme.colors.text.secondary} />
+              <EyeOff size={20} color={colors.subtext} />
             ) : (
-              <Eye size={20} color={theme.colors.text.secondary} />
+              <Eye size={20} color={colors.subtext} />
             )}
           </TouchableOpacity>
         ) : rightIcon ? (
           <View style={styles.rightIconContainer}>{rightIcon}</View>
         ) : null}
       </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={[styles.errorText, { color: colors.status.error }]}>{error}</Text> : null}
     </View>
   );
 }

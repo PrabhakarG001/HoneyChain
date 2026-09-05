@@ -83,6 +83,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
           };
 
           const activeColor = colors.accent;
+          const activeTextColor = colors.isDark ? colors.accent : '#B47B00';
           const inactiveColor = colors.subtext;
           const color = isFocused ? activeColor : inactiveColor;
           const strokeWidth = isFocused ? 2.5 : 2;
@@ -138,7 +139,7 @@ export default function BottomNavbar({ state, descriptors, navigation, onCreateP
                 <Text style={[
                   styles.tabLabel, 
                   { color: inactiveColor }, 
-                  isFocused && { color: activeColor, fontWeight: '700' }
+                  isFocused && { color: activeTextColor, fontWeight: '700' }
                 ]}>
                   {getLabel()}
                 </Text>

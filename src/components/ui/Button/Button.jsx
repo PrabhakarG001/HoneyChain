@@ -6,6 +6,8 @@ import { theme } from '../../../theme';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
+import { useThemeColors } from '../../../hooks/useThemeColors';
+
 export function Button({ 
   title, 
   onPress, 
@@ -16,6 +18,7 @@ export function Button({
   style,
   ...props 
 }) {
+  const colors = useThemeColors();
   const isDisabled = disabled || isLoading;
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -35,6 +38,33 @@ export function Button({
     }).start();
   };
   
+  const getDynamicStyle = () => {
+    if (variant === 'outline') {
+      return {
+        borderColor: colors.accent,
+        backgroundColor: 'transparent'
+      };
+    }
+    if (variant === 'secondary') {
+      return {
+        backgroundColor: colors.buttonBg
+      };
+    }
+    return {
+      backgroundColor: colors.accentButtonBg
+    };
+  };
+
+  const getDynamicTextStyle = () => {
+    if (variant === 'outline') {
+      return { color: colors.text };
+    }
+    if (variant === 'secondary') {
+      return { color: colors.buttonText };
+    }
+    return { color: colors.accentButtonText };
+  };
+
   return (
     <AnimatedTouchableOpacity
       activeOpacity={0.9}
@@ -46,6 +76,7 @@ export function Button({
         styles.container,
         styles[variant],
         styles[size],
+        getDynamicStyle(),
         isDisabled && styles.disabled,
         { transform: [{ scale }] },
         style
@@ -54,13 +85,14 @@ export function Button({
     >
       {isLoading ? (
         <ActivityIndicator 
-          color={variant === 'outline' ? theme.colors.primaryDark : theme.colors.white} 
+          color={variant === 'outline' ? colors.text : colors.accentButtonText} 
         />
       ) : (
         <Text style={[
           styles.text,
           styles[`text_${variant}`],
-          styles[`text_${size}`]
+          styles[`text_${size}`],
+          getDynamicTextStyle()
         ]}>
           {title}
         </Text>
