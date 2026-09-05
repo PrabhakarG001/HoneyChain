@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { Platform } from 'react-native';
 import { useUIStore } from '../store/ui.store';
 
 export function useScrollToHideNav() {
@@ -7,13 +8,54 @@ export function useScrollToHideNav() {
   const scrollTimeout = useRef(null);
 
   useEffect(() => {
-    // Explicitly guarantee bottom navbar is visible when screen mounts
+    // Explicitly guarantee navbar is visible when screen mounts
     setNavbarVisible(true);
+
+    let windowTimeoutId = null;
+
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      let lastWindowY = window.scrollY || 0;
+
+      const handleWindowScroll = () => {
+        const currentY = window.scrollY || 0;
+
+        if (currentY <= 15) {
+          setNavbarVisible(true);
+          lastWindowY = currentY;
+          return;
+        }
+
+        const diff = currentY - lastWindowY;
+
+        if (diff > 8 && currentY > 40) {
+          setNavbarVisible(false);
+        } else if (diff < -6) {
+          setNavbarVisible(true);
+        }
+
+        lastWindowY = currentY;
+
+        if (windowTimeoutId) clearTimeout(windowTimeoutId);
+        windowTimeoutId = setTimeout(() => {
+          setNavbarVisible(true);
+        }, 400);
+      };
+
+      window.addEventListener('scroll', handleWindowScroll, { passive: true });
+
+      return () => {
+        setNavbarVisible(true);
+        window.removeEventListener('scroll', handleWindowScroll);
+        if (windowTimeoutId) clearTimeout(windowTimeoutId);
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      };
+    }
+
     return () => {
       setNavbarVisible(true);
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     };
-  }, []);
+  }, [setNavbarVisible]);
 
   const handleScroll = (event) => {
     if (!event || !event.nativeEvent) return;
@@ -42,11 +84,11 @@ export function useScrollToHideNav() {
     
     lastScrollY.current = currentScrollY;
 
-    // Auto-show navbar when user pauses/stops scrolling for 450ms
+    // Auto-show navbar when user pauses/stops scrolling for 400ms
     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     scrollTimeout.current = setTimeout(() => {
       setNavbarVisible(true);
-    }, 450);
+    }, 400);
   };
 
   return { 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, useWindowDimensions, Text } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Easing, Platform } from 'react-native';
 import { Bell, Plus, MessageSquare, Globe } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
+import { useUIStore } from '../../store/ui.store';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useTranslation } from '../../hooks/useTranslation';
 import BrandLogo from '../ui/BrandLogo/BrandLogo';
@@ -17,15 +18,15 @@ export default function TopHeader() {
   const { user } = useAuthStore();
   const router = useRouter();
   const colors = useThemeColors();
-  const { t, currentLanguage } = useTranslation();
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
+  
+  const isNavbarVisible = useUIStore(state => state.isNavbarVisible);
 
   const isPhone = width < 768;
   const userRole = (user?.role || 'BEEKEEPER').toUpperCase();
   const isCustomer = userRole === 'CUSTOMER';
   
-  // Requirement 6: Beekeeper top navbar phone-only hide for Plus & Chat icons.
-  // On Tablet/Desktop (width >= 768), preserve Plus (+) & Chat icons for Beekeeper.
   const showBeekeeperExtraActions = !isCustomer && !isPhone;
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -34,9 +35,28 @@ export default function TopHeader() {
   const [isCreateMenuVisible, setIsCreateMenuVisible] = useState(false);
   const [isLangModalVisible, setIsLangModalVisible] = useState(false);
 
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(translateY, {
+      toValue: isNavbarVisible ? 0 : -80,
+      duration: 250,
+      useNativeDriver: Platform.OS !== 'web',
+      easing: Easing.out(Easing.cubic),
+    }).start();
+  }, [isNavbarVisible]);
+
   return (
     <>
-      <View style={[styles.headerContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <Animated.View 
+        style={[
+          styles.headerContainer, 
+          { 
+            backgroundColor: colors.background,
+            transform: [{ translateY }],
+          }
+        ]}
+      >
         {/* Brand Logo "Honeychain" */}
         <TouchableOpacity 
           onPress={() => router.push('/(app)/(tabs)')} 
@@ -47,7 +67,7 @@ export default function TopHeader() {
           <BrandLogo />
         </TouchableOpacity>
 
-        {/* Right Header Actions: Notification Bell & Profile Avatar */}
+        {/* Right Header Actions */}
         <View style={styles.rightActions}>
           {showBeekeeperExtraActions && (
             <TouchableOpacity 
@@ -56,7 +76,7 @@ export default function TopHeader() {
               accessibilityRole="button"
               accessibilityLabel="Create hive or harvest"
             >
-              <Plus size={20} color={colors.text} strokeWidth={2.5} />
+              <Plus size={18} color={colors.text} strokeWidth={2.2} />
             </TouchableOpacity>
           )}
 
@@ -67,11 +87,11 @@ export default function TopHeader() {
               accessibilityRole="button"
               accessibilityLabel="Open chat"
             >
-              <MessageSquare size={20} color={colors.text} />
+              <MessageSquare size={18} color={colors.text} strokeWidth={2} />
             </TouchableOpacity>
           )}
 
-          {/* Language Selector Globe Icon - Immediately beside Notification button */}
+          {/* Language Selector Globe Icon */}
           <TouchableOpacity 
             style={[styles.actionBtn, { backgroundColor: colors.surface }]}
             onPress={() => setIsLangModalVisible(true)}
@@ -80,7 +100,7 @@ export default function TopHeader() {
             accessibilityRole="button"
             accessibilityLabel="Change Language"
           >
-            <Globe size={20} color={colors.accent} />
+            <Globe size={18} color={colors.accent} strokeWidth={2} />
           </TouchableOpacity>
 
           {/* Notification Bell Icon */}
@@ -92,7 +112,7 @@ export default function TopHeader() {
             accessibilityRole="button"
             accessibilityLabel="Open notifications"
           >
-            <Bell size={20} color={colors.text} />
+            <Bell size={18} color={colors.text} strokeWidth={2} />
           </TouchableOpacity>
 
           {/* Profile Avatar */}
@@ -106,7 +126,7 @@ export default function TopHeader() {
             <UserAvatar user={user} size={28} />
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
 
       {/* Modals */}
       <CreateMenu
@@ -145,26 +165,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0, // NO UNDERLINE requirement
     zIndex: 100,
   },
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   actionBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarWrapper: {
     padding: 2,
-    borderRadius: 20,
-    borderWidth: 2,
+    borderRadius: 18,
+    borderWidth: 1.5,
   },
 });
